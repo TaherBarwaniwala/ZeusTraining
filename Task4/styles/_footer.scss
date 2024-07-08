@@ -1,0 +1,31 @@
+@import './colors';
+@import './Quicksand-font';
+
+.footer{
+    background:$footerbg;
+    height:40px;
+    width:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+.footer-logo{
+    background: url('../quantum\ screen\ assets/icons/logo\ used\ in\ footer.svg') 0% 0% no-repeat;
+    opacity: 1;
+    height:24px;
+    width:90px;
+    /* margin-right: 16px; */
+}
+.footer-divider{
+    margin-right: 16px;
+    margin-left: 16px;
+    font-size: 24px;
+}
+.footer > * {
+    margin: auto 8px;
+}
+
+.footer-name{
+    font-family: 'Quicksand-Bold';
+}

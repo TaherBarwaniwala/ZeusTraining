@@ -1,0 +1,38 @@
+@import './mixins';
+@import './colors';
+@import './Quicksand-font';
+@import './navbarimage';
+@import './footer';
+@import './main_content_dashboard';
+
+body{
+    margin: 0;
+    font-family: 'Quicksand-Medium';
+    height:100vh;
+    background-color: $bodybg;
+}
+.flex-container{
+    /* background-color: #EEEEEE; */
+    display: flex;
+    flex-direction: column;
+    height:100vh;
+    justify-content: space-between;
+}
+
+.about-footer{
+    background-color: $bodybg;
+    display: flex;
+    justify-content: center;
+    padding-bottom:16px ;
+    align-items: center;
+}
+a{
+    text-decoration: none;
+    color:$forgottxt;
+    font-family: 'Quicksand-Medium';
+    font-size: 16px;
+}
+.about-footer > .footer-divider{
+    font-size: 18px;
+    color:$labeltxt;
+}

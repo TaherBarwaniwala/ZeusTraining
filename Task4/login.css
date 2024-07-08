@@ -1,0 +1,291 @@
+@font-face {
+    font-family: Quicksand;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/Quicksand-VariableFont_wght.ttf');
+}
+@font-face {
+    font-family: Quicksand-Bold;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/static/Quicksand-Bold.ttf');
+}@font-face {
+    font-family: Quicksand-Light;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/static/Quicksand-Light.ttf');
+}@font-face {
+    font-family: Quicksand-Medium;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/static/Quicksand-Medium.ttf');
+}@font-face {
+    font-family: Quicksand-Regular;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/static/Quicksand-Regular.ttf');
+}@font-face {
+    font-family: Quicksand-SemiBold;
+    src: url('./quantum\ screen\ assets/Quicksand\ font\ 1/static/Quicksand-SemiBold.ttf');
+}
+body{
+    font-family: 'Quicksand-Medium';
+    margin:0;
+    height:100vh;
+    background-color:#EEEEEE ;
+}
+.navbar-container::before{
+    /* background:transparent url('./quantum\ screen\ assets/header\ pattern\ image.png') ; */
+    content: '';
+    grid-area: item;
+    background-color:#232f3c;
+    mix-blend-mode:multiply;
+    opacity: 0.8;
+    height:56px;
+    width:100%;
+    margin-top:0;
+    margin-right:0;
+    margin-left:0;
+    /* -webkit-mask-image: url('./quantum\ screen\ assets/header\ pattern\ svg.svg');
+    mask-image: url('./quantum\ screen\ assets/header\ pattern\ svg.svg');
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat; */
+}
+.main{
+    height:100%;
+    background-color: #EEEEEE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.footer{
+    background:#00000029;
+    height:40px;
+    width:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+.flex-container{
+    /* background-color: #EEEEEE; */
+    display: flex;
+    flex-direction: column;
+    height:100vh;
+    justify-content: space-between;
+}
+.navbar-container{
+    display: grid;
+    grid-template-areas: 'item';
+    place-content: end stretch;
+    background:url('./quantum\ screen\ assets/header\ pattern\ svg.svg');
+    border-bottom:2px solid #31B9E4; 
+    height:58px;
+}
+.form-container{
+    border-top: 4px solid #3AC7EC;
+    height: 584px;
+    width:488px;
+    background-color: #fff;
+    font-size: 16px;
+    padding: 22px 32px;
+    color: #222222;
+}
+.login{
+    height:100%;
+}
+.navbar{
+    grid-area: item;
+    isolation: isolate;
+}
+.name-logo-header{
+    /* background-color: #fff; */
+    /* isolation: isolate; */
+    background:transparent url("./quantum\ screen\ assets/icons/logo\ used\ in\ header.svg")  0% 0% no-repeat;
+    /* mix-blend-mode: ; */
+    height:36px;
+    width:134px;
+    opacity: 1;
+    position:relative;
+    z-index:-1 ;
+    /* top:-48px;
+    right:-24px; */
+}
+.footer-logo{
+    background: url('./quantum\ screen\ assets/icons/logo\ used\ in\ footer.svg') 0% 0% no-repeat;
+    opacity: 1;
+    height:24px;
+    width:90px;
+    /* margin-right: 16px; */
+}
+.footer-divider{
+    margin-right: 16px;
+    margin-left: 16px;
+    font-size: 24px;
+}
+.footer > * {
+    margin: auto 8px;
+}
+
+.footer-name{
+    font-family: 'Quicksand-Bold';
+}
+.about-footer{
+    background-color: #EEEEEE;
+    display: flex;
+    justify-content: center;
+    padding-bottom:16px ;
+    align-items: center;
+}
+a{
+    text-decoration: none;
+}
+.about-footer > .footer-divider{
+    font-size: 18px;
+}
+.back-arrow{
+    height: 26px;
+    width:17px;
+    background: url('./quantum\ screen\ assets/icons/back.svg');
+}
+.form-header{
+    display: flex;
+}
+.form-header-title{
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 32px;
+    color: #222222;
+}
+.form-radio{
+    display: flex;
+}
+.form-radio-item{
+    margin-right: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+.form-radio-img{
+    height: 25px ;
+    width: 25px ;
+    background: transparent;
+    background-image: url('./quantum\ screen\ assets/icons/radio-button-off.svg');
+    opacity: 1;
+    margin-right: 8px;
+}
+.form-dropdown{
+    margin-bottom: 36px;
+}
+.form-dropdown-title{
+    display: block;
+    font-size: 12px;
+    color:#666666 ;
+}
+.form-dropdown-select{
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.12); 
+    height:25px;
+    font-size: 16px;
+
+}
+.district{
+    margin-bottom: 56px;
+}
+option{
+    padding: 0;
+    margin: 0;
+}
+.form-text{
+    font-size: 16px;
+    margin-bottom: 33px;
+}
+.form-text-input{
+    font-size: 16px;
+    height: 25px;
+    width:100%;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+    padding-bottom:4px;
+}
+.form-password{
+    margin-bottom: 24px;
+}
+.password-eye{
+    position:relative;
+    background: transparent;
+    background-image: url('./quantum\ screen\ assets/icons/preview.svg');
+    height: 20px;
+    width: 25px;
+    top: -30px;
+    left: 467px;
+}
+.form-forgot{
+    display: block;
+    width: 100%;
+    text-align: end;
+    margin-top: 5px;
+}
+.form-forgot > a{
+    color:#1F7A54 ;
+}
+.form-password > .form-forgot > a{
+    position: relative;
+    top: -20px;
+}
+.form-check{
+    height: 24px;
+    font-size: 16px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.form-check-input{
+    margin:3px 0;
+    height: 24px;
+    width: 18px;
+}
+.form-check-img{
+    height:24px ;
+    width:24px;
+    background: transparent;
+    background-image: url('./quantum\ screen\ assets/icons/checkbox-unchecked.svg');
+    opacity: 1;
+}
+.form-check-label{
+    margin-left: 5px;
+    width: 100%;
+    height:24px;
+    color: #222222;
+    line-height: 24px;
+}
+.form-btn-container{
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form-btn{
+    background-color: #3FD28B;
+    color: #1F2834;
+    height: 40px;
+    width: 216px;
+    box-shadow: 0px 3px 5px #0000003D;
+    border: none;
+    font-size: 14px;
+}
+
+input[type='radio'] , input[type='checkbox']{
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+input[type='radio']:checked ~ .form-radio-img {
+    background-image: url('./quantum\ screen\ assets/icons/radio-button-on.svg');
+}
+input[type='checkbox']:checked ~ .form-check-img {
+    background-image: url('./quantum\ screen\ assets/icons/checkbox-checked.svg');
+}
+select{
+    background:url('./quantum\ screen\ assets/icons/arrow-down.svg') no-repeat;
+    background-position-x: 100%;
+    appearance: none;
+}

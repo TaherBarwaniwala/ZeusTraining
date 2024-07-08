@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/login.css" />
+    <title>Quantum Log In</title>
+  </head>
+  <body>
+    <div class="flex-container">
+      <div class="navbar-container">
+        <nav class="navbar">
+          <div class="name-logo-header"></div>
+        </nav>
+      </div>
+      <div class="main">
+        <div class="form-container">
+          <form action="#" class="login">
+            <div class="form-header">
+              <div class="back-arrow"></div>
+              <div class="form-header-title">
+                <div>Log in with Quantum</div>
+              </div>
+            </div>
+            <div class="form-radio">
+              <div class="form-radio-item">
+                <input type="radio" name="school-type" id="district" checked />
+                <div class="form-radio-img"></div>
+                <label for="district">District</label>
+              </div>
+              <div class="form-radio-item">
+                <input
+                  type="radio"
+                  name="school-type"
+                  id="Independent school"
+                />
+                <div class="form-radio-img"></div>
+                <label for="Independent school">Independent school</label>
+              </div>
+            </div>
+            <div class="form-dropdown">
+              <label for="state" class="form-dropdown-title">State</label>
+              <select name="state" id="state" class="form-dropdown-select">
+                <option value="Alabama">Alabama</option>
+                <option value="Ohio">Ohio</option>
+                <option value="New Mexico">New Mexico</option>
+              </select>
+            </div>
+            <div class="form-dropdown district">
+              <label for="state-district" class="form-dropdown-title"
+                >District*</label
+              >
+              <select
+                name="state-district"
+                id="state-district"
+                class="form-dropdown-select"
+              >
+                <option value="Alabama School District">
+                  Alabama School District
+                </option>
+                <option value="Ohio School District">
+                  Ohio School District
+                </option>
+                <option value="New Mexico School District">
+                  New Mexico School District
+                </option>
+              </select>
+            </div>
+            <div class="form-text">
+              <input
+                class="form-text-input"
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Username/Email ID*"
+              />
+              <div class="form-forgot">
+                <a href="#">FORGOT USERNAME?</a>
+              </div>
+            </div>
+            <div class="form-text form-password">
+              <input
+                class="form-text-input"
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Password*"
+              />
+              <div class="password-eye"></div>
+              <div class="form-forgot">
+                <a href="#">FORGOT PASSWORD?</a>
+              </div>
+            </div>
+            <div class="form-check">
+              <input
+                type="checkbox"
+                name="check"
+                id="check"
+                class="form-check-input"
+              />
+              <div class="form-check-img"></div>
+              <label for="check" class="form-check-label">Remember Me</label>
+            </div>
+            <div class="form-btn-container">
+              <div>
+                <button class="form-btn">LOG IN</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="about-footer">
+        <div class="about">
+          <a href="#">About</a>
+        </div>
+        <div class="footer-divider">|</div>
+        <div class="about">
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="footer-logo"></div>
+        <div class="footer-divider">|</div>
+        <div class="footer-copyright">Copyright © 2020-2021</div>
+        <div class="footer-name">Zeus Systems Pvt. Ltd.</div>
+        <div class="footer-rights">All rights reserved.</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+@import './colors';
+
+
+.flex-container{
+    /* background-color: $bodybg; */
+    display: flex;
+    flex-direction: column;
+    height:100vh;
+    justify-content: space-between;
+}
+.main{
+    height:100%;
+    background-color: $bodybg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form-container{
+    border-top: 4px solid $formtop;
+    height: 584px;
+    width:488px;
+    background-color: $formbg;
+    font-size: 16px;
+    padding: 22px 32px;
+    color: $formtxt;
+}
+.login{
+    height:100%;
+}
+
+.back-arrow{
+    height: 26px;
+    width:17px;
+    background: url('../quantum\ screen\ assets/icons/back.svg');
+}
+.form-header{
+    display: flex;
+}
+.form-header-title{
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 32px;
+    color: $formtxt;
+}
+.form-radio{
+    display: flex;
+}
+.form-radio-item{
+    margin-right: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+.form-radio-img{
+    height: 25px ;
+    width: 25px ;
+    background: transparent;
+    background-image: url('../quantum\ screen\ assets/icons/radio-button-off.svg');
+    opacity: 1;
+    margin-right: 8px;
+}
+.form-dropdown{
+    margin-bottom: 36px;
+}
+.form-dropdown-title{
+    display: block;
+    font-size: 12px;
+    color:$labeltxt ;
+}
+.form-dropdown-select{
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.12); 
+    height:25px;
+    font-size: 16px;
+    font-family: 'Quicksand-Medium';
+
+}
+.district{
+    margin-bottom: 56px;
+}
+option{
+    padding: 0;
+    margin: 0;
+}
+.form-text{
+    font-size: 16px;
+    margin-bottom: 33px;
+}
+.form-text-input{
+    font-size: 16px;
+    height: 25px;
+    width:100%;
+    border: none;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+    padding-bottom:4px;
+}
+.form-password{
+    margin-bottom: 24px;
+}
+.password-eye{
+    position:relative;
+    background: transparent;
+    background-image: url('../quantum\ screen\ assets/icons/preview.svg');
+    height: 20px;
+    width: 25px;
+    top: -30px;
+    left: 467px;
+}
+.form-forgot{
+    display: block;
+    width: 100%;
+    text-align: end;
+    margin-top: 5px;
+}
+.form-forgot > a{
+    color:$forgottxt ;
+}
+.form-password > .form-forgot > a{
+    position: relative;
+    top: -20px;
+}
+.form-check{
+    height: 24px;
+    font-size: 16px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.form-check-input{
+    margin:3px 0;
+    height: 24px;
+    width: 18px;
+}
+.form-check-img{
+    height:24px ;
+    width:24px;
+    background: transparent;
+    background-image: url('../quantum\ screen\ assets/icons/checkbox-unchecked.svg');
+    opacity: 1;
+}
+.form-check-label{
+    margin-left: 5px;
+    width: 100%;
+    height:24px;
+    color: $formtxt;
+    line-height: 24px;
+}
+.form-btn-container{
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form-btn{
+    background-color: $btnbg;
+    color: $btntxt;
+    height: 40px;
+    width: 216px;
+    box-shadow: 0px 3px 5px #0000003D;
+    border: none;
+    font-size: 14px;
+}
+
+input[type='radio'] , input[type='checkbox']{
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+input[type='radio']:checked ~ .form-radio-img {
+    background-image: url('../quantum\ screen\ assets/icons/radio-button-on.svg');
+}
+input[type='checkbox']:checked ~ .form-check-img {
+    background-image: url('../quantum\ screen\ assets/icons/checkbox-checked.svg');
+}
+select{
+    background:url('../quantum\ screen\ assets/icons/arrow-down.svg') no-repeat;
+    background-position-x: 100%;
+    appearance: none;
+}

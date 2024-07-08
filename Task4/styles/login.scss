@@ -1,0 +1,28 @@
+@import './mixins';
+@import './colors';
+@import './Quicksand-font';
+@import './navbarimage';
+@import './main_content_login';
+@import './footer';
+
+body{
+    margin: 0;
+    font-family: 'Quicksand-Medium';
+}
+.about-footer{
+    background-color: $bodybg;
+    display: flex;
+    justify-content: center;
+    padding-bottom:16px ;
+    align-items: center;
+}
+a{
+    text-decoration: none;
+    color:$forgottxt;
+    font-family: 'Quicksand-Medium';
+    font-size: 16px;
+}
+.about-footer > .footer-divider{
+    font-size: 18px;
+    color:$labeltxt;
+}
