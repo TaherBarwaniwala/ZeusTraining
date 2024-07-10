@@ -1,5 +1,6 @@
 @import './colors';
 
+
 .main{
     height:100%;
     background-color: $bodybg;
@@ -59,7 +60,7 @@
     padding-right: 24px;
     display: flex;
     flex-direction: column;
-    margin-bottom: auto;;
+    margin-bottom: auto;
 }
 .item-content{
     margin: 0;

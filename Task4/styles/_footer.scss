@@ -1,5 +1,4 @@
 @import './colors';
-@import './Quicksand-font';
 
 .footer{
     background:$footerbg;
@@ -28,4 +27,9 @@
 
 .footer-name{
     font-family: 'Quicksand-Bold';
+}
+
+.footer-container{
+    margin-bottom: 0;
+    margin-top: auto;
 }

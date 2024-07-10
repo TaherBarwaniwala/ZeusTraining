@@ -1,6 +1,6 @@
+@import './Quicksand-font';
 @import './mixins';
 @import './colors';
-@import './Quicksand-font';
 @import './navbarimage';
 @import './footer';
 @import './main_content_dashboard';
@@ -8,15 +8,16 @@
 body{
     margin: 0;
     font-family: 'Quicksand-Medium';
-    height:100vh;
+    min-height:100vh;
     background-color: $bodybg;
 }
 .flex-container{
     /* background-color: #EEEEEE; */
     display: flex;
     flex-direction: column;
-    height:100vh;
+    min-height:calc(100vh - 60px);
     justify-content: space-between;
+    padding-top: 60px;
 }
 
 .about-footer{
@@ -24,6 +25,7 @@ body{
     display: flex;
     justify-content: center;
     padding-bottom:16px ;
+    padding-top: 16px;
     align-items: center;
 }
 a{
@@ -35,4 +37,47 @@ a{
 .about-footer > .footer-divider{
     font-size: 18px;
     color:$labeltxt;
+}
+
+.inactive{
+    filter:contrast(0.3);    
+}
+
+.item-icon-container > .inactive{
+    background-color: transparent;
+    mix-blend-mode: luminosity;
+}
+
+.profile-icon{
+    border: 2px solid $btnbg;
+    border-radius: 50%;
+}
+
+
+body {
+    --sb-track-color: #ffffff;
+    --sb-thumb-color: rgba(0,0,0,0.38);
+    --sb-size: 3px;
+  }
+  
+  body::-webkit-scrollbar {
+    width: var(--sb-size)
+  }
+  
+  body::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 1px;
+  }
+  
+  body::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 1px;
+    
+  }
+  
+  @supports not selector(::-webkit-scrollbar) {
+    body {
+      scrollbar-color: var(--sb-thumb-color)
+                       var(--sb-track-color);
+    }
 }

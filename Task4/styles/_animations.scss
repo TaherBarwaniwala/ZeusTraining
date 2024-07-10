@@ -1,0 +1,16 @@
+@keyframes maximize-vertically {
+    from{
+        height: 0;
+    }
+    to{
+        height: 800px;
+    }
+}
+ @keyframes minimize-vertically {
+    from{
+       height: 800px;
+    }
+    to{
+        height: 48px;
+    } 
+ }
