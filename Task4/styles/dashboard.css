@@ -285,7 +285,7 @@
   background-color: #FFFFFF;
   color: black;
   max-height: 0;
-  transition: max-height 2s ease;
+  transition: max-height 0.3s ease;
   overflow: hidden;
 }
 .alert-container .content {
