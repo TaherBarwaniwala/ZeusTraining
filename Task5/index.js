@@ -90,161 +90,184 @@ const ctx = canvas.getContext("2d");
 // window.addEventListener
 
 class CanvasContainer {
-    constructor(x, y, w, h ,fillStyle = "white",strokeStyle = "black"){
+    constructor(x, y, w, h ,canvas,fillStyle = "white",strokeStyle = "black"){
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.canvas = canvas;
+        this.ctx = this.canvas.getContext('2d');
         this.fillStyle = fillStyle;
         this.strokeStyle = strokeStyle;
-        this.isdown = false;
         this.objects = [];
-        this.initialx = 0;
-        this.initialy = 0;
         this.activeObj = null;
-        this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute("height","1000px");
-        this.canvas.setAttribute("width","1000px");
-        this.ctx = this.canvas.getContext("2d");
-        window.addEventListener("pointerdown",(e)=>{
-            this.isdown = true;
-            this.initialx = e.pageX - canvas.offsetLeft;
-            this.initialy = e.pageY - canvas.offsetTop;
-            var element;
-            for(let i = this.objects.length-1;i>=0;i-- ){
-                element = this.objects[i];
-                // console.log(element);
-            
-                if(element.isclick(e.pageX,e.pageY)===true){
-                    this.activeObj = element;
-                    break;
-                }
-            }
-            
-        });
-        window.addEventListener("pointermove",(event)=>{
-            if(this.isdown && this.activeObj){
-             // console.log(event);
-             x = event.pageX - this.initialx - canvas.offsetLeft ;
-             y =  event.pageY-this.initialy - canvas.offsetTop;
-             if(this.inbound(x,y)){
-                 this.activeObj.move(x,y);
-                 this.initialx = event.pageX - canvas.offsetLeft;
-                 this.initialy = event.pageY - canvas.offsetTop;
-             }else{
-                 let newX = x;
-                 let newY = y;
-                 if(this.activeObj.x+this.activeObj.radius + x >= this.x + this.w) newX =(this.activeObj.x + this.activeObj.radius) -  (this.x + this.w) ;
-                 if(this.activeObj.x-this.activeObj.radius + x <= this.x) newX = (this.activeObj.x - this.activeObj.radius) -  (this.x);
-                 if(this.activeObj.y+this.activeObj.radius + y>=this.y + this.h) newY = (this.activeObj.y + this.activeObj.radius) -  (this.y + this.h);
-                 if(this.activeObj.y-this.activeObj.radius + y<= this.y) newY = (this.activeObj.y - this.activeObj.radius) -  (this.y);
-                //  console.log(newX,newY);
-                 this.activeObj.move(newX,newY);
-                 this.initialx = event.pageX - canvas.offsetLeft;
-                 this.initialy = event.pageY - canvas.offsetTop;
-             }
-             this.draw();
-             this.drawObjects();
-            }
-         });
-        window.addEventListener("pointerup", () => {
-            this.isdown = false;
-            this.initialx = 0;
-            this.initialy = 0;
-            this.activeObj = null;
-        });
-        this.draw();
-       
+
+        this.pointerdownbound = (e)=>this.onpointerdown(e);
+        this.pointermovebound = (e)=>this.onpointermove(e);
+        this.pointerupbound = ()=>this.onpointerup();
+        this.pointerupcancel = ()=>this.onpointerupcancel();
+        this.canvas.addEventListener("pointerdown", this.pointerdownbound);       
+        this.draw();  
     }
 
-    draw(){
+    onpointerdown(e) { 
+        for(let i = this.objects.length-1;i>=0;i-- ){
+            if(this.objects[i].isclicked(e.pageX,e.pageY)===true){
+                this.activeObj = this.objects[i];
+                window.addEventListener("pointermove", this.pointermovebound);
+                window.addEventListener("pointerup", this.pointerupbound);
+                window.addEventListener("pointercancel", this.pointerupcancel);
+                break;
+            }
+        }
+        
+    };
+
+    onpointermove(event) {
+            if(this.activeObj){
+                let x = event.pageX;
+                let y =  event.pageY;
+                this.activeObj.move(x,y);
+                this.drawObjects();
+            }
+    };
+
+    onpointerup () {
+        window.removeEventListener("pointermove",this.pointermovebound);        
+        this.activeObj = null;
+    };
+
+    onpointerupcancel(){
+        window.removeEventListener("pointermove",this.pointermovebound);        
+        this.activeObj = null;
+    }
+
+    draw = () => {
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.fillStyle = this.fillStyle;
         this.ctx.fillRect(this.x,this.y,this.w,this.h);
         this.ctx.strokeStyle = this.strokeStyle;
         this.ctx.strokeRect(this.x,this.y,this.w,this.h);
-        ctx.drawImage(this.canvas,0,0);
-    }
+        this.ctx.restore();
+    };
 
-    drawObjects(){
+    drawObjects = () => {
+        this.draw();
         this.objects.forEach(object => object.draw());
-    }
+    };
 
-     add_object(obj){
+    add_object = (obj) => {
+        obj.addboundary(this.x,this.y,this.w,this.h);
         this.objects.push(obj);
-     }
-
-    inbound(x,y){
-        if(this.activeObj.x+this.activeObj.radius + x >= this.x + this.w) return false;
-        if(this.activeObj.x-this.activeObj.radius + x <= this.x) return false;
-        if(this.activeObj.y+this.activeObj.radius + y>=this.y + this.h) return false;
-        if(this.activeObj.y-this.activeObj.radius + y<= this.y) return false;
-        return true;
-
-    }
+     };
 
 }
 
 class Circle{
-    constructor(x,y,radius,margin=16,strokeStyle="black"){
+    
+
+    constructor(x,y,radius,context,margin=16,strokeStyle="random",fillStyle = "rgba(0,0,0,0)",lineWidth = 5){
+        
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.strokeStyle= strokeStyle;
+        if(strokeStyle === "random"){
+            this.strokeStyle = this.colorArray[Math.floor(Math.random()*31)];
+        }else{
+            this.strokeStyle = strokeStyle;
+        }
+        this.lineWidth = lineWidth;
+        this.fillStyle = fillStyle;
         this.margin = margin;
-        this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute("height","1000px");
-        this.canvas.setAttribute("width","1000px");
-        this.ctx = this.canvas.getContext("2d");
+        this.ctx = context;
+        this.initialx = x;
+        this.initialy = y;
+        this.pointerx = x;
+        this.pointery = y;
+        this.hasbound = false;
         this.draw();
     }
 
-    draw(){
-        this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute("height","1000px");
-        this.canvas.setAttribute("width","1000px");
-        this.ctx = this.canvas.getContext("2d");
+    draw = () => {
+        this.ctx.save();
         this.ctx.beginPath();
         this.ctx.strokeStyle = this.strokeStyle;
+        this.ctx.lineWidth = this.lineWidth
         this.ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
-        this.ctx.stroke();
-        ctx.drawImage(this.canvas,0,0);    
-    }
-
-    distance(x,y){
-        // console.log(x,y,this.x,this.y);
-        // console.log(((this.x - x)**2 + (this.y - y)**2)**0.5);
-        return ((this.x - x)**2 + (this.y - y)**2)**0.5;
-    }
-
-    isclick( x , y ){
-        if(this.distance(x,y)> this.radius+this.margin) return false;
-        if(this.distance(x,y)< this.radius - this.margin) return false;
-        return true;
-    }
-
-    move(x , y){
-        this.clear();
-        this.x += x;
-        this.y += y;
-        this.draw();
-    }
-
-    clear(){
-        this.ctx.save();
-        this.ctx.strokeStyle = "white";
-        this.ctx.lineWidth = 3;
-        this.ctx.arc(this.x,this.y,this.radius,0,2*Math.PI);
+        this.ctx.fillStyle = this.fillStyle;
+        this.ctx.fill();
         this.ctx.stroke();
         this.ctx.restore();
+    
+    };
+
+    distance = (x,y) => {
+        return ((this.x - x)**2 + (this.y - y)**2)**0.5;
+    };
+
+    isclicked = ( x , y ) => {
+        if(this.distance(x,y)> this.radius + this.margin) return false;
+        if(this.distance(x,y)< this.radius - this.margin) return false;
+        this.pointerx = x;
+        this.pointery = y;
+        this.initialx = this.x;
+        this.initialy = this.y;
+        return true;
+    };
+
+    move = (x , y) => {
+        // console.log(x,y);
+        if(this.hasbound){
+            let offsetx = x - this.pointerx;
+            let offsety = y - this.pointery;
+            // console.log(offsetx,offsety);
+
+            if(this.initialx + offsetx + this.radius + this.lineWidth/2 > this.bounadaryRight) offsetx = this.bounadaryRight - (this.initialx + this.radius + this.lineWidth/2 );
+            if(this.initialx + offsetx - this.radius - this.lineWidth/2 < this.bounadaryLeft) offsetx = this.bounadaryLeft - (this.initialx - this.radius - this.lineWidth/2 ) ;
+            if(this.initialy + offsety + this.radius + this.lineWidth/2 > this.boundaryDown) offsety = this.boundaryDown - (this.initialy + this.radius + this.lineWidth/2 );
+            if(this.initialy + offsety - this.radius - this.lineWidth/2 < this.bounadaryUp) offsety = this.bounadaryUp - (this.initialy - this.radius - this.lineWidth/2 );
+            // console.log(offsetx,offsety);
+            this.x = this.initialx + offsetx;
+            this.y = this.initialy + offsety;
+        }else{
+            this.x += x;
+            this.y += y;
+        }
+    };
+
+    addboundary(x,y,w,h){
+        this.hasbound = true;
+        this.bounadaryLeft = x;
+        this.bounadaryRight = x+w;
+        this.bounadaryUp = y;
+        this.boundaryDown = y+h;
     }
+    colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
 }
 
-const container = new CanvasContainer(20,20,800,800);
-const circle1 = new Circle(100,100,50);
+const container = new CanvasContainer(20,20,800,800,canvas);
+const circle1 = new Circle(100,100,50 , context = ctx );
 container.add_object(circle1);
-const circle2 = new Circle(200,200,80,8);
+const circle2 = new Circle(200,200,80,context = ctx);
 container.add_object(circle2);
-const circle3 = new Circle(150,150,50,16);
+const circle3 = new Circle(150,150,50,context = ctx);
 container.add_object(circle3);
+
+// const container1 = new CanvasContainer(500,500,400,400);
+// const circle11 = new Circle(600,600,50);
+// container1.add_object(circle11);
+// const circle21 = new Circle(700,700,80,16);
+// container1.add_object(circle21);
+// const circle31 = new Circle(650,650,50,16);
+// container1.add_object(circle31);
