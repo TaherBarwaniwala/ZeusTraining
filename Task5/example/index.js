@@ -112,7 +112,7 @@ class CanvasContainer {
 
     onpointerdown(e) { 
         for(let i = this.objects.length-1;i>=0;i-- ){
-            if(this.objects[i].isclicked(e.pageX,e.pageY)===true){
+            if(this.objects[i].ishit(e.pageX,e.pageY)===true){
                 this.activeObj = this.objects[i];
                 window.addEventListener("pointermove", this.pointermovebound);
                 window.addEventListener("pointerup", this.pointerupbound);
@@ -142,7 +142,7 @@ class CanvasContainer {
         this.activeObj = null;
     }
 
-    draw = () => {
+    draw(){
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.fillStyle = this.fillStyle;
@@ -152,12 +152,12 @@ class CanvasContainer {
         this.ctx.restore();
     };
 
-    drawObjects = () => {
+    drawObjects(){
         this.draw();
         this.objects.forEach(object => object.draw());
     };
 
-    add_object = (obj) => {
+    add_object(obj){
         obj.addboundary(this.x,this.y,this.w,this.h);
         this.objects.push(obj);
      };
@@ -189,7 +189,7 @@ class Circle{
         this.draw();
     }
 
-    draw = () => {
+    draw(){
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.strokeStyle = this.strokeStyle;
@@ -202,11 +202,11 @@ class Circle{
     
     };
 
-    distance = (x,y) => {
+    distance(x,y){
         return ((this.x - x)**2 + (this.y - y)**2)**0.5;
     };
 
-    isclicked = ( x , y ) => {
+    ishit( x , y ){
         if(this.distance(x,y)> this.radius + this.margin) return false;
         if(this.distance(x,y)< this.radius - this.margin) return false;
         this.pointerx = x;
@@ -216,28 +216,18 @@ class Circle{
         return true;
     };
 
-    move = (x , y) => {
-        // console.log(x,y);
-        if(this.hasbound){
+    move(x , y){
             let offsetx = x - this.pointerx;
             let offsety = y - this.pointery;
-            // console.log(offsetx,offsety);
-
             if(this.initialx + offsetx + this.radius + this.lineWidth/2 > this.bounadaryRight) offsetx = this.bounadaryRight - (this.initialx + this.radius + this.lineWidth/2 );
             if(this.initialx + offsetx - this.radius - this.lineWidth/2 < this.bounadaryLeft) offsetx = this.bounadaryLeft - (this.initialx - this.radius - this.lineWidth/2 ) ;
             if(this.initialy + offsety + this.radius + this.lineWidth/2 > this.boundaryDown) offsety = this.boundaryDown - (this.initialy + this.radius + this.lineWidth/2 );
             if(this.initialy + offsety - this.radius - this.lineWidth/2 < this.bounadaryUp) offsety = this.bounadaryUp - (this.initialy - this.radius - this.lineWidth/2 );
-            // console.log(offsetx,offsety);
             this.x = this.initialx + offsetx;
             this.y = this.initialy + offsety;
-        }else{
-            this.x += x;
-            this.y += y;
-        }
     };
 
     addboundary(x,y,w,h){
-        this.hasbound = true;
         this.bounadaryLeft = x;
         this.bounadaryRight = x+w;
         this.bounadaryUp = y;
@@ -263,6 +253,7 @@ const circle2 = new Circle(200,200,80,context = ctx);
 container.add_object(circle2);
 const circle3 = new Circle(150,150,50,context = ctx);
 container.add_object(circle3);
+
 
 // const container1 = new CanvasContainer(500,500,400,400);
 // const circle11 = new Circle(600,600,50);
