@@ -340,6 +340,18 @@ class Column{
         this.cells.forEach(cell => cell.move(x,0));
     }
 
+    copy(col){
+        this.canvas = col.canvas;
+        this.cellHeight = col.cellHeight;
+        this.cellWidth = col.cellWidth;
+        this.isSelected = col.isSelected;
+        for(let i=1;i<col.cells.length;i++){
+            this.cells[i].text = col.cells[i].text;
+            this.cells[i].x = this.x;
+            this.cells[i].width = this.cellWidth;
+        }
+    }
+
 }
 
 class Grid{
@@ -444,6 +456,8 @@ class Grid{
             this.draw_cols();
             this.draw_rows();
             this.columns[this.activecol].move(offsetX);
+        }if(this.inbound(this.columns[this.activecol],offsetX)==="left"){
+
         }
     }
 
@@ -453,14 +467,40 @@ class Grid{
             let offsetX = e.pageX - this.initialX;
             let pastecol = null;
             for(let col in this.columns) {
-                if(this.columns[col].hittest(this.initialX + offsetX)) pastecol = this.columns[col];
+                if(this.columns[col].hittest(this.initialX + offsetX)) pastecol = col;
             }
-            pastecol.cells.forEach((cell,i)=>{
-                if(i > 0){
-                cell.text = this.columns[this.activecol].cells[i].text;
-                this.columns[this.activecol].cells[i].text = "";
+            if(this.activecol.localeCompare(pastecol) < 0){
+                let temp = JSON.parse(JSON.stringify(this.columns[this.activecol]));
+                let prevcol = null
+                for(let col in this.columns){
+                    if(col === this.activecol){
+                        prevcol = col;
+                    }else if(prevcol === pastecol){
+                        this.columns[prevcol].copy(temp);
+                        prevcol = null;
+                        break;
+                    }else if(prevcol){
+                        this.columns[prevcol].copy(this.columns[col]);
+                        prevcol = col;
+                    }
                 }
-            });
+            }else if(this.activecol.localeCompare(pastecol) > 0){
+                let temp = JSON.parse(JSON.stringify(this.columns[this.activecol]));
+                let col = this.activecol;
+                let prevcol = null;
+                while(prevcol !== pastecol){
+                    prevcol = this.decrement_col(col);
+                    this.columns[col].copy(this.columns[prevcol]);
+                    col = prevcol;
+                }
+                this.columns[pastecol].copy(temp);
+            }
+            // pastecol.cells.forEach((cell,i)=>{
+            //     if(i > 0){
+            //     cell.text = this.columns[this.activecol].cells[i].text;
+            //     this.columns[this.activecol].cells[i].text = "";
+            //     }
+            // });
             this.activecol = pastecol.index;
             this.draw_cols();
             this.draw_rows(); 
@@ -591,6 +631,16 @@ class Grid{
             return 'A';
         }else{
             return String.fromCharCode(index.charCodeAt(0)+1);
+        }
+    }
+
+    decrement_col(index){
+        if(index.length > 1){
+
+        }else if(index.charCodeAt(0)<65){
+            return 'A';
+        }else{
+            return String.fromCharCode(index.charCodeAt(0)-1);
         }
     }
 
