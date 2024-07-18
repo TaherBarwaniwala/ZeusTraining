@@ -21,6 +21,8 @@ class Grid{
         this.initialY = 0;
         this.istyping = false;
         this.isdragging = false;
+        this.regionselection = false;
+        this.region = [];
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e)=> this.onkeydown(e);
@@ -31,6 +33,9 @@ class Grid{
         this.onrowpointermovebound = (e) => this.onrowdrag(e);
         this.onrowpointerupbound = (e) => this.onrowpointerup(e);
         this.onrowpointercancelbound = (e) => this.onrowpointerup(e);
+        this.onregionpointermovebound = (e) => this.onregionpointermove(e);
+        this.onregionpointercancelbound = () => this.onregionpointercancel();
+        this.onregionpointerupbound = () => this.onregionpointerup();
     }
 
     onpointerdown(e){
@@ -76,6 +81,10 @@ class Grid{
             this.draw();
 
         }else{
+            this.initialX = e.pageX;
+            this.initialY = e.pageY;
+
+
             for(let col in this.columns){
                 if(this.columns[col].hittest(x)){
                     this.activecol = col;
@@ -101,6 +110,9 @@ class Grid{
                 this.activecell = this.columns[this.activecol].cells[this.activerow]
                 this.activecell.isFocus = true;
                 this.draw();
+                window.addEventListener("pointermove",this.onregionpointermovebound);
+                window.addEventListener("pointerup",this.onregionpointerupbound,{once:true});
+                window.addEventListener("pointercancel",this.onregionpointercancelbound,{once:true});
             }
            
         }
@@ -110,10 +122,10 @@ class Grid{
     oncolumndrag(e){
         this.isdragging = true;
         let offsetX = e.pageX - this.initialX;
-        if(this.inboundX(this.columns[this.activecol],offsetX)==="in"){
+        if(this.inboundX(this.columns[this.activecol].x,offsetX,this.columns[this.activecol].width)==="in"){
             this.draw();
             this.columns[this.activecol].move(offsetX);
-        }else if(this.inboundX(this.columns[this.activecol],offsetX)==="left"){
+        }else if(this.inboundX(this.columns[this.activecol].x,offsetX,this.columns[this.activecol].width)==="left"){
             this.draw();
             this.columns[this.activecol].move(this.x+this.cellWidth - this.columns[this.activecol].x);
         }
@@ -122,10 +134,10 @@ class Grid{
     onrowdrag(e){
         this.isdragging = true;
         let offsetY = e.pageY - this.initialY;
-        if(this.inboundY(this.rows[this.activerow],offsetY)==="in"){
+        if(this.inboundY(this.rows[this.activerow].y,offsetY,this.rows[this.activerow].height)==="in"){
             this.draw();
             this.rows[this.activerow].move(offsetY);
-        }else if(this.inboundY(this.rows[this.activerow],offsetY)==="up"){
+        }else if(this.inboundY(this.rows[this.activerow].y,offsetY,this.rows[this.activerow].height)==="up"){
             this.draw();
             this.rows[this.activerow].move(this.y+this.cellHeight - this.rows[this.activerow].y);
         }
@@ -136,7 +148,8 @@ class Grid{
             window.removeEventListener("pointermove",this.oncolpointermovebound);
             let offsetX = e.pageX - this.initialX;
             let pastecol = null;
-            if(this.inboundX(this.columns[this.activecol],offsetX)==="left") offsetX = this.x+this.cellWidth - this.columns[this.activecol].x;
+            if(this.inboundX(this.columns[this.activecol].x,offsetX,this.columns[this.activecol].width)==="left")
+                 offsetX = this.x+this.cellWidth - this.columns[this.activecol].x;
             for(let col in this.columns) {
                 if(this.columns[col].hittest(this.initialX + offsetX)){
                         pastecol = col;
@@ -183,7 +196,8 @@ class Grid{
             window.removeEventListener("pointermove",this.onrowpointermovebound);
             let offsetY = e.pageY - this.initialY;
             let pasterow = null;
-            if(this.inboundY(this.rows[this.activerow],offsetY)==="up") offsetY = this.y+this.cellHeight - this.rows[this.activerow].y;
+            if(this.inboundY(this.rows[this.activerow].y,offsetY,this.rows[this.activerow].height)==="up")
+                 offsetY = this.y+this.cellHeight - this.rows[this.activerow].y;
             for(let row in this.rows) {
                 if(this.rows[row].hittest(this.initialY + offsetY)){
                         pasterow = row;
@@ -225,28 +239,15 @@ class Grid{
         }
     }
 
-    oncolpoinntercancel(e){
-        if(this.isdragging){
-            window.removeEventListener("pointermove",this.onpointermovebound);
-            let offsetX = e.pageX - this.initialX;
-            let pastecol = null;
-            for(let col in this.columns) {
-                if(this.columns[col].hittest(this.initialX + offsetX)) pastecol = this.columns[col];
-            }
-            pastecol.cells.forEach((cell,i)=>{
-                if(i > 0){
-                cell.text = this.columns[this.activecol].cells[i].text;
-                this.columns[this.activecol].cells[i].text = "";
-                }
-            });
-            this.activecol = pastecol.index;
-            this.draw();
-            this.isdragging = false;
-        }
-    }
-
     onkeydown(e){
         if(this.activecell && !this.istyping && e.keyCode > 36 && e.keyCode < 41){
+            if(this.regionselection === true){
+                this.deselectcells();
+                this.deselectheader();
+                this.region = [];
+                this.regionselection = false;
+                this.draw();
+            }
             if(this.activecol) this.columns[this.activecol].isSelected = false;
             if(this.activerow) this.rows[this.activerow].isSelected = false;
             if(e.keyCode === 37){
@@ -269,11 +270,11 @@ class Grid{
                 let keys = Object.keys(this.rows);
                 this.activerow = keys[keys.indexOf(this.activerow) + 1];
                 this.activecell = this.columns[this.activecol].cells[this.activerow];
-                
             }
             
             if(this.activecol) this.columns[this.activecol].isSelected = true;
             if(this.activerow) this.rows[this.activerow].isSelected = true;
+            this.activecell.isFocus = true;
             this.draw();
         }else if(this.activecell && this.istyping){
             if(e.code === "Enter" || e.code === "Escape") this.istyping = false;
@@ -286,14 +287,129 @@ class Grid{
         }
     }
 
-    inboundX(cell,offsetX){
-        if(cell.x + cell.width + offsetX > this.width) return "right";
-        if(cell.x + offsetX < this.x + this.cellWidth) return "left";
+    onregionpointermove(e){
+        this.regionselection = true;
+        let offsetX = e.pageX - this.initialX;
+        let offsetY = e.pageY - this.initialY;
+        if(this.inboundX(this.x+this.cellWidth,offsetX,this.width)==="left") offsetX = this.x + this.cellWidth - this.initialX;
+        if(this.inboundY(this.y+this.cellHeight,offsetY,this.height)==="up") offsetY = this.y + this.cellHeight - this.initialY;
+        let initialRow = this.getRow(this.initialY);
+        let initialCol = this.getCol(this.initialX);
+        let finalRow = null;
+        let finalCol = null;
+
+        finalRow = this.getRow(e.pageY);
+        finalCol = this.getCol(e.pageX);
+        if(finalRow && finalCol){
+        let rowsrange = this.getRowinRange(initialRow,finalRow);
+        let colrange = this.getColinRange(initialCol,finalCol);
+        this.region.forEach(cell => cell.isFocus = false);
+        this.deselectheader();
+        this.region = [];
+        let cell;
+        rowsrange.forEach(row => {
+            colrange.forEach(col => {
+                cell = this.columns[col].cells[row];
+                this.region.push(cell);
+                cell.isFocus = true;
+                this.columns[col].isSelected = true;
+                this.rows[row].isSelected = true;
+            });
+        });
+        // console.log(this.region);
+        this.draw();
+    }
+    }
+
+    onregionpointerup(){
+        window.removeEventListener("pointermove",this.onregionpointermovebound);
+        window.removeEventListener("pointercancel",this.onregionpointercancelbound);
+    }
+
+    onregionpointercancel(){
+        window.removeEventListener("pointermove",this.onregionpointermovebound);
+        window.removeEventListener("pointerup",this.onregionpointerupbound);
+    }
+
+    deselectheader(){
+        for(let col in this.columns){
+            this.columns[col].isSelected = false;
+        }
+        for(let row in this.rows){
+            this.rows[row].isSelected = false;
+        }
+    }
+
+    deselectcells(){
+        this.region.forEach(cell => cell.isFocus = false);
+    }
+
+    getRow(y){
+        if(y< this.y + this.cellHeight) return 1;
+        for(let row in this.rows){
+            if(this.rows[row].hittest(y)) return row;
+        }
+    }
+    getCol(x){
+        if(x<this.x + this.cellWidth) return "A";
+        for(let col in this.columns){
+            if(this.columns[col].hittest(x)) return col;
+        }
+    }
+    
+    getColDiff(c1,c2){
+        return c1.charCodeAt(0) - c2.charCodeAt(0);
+    }
+
+    getRowinRange(r1,r2){
+        let rows = [];
+        r1 = parseInt(r1);
+        r2 = parseInt(r2);
+        if(r1 === r2){
+            rows.push(r1);
+            return rows;
+        }else if(r1<r2){
+            for(let i = r1;i<=r2;i++){
+                rows.push(i);
+            }
+            return rows;
+        }else{
+            for(let i=r2;i<=r1;i++){
+                rows.push(i);
+            }
+            return rows;
+        }
+    }
+
+    getColinRange(c1,c2){
+        let cols = [];
+        let cmp = this.getColDiff(c1,c2);
+        if(cmp === 0){
+            cols.push(c1);
+            return cols;
+        }else if(cmp<0){
+            for(let i = cmp;i<=0;i++){
+                cols.push(c1);
+                c1 = this.increment_col(c1);
+            }
+            return cols;
+        }else{
+            for(let i=0;i<=cmp;i++){
+                cols.push(c2);
+                c2 = this.increment_col(c2);
+            }
+            return cols;
+        }
+    }
+
+    inboundX(x,offsetX,width){
+        if(x + width + offsetX > this.width) return "right";
+        if(x + offsetX < this.x + this.cellWidth) return "left";
         return "in";
     }
 
-    inboundY(cell,offsetY){
-        if(cell.y + offsetY < this.y + this.cellHeight) return "up";
+    inboundY(y,offsetY,height){
+        if(y + offsetY < this.y + this.cellHeight) return "up";
         return "in";
     }
 
@@ -345,22 +461,24 @@ class Grid{
     }
 
     increment_col(index){
+        let code = index.charCodeAt(0);
         if(index.length > 1){
             
-        }else if(index.charCodeAt(0)>91){
+        }else if(code>91){
             return 'A';
         }else{
-            return String.fromCharCode(index.charCodeAt(0)+1);
+            return String.fromCharCode(code+1);
         }
     }
 
     decrement_col(index){
+        let code = index.charCodeAt(0);
         if(index.length > 1){
 
-        }else if(index.charCodeAt(0)<65){
+        }else if(code<65){
             return 'A';
         }else{
-            return String.fromCharCode(index.charCodeAt(0)-1);
+            return String.fromCharCode(code-1);
         }
     }
 
