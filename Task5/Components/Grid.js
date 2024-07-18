@@ -23,6 +23,7 @@ class Grid{
         this.isdragging = false;
         this.regionselection = false;
         this.region = [];
+        this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.canvas,"","black","grey");
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e)=> this.onkeydown(e);
@@ -43,6 +44,13 @@ class Grid{
         let y = e.pageY;
         this.istyping = false;
         if(this.activecell) this.activecell.remove_inputbox();
+        if(this.regionselection === true){
+            this.deselectcells();
+            this.deselectheader();
+            this.region = [];
+            this.regionselection = false;
+            this.draw();
+        }
         if(this.colheaderhittest(x,y)){
 
             for( let col in this.columns){
@@ -318,6 +326,7 @@ class Grid{
         });
         // console.log(this.region);
         this.draw();
+        this.getMinMaxAvgCount();
     }
     }
 
@@ -380,7 +389,6 @@ class Grid{
             return rows;
         }
     }
-
     getColinRange(c1,c2){
         let cols = [];
         let cmp = this.getColDiff(c1,c2);
@@ -447,7 +455,7 @@ class Grid{
             columnindex = 'A';
             x = this.x + this.cellWidth;           
             while( x < this.width){
-                cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,'R'+y.toString()+'C'+x.toString());
+                cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x);
                 // this.columns[columnindex] = this.columns[columnindex]?this.columns[columnindex]:new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
@@ -498,7 +506,39 @@ class Grid{
         this.draw_cols();  
     }
 
+    getMinMaxAvgCount(){
+        let count = 0;
+        let min = 9999999999;
+        let max = 0;
+        let sum = 0;
+        let num;
+        let numcount = 0;
+        this.region.forEach(cell => {
+            if(cell.text !== ""){
+                count++;
+                if(!isNaN(cell.text)){
+                        num = parseFloat(cell.text);
+                        min = Math.min(min,num);
+                        max = Math.max(max,num);
+                        sum += num;
+                        numcount++;
+                }
+            }
+        });
+        let stats = {
+            "count":count,
+            "min":min,
+            "max":max,
+            "avg":sum/numcount,
+            "sum":sum,
+        }
+        this.draw_stats(stats);
+    }
 
+    draw_stats(stats){
+        this.stats.text = `Average :${stats.avg}\t Sum :${stats.sum}\t Count :${stats.count}\t Min :${stats.min}\t Max :${stats.max}\t `;
+        this.stats.draw();
+    }
 }
 
 export default Grid;
