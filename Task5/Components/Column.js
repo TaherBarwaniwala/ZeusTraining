@@ -97,7 +97,7 @@ class Column{
         return this.header.hittest(x,y);
     }
     hittest(x){
-        return (x>this.x + 2&&x<this.x+this.cellWidth - 2);
+        return (x>this.x &&x<this.x+this.cellWidth);
     }
 
     move(x){
