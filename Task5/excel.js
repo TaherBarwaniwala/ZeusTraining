@@ -233,7 +233,23 @@ class Row{
     }
 
     hittest(y){
-        return (y>this.y+2 && y < this.y+this.cellHeight-2);
+        return (y>this.y && y < this.y+this.cellHeight);
+    }
+
+    move(y){
+        this.cells.forEach(cell => cell.move(0,y));
+    }
+
+    copy(row){
+        this.canvas = row.canvas;
+        this.cellHeight = row.cellHeight;
+        this.cellWidth = row.cellWidth;
+        this.isSelected = row.isSelected;
+        for(let i=1;i<row.cells.length;i++){
+            this.cells[i].text = row.cells[i].text;
+            this.cells[i].y = this.y;
+            this.cells[i].height = this.cellHeight;
+        }
     }
 }
 
@@ -279,7 +295,7 @@ class Column{
     onopintermove(e){
         let offsetX = e.pageX - this.initialX;
         let offsetY = e.pageY - this.initialY;
-        if(this.inbound(this.initialX+offsetX,this.initialY+offsetY)==="in"){
+        if(this.inboundX(this.initialX+offsetX,this.initialY+offsetY)==="in"){
             this.shadowcol.move(offsetX,offsetY);
         }
     }
@@ -377,9 +393,12 @@ class Grid{
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e)=> this.onkeydown(e);
         window.addEventListener('keydown',this.onkeydownbound);
-        this.onpointermovebound = (e) => this.oncolumndrag(e);
-        this.onpointerupbound = (e) => this.onpointerup(e);
-        this.onpointercancelbound = (e) => this.onpoinntercancel(e);
+        this.oncolpointermovebound = (e) => this.oncolumndrag(e);
+        this.oncolpointerupbound = (e) => this.oncolpointerup(e);
+        this.oncolpointercancelbound = (e) => this.oncolpointerup(e);
+        this.onrowpointermovebound = (e) => this.onrowdrag(e);
+        this.onrowpointerupbound = (e) => this.onrowpointerup(e);
+        this.onrowpointercancelbound = (e) => this.onrowpointerup(e);
     }
 
     onpointerdown(e){
@@ -388,28 +407,31 @@ class Grid{
         this.istyping = false;
         if(this.activecell) this.activecell.remove_inputbox();
         if(this.colheaderhittest(x,y)){
-            window.addEventListener("pointermove",this.onpointermovebound);
-            window.addEventListener("pointerup",this.onpointerupbound);
-            window.addEventListener("pointercancel",this.onpointercancelbound);
+            window.addEventListener("pointermove",this.oncolpointermovebound);
+            window.addEventListener("pointerup",this.oncolpointerupbound);
+            window.addEventListener("pointercancel",this.oncolpointercancelbound);
             this.initialX = x;
             this.initialY = y;
             for( let col in this.columns){
                 if(this.columns[col].headerhittest(x,y)){
                     this.columns[col].isSelected = true;
-                    this.columns[col].draw();
                     this.activecol = col;
                 }else{
                     this.columns[col].isSelected = false;
-                    this.columns[col].draw();
                 }
             }
             for(let row in this.rows){ this.rows[row].isSelected = true;}
-            this.draw_cols();
-            this.draw_rows();
+            this.draw();
         }else if(this.rowheaderhittest(x,y)){
+            window.addEventListener("pointermove",this.onrowpointermovebound);
+            window.addEventListener("pointerup",this.onrowpointerupbound);
+            window.addEventListener("pointercancel",this.onrowpointercancelbound);
+            this.initialX = x;
+            this.initialY = y;
             for(let row in this.rows){
                 if(this.rows[row].headerhittest(x,y)){
                     this.rows[row].isSelected = true;
+                    this.activerow = row;
                 }else{
                     this.rows[row].isSelected = false;
                 }
@@ -417,8 +439,7 @@ class Grid{
             for( let col in this.columns){
                 this.columns[col].isSelected = true;
             }
-            this.draw_rows();
-            this.draw_cols();
+            this.draw();
 
         }else{
             for(let col in this.columns){
@@ -438,11 +459,14 @@ class Grid{
                 }
             }
             if(this.activecol !== -1 && this.activerow!==-1){
-                if(this.activecell) this.activecell.isFocus = false;
+                if(this.activecell === this.columns[this.activecol].cells[this.activerow]){
+                    this.activecell.create_inputbox();
+                    this.activecell.isFocus = true;
+                    this.istyping = true;
+                }else if(this.activecell) this.activecell.isFocus = false;
                 this.activecell = this.columns[this.activecol].cells[this.activerow]
                 this.activecell.isFocus = true;
-                this.draw_rows();
-                this.draw_cols();
+                this.draw();
             }
            
         }
@@ -452,23 +476,40 @@ class Grid{
     oncolumndrag(e){
         this.isdragging = true;
         let offsetX = e.pageX - this.initialX;
-        if(this.inbound(this.columns[this.activecol],offsetX)==="in"){
-            this.draw_cols();
-            this.draw_rows();
+        if(this.inboundX(this.columns[this.activecol],offsetX)==="in"){
+            this.draw();
             this.columns[this.activecol].move(offsetX);
-        }if(this.inbound(this.columns[this.activecol],offsetX)==="left"){
-
+        }else if(this.inboundX(this.columns[this.activecol],offsetX)==="left"){
+            this.draw();
+            this.columns[this.activecol].move(this.x+this.cellWidth - this.columns[this.activecol].x);
         }
     }
 
-    onpointerup(e){
+    onrowdrag(e){
+        this.isdragging = true;
+        let offsetY = e.pageY - this.initialY;
+        if(this.inboundY(this.rows[this.activerow],offsetY)==="in"){
+            this.draw();
+            this.rows[this.activerow].move(offsetY);
+        }else if(this.inboundY(this.rows[this.activerow],offsetY)==="up"){
+            this.draw();
+            this.rows[this.activerow].move(this.y+this.cellHeight - this.rows[this.activerow].y);
+        }
+    }
+
+    oncolpointerup(e){
         if(this.isdragging){
-            window.removeEventListener("pointermove",this.onpointermovebound);
+            window.removeEventListener("pointermove",this.oncolpointermovebound);
             let offsetX = e.pageX - this.initialX;
             let pastecol = null;
+            if(this.inboundX(this.columns[this.activecol],offsetX)==="left") offsetX = this.x+this.cellWidth - this.columns[this.activecol].x;
             for(let col in this.columns) {
-                if(this.columns[col].hittest(this.initialX + offsetX)) pastecol = col;
+                if(this.columns[col].hittest(this.initialX + offsetX)){
+                        pastecol = col;
+                        break;
+                }
             }
+
             if(this.activecol.localeCompare(pastecol) < 0){
                 let temp = JSON.parse(JSON.stringify(this.columns[this.activecol]));
                 let prevcol = null
@@ -495,20 +536,58 @@ class Grid{
                 }
                 this.columns[pastecol].copy(temp);
             }
-            // pastecol.cells.forEach((cell,i)=>{
-            //     if(i > 0){
-            //     cell.text = this.columns[this.activecol].cells[i].text;
-            //     this.columns[this.activecol].cells[i].text = "";
-            //     }
-            // });
             this.activecol = pastecol.index;
-            this.draw_cols();
-            this.draw_rows(); 
+            this.draw();
             this.isdragging = false;
         }
     }
 
-    onpoinntercancel(e){
+    onrowpointerup(e){
+        if(this.isdragging){
+            window.removeEventListener("pointermove",this.onrowpointermovebound);
+            let offsetY = e.pageY - this.initialY;
+            let pasterow = null;
+            if(this.inboundY(this.rows[this.activerow],offsetY)==="up") offsetY = this.y+this.cellHeight - this.rows[this.activerow].y;
+            for(let row in this.rows) {
+                if(this.rows[row].hittest(this.initialY + offsetY)){
+                        pasterow = row;
+                        break;
+                }
+            }
+
+            if(this.activerow - pasterow < 0){
+                let temp = JSON.parse(JSON.stringify(this.rows[this.activerow]));
+                let prevrow = null
+                for(let row in this.rows){
+                    if(row === this.activerow){
+                        prevrow = row;
+                    }else if(prevrow === pasterow){
+                        this.rows[prevrow].copy(temp);
+                        prevrow = null;
+                        break;
+                    }else if(prevrow){
+                        this.rows[prevrow].copy(this.rows[row]);
+                        prevrow = row;
+                    }
+                }
+            }else if(this.activerow - pasterow > 0){
+                let temp = JSON.parse(JSON.stringify(this.rows[this.activerow]));
+                let row = this.activerow;
+                let prevrow = row - 1;
+                while(prevrow.toString() !== pasterow){               
+                    this.rows[row].copy(this.rows[prevrow]);
+                    row = prevrow;
+                    prevrow = row - 1;
+                }
+                this.rows[pasterow].copy(temp);
+            }
+            this.activerow = pasterow.index;
+            this.draw();
+            this.isdragging = false;
+        }
+    }
+
+    oncolpoinntercancel(e){
         if(this.isdragging){
             window.removeEventListener("pointermove",this.onpointermovebound);
             let offsetX = e.pageX - this.initialX;
@@ -523,8 +602,7 @@ class Grid{
                 }
             });
             this.activecol = pastecol.index;
-            this.draw_cols();
-            this.draw_rows(); 
+            this.draw();
             this.isdragging = false;
         }
     }
@@ -558,8 +636,7 @@ class Grid{
             
             if(this.activecol) this.columns[this.activecol].isSelected = true;
             if(this.activerow) this.rows[this.activerow].isSelected = true;
-            this.draw_rows();
-            this.draw_cols();
+            this.draw();
         }else if(this.istyping){
             if(e.code === "Enter" || e.code === "Escape") this.istyping = false;
             this.activecell.onkeypress(e);
@@ -571,9 +648,14 @@ class Grid{
         }
     }
 
-    inbound(cell,offsetX){
+    inboundX(cell,offsetX){
         if(cell.x + cell.width + offsetX > this.width) return "right";
-        if(cell.x + offsetX < this.x) return "left";
+        if(cell.x + offsetX < this.x + this.cellWidth) return "left";
+        return "in";
+    }
+
+    inboundY(cell,offsetY){
+        if(cell.y + offsetY < this.y + this.cellHeight) return "up";
         return "in";
     }
 
@@ -653,6 +735,11 @@ class Grid{
         for(const col in this.columns){ 
             this.columns[col].draw();
         }
+    }
+
+    draw(){
+        this.draw_rows();
+        this.draw_cols();  
     }
 
 
