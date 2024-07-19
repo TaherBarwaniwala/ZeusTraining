@@ -1,5 +1,5 @@
 class Cell{
-    constructor(x,y,width,height,canvas,text = "",strokeStyle = "black",fillStyle="white",lineWidth="0.5",font="16px serif",textStyle = "black"){
+    constructor(x,y,width,height,canvas,text = "",isHeader = false,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
         this.x=x;
         this.y=y;
         this.height = height;
@@ -14,9 +14,12 @@ class Cell{
         this.textStyle = textStyle;
         this.inputbox = null;
         this.isFocus = false;
-        this.focusStyle = "green";
+        this.focusStyle = "#137e43";
         this.renderWidth = this.width;
-        
+        this.align = align;
+        this.row = null;
+        this.column = null;
+        this.isHeader = isHeader;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.onkeypressbound = (e) => this.onkeypress(e);
         this.onpointerdownupbound = () => this.onpointerup();
@@ -85,15 +88,40 @@ class Cell{
     draw(){
         this.ctx.save();
         this.ctx.beginPath();
-        this.ctx.fillStyle = this.isFocus?this.focusStyle:this.fillStyle;
-        this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
-        this.ctx.strokeStyle = this.isFocus?this.focusStyle:this.strokeStyle;
-        this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+        if(this.isHeader){
+            this.ctx.fillStyle = this.fillStyle;
+            this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+            this.ctx.strokeStyle =this.strokeStyle;
+            this.ctx.lineWidth = this.lineWidth;
+            this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+            }
+        if(this.isFocus){
+            this.ctx.fillStyle = this.fillStyle;
+            this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+            this.ctx.strokeStyle =this.focusStyle;
+            this.ctx.lineWidth = "1";
+            this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+            }
+        if(this.isHeader && this.isFocus){
+            this.ctx.beginPath();
+            this.ctx.fillStyle = "#caead8";
+            this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+            this.ctx.strokeStyle =this.strokeStyle;
+            this.ctx.lineWidth = "5";
+            // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
+            this.ctx.strokeStyle = this.focusStyle;
+            this.ctx.moveTo(this.x,this.y+this.height);
+            this.ctx.lineTo(this.x+this.width,this.y+this.height);
+            this.ctx.stroke();
+        }
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.textStyle;
         this.ctx.fillText(this.text,this.x + 4,this.y+this.height - 4);
         this.ctx.restore();
     }
+
+
+
     clear(){
         this.ctx.save();
         this.ctx.beginPath();
@@ -104,12 +132,12 @@ class Cell{
         this.ctx.restore();
     }
 
-    create_inputbox(){
+    create_inputbox(topX,topY){
         this.inputbox = document.createElement('input');
         this.inputbox.setAttribute("type","text");
-        this.inputbox.setAttribute("id",`C${this.x}${this.y}${this.height}${this.width}`);
+        this.inputbox.setAttribute("id",`C${this.x+topX}${this.y+topY}${this.height}${this.width}`);
         this.inputbox.setAttribute("class","input-box");
-        this.inputbox.setAttribute("style",`top:${this.y}px;left:${this.x}px;height:${this.height}px;width:${this.renderWidth}px;`)
+        this.inputbox.setAttribute("style",`top:${this.y+topY}px;left:${this.x+topX}px;height:${this.height}px;width:${this.renderWidth}px;`)
         document.body.appendChild(this.inputbox); 
         this.inputbox.addEventListener('pointerdown',() => this.oninputpointerdown());
     }

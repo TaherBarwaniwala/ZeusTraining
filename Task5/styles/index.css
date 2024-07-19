@@ -8,4 +8,52 @@
 }
 .input-box:focus {
   outline: none;
+}
+
+.flex {
+  display: flex;
+  flex-direction: row;
+}
+
+.all-selector {
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  width: 40px;
+  background-color: gray;
+}
+
+.all-selector-canvas {
+  height: inherit;
+  width: inherit;
+}
+
+.column-canvas-container {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  height: 40px;
+  width: 100%;
+}
+
+.row-canvas-container {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  width: 40px;
+  height: 100%;
+}
+
+.main-canvas-container {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+}
+
+.column-canvas {
+  height: inherit;
+}
+
+.row-canvas {
+  width: inherit;
 }/*# sourceMappingURL=index.css.map */

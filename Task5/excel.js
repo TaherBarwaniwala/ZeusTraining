@@ -1,9 +1,17 @@
 import Grid from "./Components/Grid.js";
 
-const canvas= document.getElementById("main-canvas");
+const canvas= document.getElementById("C1R1");
 const body = document.body;
-canvas.setAttribute("height",body.clientHeight.toString()+"px");
-canvas.setAttribute("width",body.clientWidth.toString()+"px");
+const height = body.clientHeight;
+const width = body.clientWidth;
+canvas.setAttribute("height",(height - 40) + "px");
+canvas.setAttribute("width",(width - 40) + "px");
+const column = document.getElementById("C1");
+const row = document.getElementById("R1");
+column.setAttribute("width",(width - 40) + "px");
+column.setAttribute("height","40px");
+row.setAttribute("height",(height - 40) + "px");
+row.setAttribute("width","40px");
 const ctx = canvas.getContext('2d');
 
 
@@ -49,7 +57,8 @@ const ctx = canvas.getContext('2d');
 // row.create_row();
 // row.draw();
 
-let grid = new Grid(0,0,80,40,canvas);
+let grid = new Grid(40,40,0,0,60,25,canvas,column,row);
 grid.create_grid();
-grid.draw_rows();
-grid.draw_cols();
+grid.draw();
+// grid.draw_rows();
+// grid.draw_cols();

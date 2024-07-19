@@ -3,19 +3,23 @@ import Row from './Row.js';
 import Column from './Column.js';
 
 class Grid{
-    constructor(x,y,cellWidth,cellHeight,canvas){
+    constructor(topX,topY,x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas){
+        this.topX = topX;
+        this.topY = topY;
         this.x = x;
         this.y = y;
         this.cellWidth = cellWidth;
         this.cellHeight = cellHeight;
         this.canvas = canvas;
+        this.columncanvas = columncanvas;
+        this.rowcanvas = rowcanvas;
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.cells = [];
         this.rows = {};
         this.columns = {};
         this.activecell = null;
-        this.activecol = null;
+        this.activecol = [];
         this.activerow = null;
         this.initialX = 0;
         this.initialY = 0;
@@ -23,7 +27,7 @@ class Grid{
         this.isdragging = false;
         this.regionselection = false;
         this.region = [];
-        this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.canvas,"","black","grey");
+        // this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.canvas,"","black","grey");
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e)=> this.onkeydown(e);
@@ -40,8 +44,8 @@ class Grid{
     }
 
     onpointerdown(e){
-        let x = e.pageX;
-        let y = e.pageY;
+        let x = e.pageX - this.topX;
+        let y = e.pageY - this.topY;
         this.istyping = false;
         if(this.activecell) this.activecell.remove_inputbox();
         if(this.regionselection === true){
@@ -52,7 +56,6 @@ class Grid{
             this.draw();
         }
         if(this.colheaderhittest(x,y)){
-
             for( let col in this.columns){
                 if(this.columns[col].headerhittest(x,y)){
                     this.columns[col].isSelected = true;
@@ -68,7 +71,7 @@ class Grid{
             }
             for(let row in this.rows){ this.rows[row].isSelected = true;}
             this.draw();
-        }else if(this.rowheaderhittest(x,y)){
+        }else if(this.rowheaderhittest(x+this.topX,y)){
 
             for(let row in this.rows){
                 if(this.rows[row].headerhittest(x,y)){
@@ -89,33 +92,33 @@ class Grid{
             this.draw();
 
         }else{
-            this.initialX = e.pageX;
-            this.initialY = e.pageY;
+            this.initialX = e.pageX - this.topX;
+            this.initialY = e.pageY - this.topY;
 
 
             for(let col in this.columns){
                 if(this.columns[col].hittest(x)){
                     this.activecol = col;
-                    this.columns[this.activecol].isSelected = true;
+                    this.columns[this.activecol].header.isFocus = true;
                 }else{
-                    this.columns[col].isSelected = false;
+                    this.columns[col].header.isFocus = false;
                 }
             }
             for(let row in this.rows){
                 if(this.rows[row].hittest(y)){
                     this.activerow = row;
-                    this.rows[this.activerow].isSelected=true;
+                    this.rows[this.activerow].header.isFocus=true;
                 }else{
-                    this.rows[row].isSelected = false;
+                    this.rows[row].header.isFocus = false;
                 }
             }
             if(this.activecol !== -1 && this.activerow!==-1){
-                if(this.activecell === this.columns[this.activecol].cells[this.activerow]){
-                    this.activecell.create_inputbox();
+                if(this.activecell === this.columns[this.activecol].cells[this.activerow-1]){
+                    this.activecell.create_inputbox(this.topX,this.topY);
                     this.activecell.isFocus = true;
                     this.istyping = true;
                 }else if(this.activecell) this.activecell.isFocus = false;
-                this.activecell = this.columns[this.activecol].cells[this.activerow]
+                this.activecell = this.columns[this.activecol].cells[this.activerow-1]
                 this.activecell.isFocus = true;
                 this.draw();
                 window.addEventListener("pointermove",this.onregionpointermovebound);
@@ -129,7 +132,7 @@ class Grid{
 
     oncolumndrag(e){
         this.isdragging = true;
-        let offsetX = e.pageX - this.initialX;
+        let offsetX = e.pageX - this.topX - this.initialX;
         if(this.inboundX(this.columns[this.activecol].x,offsetX,this.columns[this.activecol].width)==="in"){
             this.draw();
             this.columns[this.activecol].move(offsetX);
@@ -141,7 +144,7 @@ class Grid{
 
     onrowdrag(e){
         this.isdragging = true;
-        let offsetY = e.pageY - this.initialY;
+        let offsetY = e.pageY - this.topY - this.initialY;
         if(this.inboundY(this.rows[this.activerow].y,offsetY,this.rows[this.activerow].height)==="in"){
             this.draw();
             this.rows[this.activerow].move(offsetY);
@@ -154,7 +157,7 @@ class Grid{
     oncolpointerup(e){
         if(this.isdragging){
             window.removeEventListener("pointermove",this.oncolpointermovebound);
-            let offsetX = e.pageX - this.initialX;
+            let offsetX = e.pageX - this.topX - this.initialX;
             let pastecol = null;
             if(this.inboundX(this.columns[this.activecol].x,offsetX,this.columns[this.activecol].width)==="left")
                  offsetX = this.x+this.cellWidth - this.columns[this.activecol].x;
@@ -202,7 +205,7 @@ class Grid{
     onrowpointerup(e){
         if(this.isdragging){
             window.removeEventListener("pointermove",this.onrowpointermovebound);
-            let offsetY = e.pageY - this.initialY;
+            let offsetY = e.pageY - this.topY - this.initialY;
             let pasterow = null;
             if(this.inboundY(this.rows[this.activerow].y,offsetY,this.rows[this.activerow].height)==="up")
                  offsetY = this.y+this.cellHeight - this.rows[this.activerow].y;
@@ -256,39 +259,39 @@ class Grid{
                 this.regionselection = false;
                 this.draw();
             }
-            if(this.activecol) this.columns[this.activecol].isSelected = false;
-            if(this.activerow) this.rows[this.activerow].isSelected = false;
+            if(this.activecol) this.columns[this.activecol].header.isFocus= false;
+            if(this.activerow) this.rows[this.activerow].header.isFocus = false;
             if(e.keyCode === 37){
                 if (this.activecol !== "A") this.rows[this.activerow].onkeydown(e);
                 let keys = Object.keys(this.columns);
                 this.activecol = keys[keys.indexOf(this.activecol) + (this.activecol === "A"?0:-1)];
-                this.activecell = this.columns[this.activecol].cells[this.activerow];
+                this.activecell = this.columns[this.activecol].cells[this.activerow-1];
             }else if(e.keyCode ===38){
                 if(this.activerow !== "1" ) this.columns[this.activecol].onkeydown(e);
                 let keys = Object.keys(this.rows);
                 this.activerow = keys[keys.indexOf(this.activerow) + (this.activerow === "1" ?0:-1)];
-                this.activecell = this.columns[this.activecol].cells[this.activerow];
+                this.activecell = this.columns[this.activecol].cells[this.activerow-1];
             }else if(e.keyCode === 39){
                 this.rows[this.activerow].onkeydown(e);
                 let keys = Object.keys(this.columns);
                 this.activecol = keys[keys.indexOf(this.activecol) + 1];
-                this.activecell = this.columns[this.activecol].cells[this.activerow];
+                this.activecell = this.columns[this.activecol].cells[this.activerow-1];
             }else if(e.keyCode === 40){
                 this.columns[this.activecol].onkeydown(e);
                 let keys = Object.keys(this.rows);
                 this.activerow = keys[keys.indexOf(this.activerow) + 1];
-                this.activecell = this.columns[this.activecol].cells[this.activerow];
+                this.activecell = this.columns[this.activecol].cells[this.activerow-1];
             }
             
-            if(this.activecol) this.columns[this.activecol].isSelected = true;
-            if(this.activerow) this.rows[this.activerow].isSelected = true;
+            if(this.activecol) this.columns[this.activecol].header.isFocus = true;
+            if(this.activerow) this.rows[this.activerow].header.isFocus = true;
             this.activecell.isFocus = true;
             this.draw();
         }else if(this.activecell && this.istyping){
             if(e.code === "Enter" || e.code === "Escape") this.istyping = false;
             this.activecell.onkeypress(e);
         }else if(this.activecell){
-            this.activecell.create_inputbox();
+            this.activecell.create_inputbox(this.topX,this.topY);
             this.activecell.isFocus = true;
             this.istyping = true;
             this.activecell.onkeypress(e);
@@ -297,21 +300,22 @@ class Grid{
 
     onregionpointermove(e){
         this.regionselection = true;
-        let offsetX = e.pageX - this.initialX;
-        let offsetY = e.pageY - this.initialY;
+        let offsetX = e.pageX - this.topX - this.initialX;
+        let offsetY = e.pageY - this.topY - this.initialY;
         if(this.inboundX(this.x+this.cellWidth,offsetX,this.width)==="left") offsetX = this.x + this.cellWidth - this.initialX;
         if(this.inboundY(this.y+this.cellHeight,offsetY,this.height)==="up") offsetY = this.y + this.cellHeight - this.initialY;
         let initialRow = this.getRow(this.initialY);
         let initialCol = this.getCol(this.initialX);
         let finalRow = null;
         let finalCol = null;
-
-        finalRow = this.getRow(e.pageY);
-        finalCol = this.getCol(e.pageX);
+        finalRow = this.getRow(e.pageY - this.topX);
+        finalCol = this.getCol(e.pageX - this.topY);
         if(finalRow && finalCol){
         let rowsrange = this.getRowinRange(initialRow,finalRow);
         let colrange = this.getColinRange(initialCol,finalCol);
-        this.region.forEach(cell => cell.isFocus = false);
+        this.region.forEach(cell => {
+            cell.fillStyle = "white";
+        });
         this.deselectheader();
         this.region = [];
         let cell;
@@ -319,13 +323,16 @@ class Grid{
             colrange.forEach(col => {
                 cell = this.columns[col].cells[row];
                 this.region.push(cell);
-                cell.isFocus = true;
-                this.columns[col].isSelected = true;
-                this.rows[row].isSelected = true;
+                cell.fillStyle = "#caead8";
+                this.columns[col].header.isFocus = true;
+                this.rows[row].header.isFocus = true;
             });
         });
         // console.log(this.region);
+        this.activecell.fillStyle = "white";
+        this.activecell.strokeStyle = "#e0e0e0";
         this.draw();
+        this.draw_region();
         this.getMinMaxAvgCount();
     }
     }
@@ -342,15 +349,15 @@ class Grid{
 
     deselectheader(){
         for(let col in this.columns){
-            this.columns[col].isSelected = false;
+            this.columns[col].header.isFocus = false;
         }
         for(let row in this.rows){
-            this.rows[row].isSelected = false;
+            this.rows[row].header.isFocus = false;
         }
     }
 
     deselectcells(){
-        this.region.forEach(cell => cell.isFocus = false);
+        this.region.forEach(cell => cell.fillStyle = "white");
     }
 
     getRow(y){
@@ -434,37 +441,42 @@ class Grid{
     create_grid(){
         let rowindex = 1;
         let x = this.x;
-        let y =this.y + this.cellHeight;
+        let y =this.y;
         let cell = null;
         let columnindex = 'A';
         while(y < this.height){
-            this.rows[rowindex] = new Row(rowindex,x,y,this.cellWidth,this.cellHeight,this.canvas);
+            this.rows[rowindex] = new Row(rowindex,x,y,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
             rowindex+=1;
             y+=this.cellHeight;
         }
-        x = this.x + this.cellWidth;
-        y =this.y;
+        x = this.x;
+        y =this.y+15;
         while(x < this.width){
-            this.columns[columnindex] = new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas);
+            this.columns[columnindex] = new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
             columnindex = this.increment_col(columnindex);
             x+=this.cellWidth;
         }
-        y =this.y + this.cellHeight;
+        // console.log(this.columns)
+        y =this.y;
         rowindex = 1;
         while( y < this.height){
             columnindex = 'A';
-            x = this.x + this.cellWidth;           
+            x = this.x;           
             while( x < this.width){
                 cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x);
+                // console.log(columnindex);
                 // this.columns[columnindex] = this.columns[columnindex]?this.columns[columnindex]:new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
+                cell.row = this.rows[rowindex];
+                cell.column = this.columns[columnindex];
                 columnindex = this.increment_col(columnindex);
                 x+=this.cellWidth;
             }
             rowindex += 1;
             y += this.cellHeight;
         }
+        console.log(this.rows);
         
     }
 
@@ -501,9 +513,27 @@ class Grid{
         }
     }
 
+    draw_region(){
+
+    }
+
     draw(){
-        this.draw_rows();
-        this.draw_cols();  
+
+        for(const col in this.columns){ 
+            this.columns[col].draw_without_boundary();
+        }
+        for(const row in this.rows){ 
+            this.rows[row].draw_without_boundary();
+        }
+        for(const row in this.rows){ 
+            this.rows[row].draw_boundary();
+        }
+        for(const col in this.columns){ 
+            this.columns[col].draw_boundary();
+        }
+        if(this.activecell) this.activecell.draw();
+        console.log(this.activecell);  
+
     }
 
     getMinMaxAvgCount(){

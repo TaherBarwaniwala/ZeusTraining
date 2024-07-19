@@ -7,7 +7,30 @@
     <title>Excel clone</title>
   </head>
   <body style="height: 100vh; width: 100%; margin: 0">
-    <canvas style="touch-action: none" id="main-canvas"></canvas>
+    <div class="flex">
+      <div class="all-selector">
+        <canvas style="touch-action: none" class="all-selector-canvas"></canvas>
+      </div>
+      <div class="column-canvas-container">
+        <canvas
+          style="touch-action: none"
+          class="column-canvas"
+          id="C1"
+        ></canvas>
+      </div>
+    </div>
+    <div class="flex">
+      <div class="row-canvas-container">
+        <canvas class="row-canvas" id="R1"></canvas>
+      </div>
+      <div class="main-canvas-container">
+        <canvas
+          style="touch-action: none"
+          class="main-canvas"
+          id="C1R1"
+        ></canvas>
+      </div>
+    </div>
     <script type="module" src="excel.js" defer></script>
   </body>
 </html>

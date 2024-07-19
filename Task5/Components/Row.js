@@ -2,16 +2,22 @@ import Cell from './Cell.js';
 
 
 class Row{
-    constructor(index,x,y,cellWidth,cellHeight,canvas){
+    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.3",strokeStyle = "#101010"){
         this.index = index;
         this.x = x;
         this.y = y;
         this.canvas = canvas;
+        this.ctx = this.canvas.getContext('2d');
+        this.headercanvas = headercanvas;
         this.width = parseInt(this.canvas.getAttribute('width'));
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.canvas,this.index);
-        this.cells = [this.header];
+        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,true,"#101010","#f5f5f5","#393939");
+        this.cells = [];
+        this.selectFillStyle = "#caead8";
+        this.fillStyle = "white"
+        this.strokeStyle = strokeStyle;
+        this.lineWidth = lineWidth;;
         this.isSelected = false;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         // this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
@@ -69,13 +75,49 @@ class Row{
     }
 
     draw(){
-        if(this.isSelected){
-            this.header.fillStyle = "yellow";
-        }else{
-            this.header.fillStyle = "white";
-        }
+        this.draw_without_boundary();
+        this.draw_boundary();
+    }
+
+    draw_cells(){
         this.cells.forEach((cell)=>cell.draw());
-        
+    }
+    draw_header(){
+        if(this.isSelected){
+            this.header.fillStyle = "#caead8";
+        }else{
+            this.header.fillStyle = "#f5f5f5";
+        }
+        this.header.draw();
+    }
+
+    draw_without_boundary(){
+        this.fill();
+        this.draw_header();
+        this.draw_cells();
+    }
+
+    fill(){
+        if(this.isSelected){
+        this.ctx.save();
+        this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
+        this.ctx.fillRect(this.x,this.y,this.x + this.width,this.cellHeight);
+        this.ctx.restore();
+        }
+    }
+
+    draw_boundary(){
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.lineWidth = this.lineWidth;
+        this.ctx.strokeStyle = this.strokeStyle;
+        this.ctx.moveTo(this.x,this.y);
+        this.ctx.lineTo(this.x + this.width,this.y);
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x,this.y+this.cellHeight);
+        this.ctx.lineTo(this.x+this.width,this.y + this.cellHeight);
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 
     create_row(){
