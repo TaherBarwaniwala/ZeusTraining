@@ -463,13 +463,11 @@ class Grid{
             columnindex = 'A';
             x = this.x;           
             while( x < this.width){
-                cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x);
+                cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
                 // console.log(columnindex);
                 // this.columns[columnindex] = this.columns[columnindex]?this.columns[columnindex]:new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
-                cell.row = this.rows[rowindex];
-                cell.column = this.columns[columnindex];
                 columnindex = this.increment_col(columnindex);
                 x+=this.cellWidth;
             }

@@ -13,6 +13,8 @@ class Row{
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
         this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,true,"#101010","#f5f5f5","#393939");
+        this.header.align = "right";
+        this.header.width = 40;
         this.cells = [];
         this.selectFillStyle = "#caead8";
         this.fillStyle = "white"

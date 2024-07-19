@@ -18,6 +18,7 @@ class Column{
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
         this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,true,"#101010","#f5f5f5","#393939");
+        this.header.align = "middle";
         this.cells = [];
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         // this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
@@ -159,6 +160,8 @@ class Column{
             this.cells[i].width = this.cellWidth;
         }
     }
+
+
 
 }
 

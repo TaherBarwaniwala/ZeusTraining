@@ -1,5 +1,5 @@
 class Cell{
-    constructor(x,y,width,height,canvas,text = "",isHeader = false,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
+    constructor(x,y,width,height,canvas,text = "",isHeader = false,row=null,column=null,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
         this.x=x;
         this.y=y;
         this.height = height;
@@ -17,9 +17,10 @@ class Cell{
         this.focusStyle = "#137e43";
         this.renderWidth = this.width;
         this.align = align;
-        this.row = null;
-        this.column = null;
         this.isHeader = isHeader;
+        this.row = row;
+        this.column = column;
+        this.textAlign = "left";
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.onkeypressbound = (e) => this.onkeypress(e);
         this.onpointerdownupbound = () => this.onpointerup();
@@ -68,6 +69,11 @@ class Cell{
             }
             if(event.key === 'Enter'){
                 this.text = this.inputbox.value;
+                if(!isNaN(this.text)){
+                    this.align = "right";
+                }else{
+                    this.align = "left";
+                }
                 this.inputbox.style.width = this.inputbox.value.length + "ch";
                 while(this.renderWidth - this.width > this.inputbox.scrollWidth) this.renderWidth -= this.width;
                 document.body.removeChild(this.inputbox);
@@ -86,6 +92,7 @@ class Cell{
     }
 
     draw(){
+ 
         this.ctx.save();
         this.ctx.beginPath();
         if(this.isHeader){
@@ -94,32 +101,51 @@ class Cell{
             this.ctx.strokeStyle =this.strokeStyle;
             this.ctx.lineWidth = this.lineWidth;
             this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+            if(this.isHeader && this.isFocus){
+                this.ctx.beginPath();
+                this.ctx.fillStyle = "#caead8";
+                this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+                this.ctx.strokeStyle =this.strokeStyle;
+                this.ctx.lineWidth = "5";
+                // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
+                this.ctx.strokeStyle = this.focusStyle;
+                this.ctx.moveTo(this.x,this.y+this.height);
+                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.stroke();
+
             }
-        if(this.isFocus){
-            this.ctx.fillStyle = this.fillStyle;
-            this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
-            this.ctx.strokeStyle =this.focusStyle;
-            this.ctx.lineWidth = "1";
-            this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
-            }
-        if(this.isHeader && this.isFocus){
-            this.ctx.beginPath();
-            this.ctx.fillStyle = "#caead8";
-            this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
-            this.ctx.strokeStyle =this.strokeStyle;
-            this.ctx.lineWidth = "5";
-            // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
-            this.ctx.strokeStyle = this.focusStyle;
-            this.ctx.moveTo(this.x,this.y+this.height);
-            this.ctx.lineTo(this.x+this.width,this.y+this.height);
-            this.ctx.stroke();
+ 
+        }else{
+            this.x = this.column.x;
+            this.y = this.row.y;
+            this.height = this.row.cellHeight;
+            this.width = this.row.cellWidth;
+            if(this.isFocus){
+                this.ctx.fillStyle = this.fillStyle;
+                this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+                this.ctx.strokeStyle =this.focusStyle;
+                this.ctx.lineWidth = "1";
+                this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+                }
         }
-        this.ctx.font = this.font;
-        this.ctx.fillStyle = this.textStyle;
-        this.ctx.fillText(this.text,this.x + 4,this.y+this.height - 4);
+        if(this.text !== "") this.draw_text();
         this.ctx.restore();
+  
     }
 
+    draw_text(){
+        this.ctx.font = this.font;
+        this.ctx.fillStyle = this.textStyle;
+        if(this.align === "left"){
+            this.ctx.fillText(this.text,this.x + 4,this.y+this.height - 4);
+        }else if(this.align === "right"){
+            let textwidth = this.ctx.measureText(this.text).width;
+            this.ctx.fillText(this.text,this.x + this.width - textwidth - 4,this.y + this.height - 4);
+        }else if(this.align === "middle"){
+            let textwidth = this.ctx.measureText(this.text).width;
+            this.ctx.fillText(this.text,this.x+this.width/2 - textwidth+1/2,this.y+this.height -4);
+        }
+    }
 
 
     clear(){
