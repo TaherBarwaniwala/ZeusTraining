@@ -1,11 +1,15 @@
 import Grid from "./Components/Grid.js";
 
+/**@type {HTMLCanvasElement} */
 const canvas= document.getElementById("C1R1");
 const body = document.body;
 const height = body.clientHeight;
 const width = body.clientWidth;
-canvas.setAttribute("height",(height - 40) + "px");
-canvas.setAttribute("width",(width - 40) + "px");
+canvas.width = width - 40;
+canvas.height = height - 40
+canvas.style.width = canvas.width + "px";
+canvas.style.height = canvas.height + "px"
+
 const column = document.getElementById("C1");
 const row = document.getElementById("R1");
 column.setAttribute("width",(width - 40) + "px");

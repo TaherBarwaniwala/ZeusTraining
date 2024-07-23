@@ -180,6 +180,4 @@ courses.forEach(course=>{
     container.innerHTML+=add_course(course);
 })
 
-const showall = () => {
-  
-}
+

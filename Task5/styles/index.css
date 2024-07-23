@@ -11,11 +11,15 @@
 }
 
 .flex {
-  position: sticky;
   display: flex;
   flex-direction: row;
+}
+
+.flex.column {
+  position: sticky;
   top: 0;
   left: 0;
+  z-index: 2;
 }
 
 .all-selector {
@@ -29,6 +33,7 @@
   min-width: 40px;
   background-color: gray;
   position: sticky;
+  z-index: 2;
 }
 
 .all-selector-canvas {
@@ -46,6 +51,7 @@
   min-height: 40px;
   width: 100%;
   position: sticky;
+  z-index: 1;
 }
 
 .row-canvas-container {
@@ -70,7 +76,9 @@
 
 .column-canvas {
   height: inherit;
+  min-height: inherit;
   position: sticky;
+  background-color: #f5f5f5;
 }
 
 .row-canvas {

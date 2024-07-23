@@ -2,23 +2,24 @@ import Cell from './Cell.js';
 
 
 class Column{
-    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.1",strokeStyle = "#000000"){
+    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "1",strokeStyle = "#e0e0e0",fillStyle="white"){
         this.index = index;
         this.x = x;
         this.y = y;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.headercanvas = headercanvas;
+        this.headerctx = this.headercanvas.getContext('2d');
         this.height = parseInt(this.canvas.getAttribute('height'));
         this.width = cellWidth;
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
         this.selectFillStyle = "#caead8";
-        this.fillStyle = "white";
+        this.fillStyle = fillStyle;
         this.isSelected = false;
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.getindex(this.index),"column","#101010","#f5f5f5","#393939");
+        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,Column.getindex(this.index),"column","#101010","#f5f5f5","#393939");
         this.header.align = "middle";
         this.cells = [];
         this.onpointerdownbound = (e) => this.onpointerdown(e);
@@ -29,7 +30,7 @@ class Column{
         this.shadowcol = null;
     }
 
-    getindex(i){
+    static getindex(i){
         i = parseInt(i);
         if(i<27){
             return String.fromCharCode(65+i-1);
@@ -78,6 +79,8 @@ class Column{
         this.cells.forEach((cell,i)=>{
             if(cell.isFocus === true){
                 activecellindex = i;
+                cell.isFocus = false;
+                cell.draw();
             }
         });
         if(activecellindex > 0 && activecellindex<this.cells.length){
@@ -122,6 +125,29 @@ class Column{
         this.draw_cells();
     }
 
+    draw_leftBoundary(){
+        this.ctx.save();
+        this.ctx.strokeStyle = "#107c41";
+        this.ctx.lineWidth = "3";
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x,this.y - this.header.height);
+        this.ctx.lineTo(this.x,this.y+this.height);
+        this.ctx.stroke();
+        this.ctx.restore();
+        this.headerctx.save();
+        this.headerctx.strokeStyle = "#107c41";
+        this.headerctx.lineWidth = "3";
+        this.headerctx.beginPath();
+        this.headerctx.moveTo(this.x,this.y);
+        this.headerctx.lineTo(this.x,this.y+this.height);
+        this.headerctx.stroke();
+        this.headerctx.beginPath();
+        this.headerctx.moveTo(this.x - 10,this.y+2);
+        this.headerctx.lineTo(this.x + 10,this.y+2);
+        this.headerctx.stroke();
+        this.headerctx.restore();
+    }
+
     draw_cells(){
         if(this.isSelected){
             this.cells.forEach(cell => {
@@ -151,11 +177,11 @@ class Column{
         this.ctx.beginPath();
         this.ctx.strokeStyle =this.strokeStyle;
         this.ctx.lineWidth = this.lineWidth;
-        this.ctx.moveTo(this.x,0);
-        this.ctx.lineTo(this.x,this.height);
+        // this.ctx.moveTo(this.x+0.5,0);
+        // this.ctx.lineTo(this.x+0.5,this.height);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x+this.cellWidth,0);
-        this.ctx.lineTo(this.x+this.cellWidth,this.height);
+        this.ctx.moveTo(this.x+0.5+this.cellWidth,0);
+        this.ctx.lineTo(this.x+0.5+this.cellWidth,this.height);
         this.ctx.stroke();
         this.ctx.restore();
     }
@@ -179,16 +205,36 @@ class Column{
         this.cells.forEach(cell => cell.move(x,0));
     }
 
+    moveShadow(x){
+        this.ctx.save();
+        this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
+        this.ctx.fillRect(this.x+x,0,this.cellWidth,this.height);
+        this.ctx.restore();
+    }
+
     copy(col){
         this.canvas = col.canvas;
         this.cellHeight = col.cellHeight;
         this.cellWidth = col.cellWidth;
         this.isSelected = col.isSelected;
         for(let i=1;i<col.cells.length;i++){
-            this.cells[i].text = col.cells[i].text;
             this.cells[i].x = this.x;
             this.cells[i].width = this.cellWidth;
         }
+    }
+
+    static create_shadowcol(cols){
+        let initialcol;
+        let finalcol;
+        if(cols[0].x < cols[cols.length-1].x){
+            initialcol = cols[0];
+            finalcol = cols[cols.length-1];
+        }else{
+            initialcol = cols[cols.length-1];
+            finalcol = cols[0];
+        }
+        let cellWidth = (finalcol.x+finalcol.cellWidth) - initialcol.x;
+        return new Column(initialcol.index,initialcol.x,initialcol.y,cellWidth,initialcol.cellHeight,initialcol.canvas,initialcol.headercanvas,"0.1","#000000","rgba(202, 234, 216,0.5)");
     }
 
 
