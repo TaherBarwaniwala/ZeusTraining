@@ -11,16 +11,24 @@
 }
 
 .flex {
+  position: sticky;
   display: flex;
   flex-direction: row;
+  top: 0;
+  left: 0;
 }
 
 .all-selector {
+  top: 0;
+  left: 0;
   margin: 0;
   padding: 0;
   height: 40px;
+  min-height: 40px;
   width: 40px;
+  min-width: 40px;
   background-color: gray;
+  position: sticky;
 }
 
 .all-selector-canvas {
@@ -29,22 +37,32 @@
 }
 
 .column-canvas-container {
+  top: 0;
+  left: 40px;
   margin: 0;
   padding: 0;
-  display: inline-block;
+  display: flex;
   height: 40px;
+  min-height: 40px;
   width: 100%;
+  position: sticky;
 }
 
 .row-canvas-container {
+  top: 40px;
+  left: 0;
   margin: 0;
   padding: 0;
   display: flex;
   width: 40px;
+  min-width: 40px;
   height: 100%;
+  position: sticky;
 }
 
 .main-canvas-container {
+  top: 40px;
+  left: 40px;
   margin: 0;
   padding: 0;
   display: inline-block;
@@ -52,8 +70,10 @@
 
 .column-canvas {
   height: inherit;
+  position: sticky;
 }
 
 .row-canvas {
   width: inherit;
+  position: sticky;
 }/*# sourceMappingURL=index.css.map */

@@ -2,7 +2,7 @@ import Cell from './Cell.js';
 
 
 class Column{
-    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.3",strokeStyle = "#101010"){
+    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.1",strokeStyle = "#000000"){
         this.index = index;
         this.x = x;
         this.y = y;
@@ -10,6 +10,7 @@ class Column{
         this.ctx = canvas.getContext('2d');
         this.headercanvas = headercanvas;
         this.height = parseInt(this.canvas.getAttribute('height'));
+        this.width = cellWidth;
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
         this.selectFillStyle = "#caead8";
@@ -17,7 +18,7 @@ class Column{
         this.isSelected = false;
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,true,"#101010","#f5f5f5","#393939");
+        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.getindex(this.index),"column","#101010","#f5f5f5","#393939");
         this.header.align = "middle";
         this.cells = [];
         this.onpointerdownbound = (e) => this.onpointerdown(e);
@@ -26,6 +27,14 @@ class Column{
         // window.addEventListener('keydown',this.onkeydownbound);
         this.onpointermovebound = (e) => onpointermove(e);
         this.shadowcol = null;
+    }
+
+    getindex(i){
+        i = parseInt(i);
+        if(i<27){
+            return String.fromCharCode(65+i-1);
+        }else{
+        }
     }
 
     onpointerdown(e){
@@ -57,35 +66,45 @@ class Column{
 
     onkeydown(e){
         if(e.keyCode === 38 ){
-            let activecellindex = -1;
-            this.cells.forEach((cell,i)=>{
-                if(cell.isFocus === true){
-                    activecellindex = i;
-                }
-            });
-            if(activecellindex > 0 && activecellindex<this.cells.length){
-                this.cells[activecellindex].isFocus = false;
-                this.cells[activecellindex].draw();
-                this.cells[activecellindex-1].isFocus = true;
-                this.cells[activecellindex - 1].draw();
-
-            }
+             return this.moveactivecellup();
         }
         if(e.keyCode === 40){
-            let activecellindex = -1;
-            this.cells.forEach((cell,i)=>{
-                if(cell.isFocus === true){
-                    activecellindex = i;
-                }
-            });
-            if(activecellindex > -1 && activecellindex<this.cells.length-1){
-                this.cells[activecellindex].isFocus = false;
-                this.cells[activecellindex].draw();
-                this.cells[activecellindex+1].isFocus = true;
-                this.cells[activecellindex+1].draw();
-
-            }
+            return this.moveactivecelldown();
         }
+    }
+
+    moveactivecellup(){
+        let activecellindex = -1;
+        this.cells.forEach((cell,i)=>{
+            if(cell.isFocus === true){
+                activecellindex = i;
+            }
+        });
+        if(activecellindex > 0 && activecellindex<this.cells.length){
+            this.cells[activecellindex].isFocus = false;
+            this.cells[activecellindex].draw();
+            this.cells[activecellindex-1].isFocus = true;
+            this.cells[activecellindex - 1].draw();
+            return this.cells[activecellindex - 1];
+        }
+        return this.cells[activecellindex];
+    }
+
+    moveactivecelldown(){
+        let activecellindex = -1;
+        this.cells.forEach((cell,i)=>{
+            if(cell.isFocus === true){
+                activecellindex = i;
+            }
+        });
+        if(activecellindex > -1 && activecellindex<this.cells.length-1){
+            this.cells[activecellindex].isFocus = false;
+            this.cells[activecellindex].draw();
+            this.cells[activecellindex+1].isFocus = true;
+            this.cells[activecellindex+1].draw();
+            return this.cells[activecellindex + 1];
+        }
+        return this.cells[activecellindex];
     }
 
     add_cell(cell){
@@ -104,7 +123,18 @@ class Column{
     }
 
     draw_cells(){
-        this.cells.forEach((cell)=>cell.draw());
+        if(this.isSelected){
+            this.cells.forEach(cell => {
+                cell.isSelected = true;
+                cell.draw();
+            })
+        }else{
+            this.cells.forEach((cell)=>{
+                cell.isSelected = false;
+                cell.draw()
+            });
+        }
+        
 
     }
     draw_header(){

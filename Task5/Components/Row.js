@@ -2,7 +2,7 @@ import Cell from './Cell.js';
 
 
 class Row{
-    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.3",strokeStyle = "#101010"){
+    constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "0.1",strokeStyle = "#000000"){
         this.index = index;
         this.x = x;
         this.y = y;
@@ -12,7 +12,8 @@ class Row{
         this.width = parseInt(this.canvas.getAttribute('width'));
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,true,"#101010","#f5f5f5","#393939");
+        this.height = this.cellHeight;
+        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,"row","#101010","#f5f5f5","#393939");
         this.header.align = "right";
         this.header.width = 40;
         this.cells = [];
@@ -41,7 +42,14 @@ class Row{
 
     onkeydown(e){
         if(e.keyCode === 37 ){
-            let activecellindex = -1;
+            return this.moveactivecellleft();
+        }else if(e.keyCode === 39){
+            return this.moveactivecellright();
+        }
+    }
+
+    moveactivecellleft(){
+        let activecellindex = -1;
             this.cells.forEach((cell,i)=>{
                 if(cell.isFocus === true){
                     activecellindex = i;
@@ -52,24 +60,28 @@ class Row{
                 this.cells[activecellindex].draw();
                 this.cells[activecellindex-1].isFocus = true;
                 this.cells[activecellindex - 1].draw();
-
+                return this.cells[activecellindex - 1];
             }
-        }
-        if(e.keyCode === 39){
-            let activecellindex = -1;
-            this.cells.forEach((cell,i)=>{
-                if(cell.isFocus === true){
-                    activecellindex = i;
-                }
-            });
-            if(activecellindex > -1 && activecellindex<this.cells.length-1){
-                this.cells[activecellindex].isFocus = false;
-                this.cells[activecellindex].draw();
-                this.cells[activecellindex+1].isFocus = true;
-                this.cells[activecellindex+1].draw();
+            return this.cells[activecellindex];
 
+    }
+
+    moveactivecellright(){
+        let activecellindex = -1;
+        this.cells.forEach((cell,i)=>{
+            if(cell.isFocus === true){
+                activecellindex = i;
             }
+        });
+        if(activecellindex > -1 && activecellindex<this.cells.length-1){
+            this.cells[activecellindex].isFocus = false;
+            this.cells[activecellindex].draw();
+            this.cells[activecellindex+1].isFocus = true;
+            this.cells[activecellindex+1].draw();
+            return this.cells[activecellindex + 1];
+
         }
+        return this.cells[activecellindex];
     }
 
     add_cell(cell){
@@ -82,7 +94,17 @@ class Row{
     }
 
     draw_cells(){
-        this.cells.forEach((cell)=>cell.draw());
+        if(this.isSelected){
+            this.cells.forEach(cell => {
+                cell.isSelected = true;
+                cell.draw();
+            })
+        }else{
+            this.cells.forEach((cell)=>{
+                cell.isSelected = false;
+                cell.draw()
+            });
+        }
     }
     draw_header(){
         if(this.isSelected){
@@ -100,12 +122,10 @@ class Row{
     }
 
     fill(){
-        if(this.isSelected){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
         this.ctx.fillRect(this.x,this.y,this.x + this.width,this.cellHeight);
         this.ctx.restore();
-        }
     }
 
     draw_boundary(){
