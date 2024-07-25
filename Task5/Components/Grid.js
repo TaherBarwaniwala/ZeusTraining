@@ -624,13 +624,13 @@ class Grid{
             this.draw();
             this.draw_selectedcols();
             this.columnselection.forEach(col => {
-                this.copyregion.push(...this.columns[col].cells);
+                this.copyregion.push(...Object.values(this.columns[col].cells));
             });
         }else if(this.rowselection.length > 0){
             this.draw();
             this.draw_selectedrows();
             this.rowselection.forEach(row => {
-                this.copyregion.push(...this.rows[row].cells);
+                this.copyregion.push(...Object.values(this.rows[row].cells));
             });
         }else if(this.activecell){
             this.draw();
@@ -642,6 +642,31 @@ class Grid{
             this.timer = null;
         }
         this.draw_copy_region();
+        this.copy_text_to_clipboard();
+    }
+
+    copy_text_to_clipboard(){
+        if(this.copyregion.length > 0){
+            let initialrow = this.copyregion[0].row.index;
+            let initialcol = this.copyregion[0].column.index;
+            let finalrow = this.copyregion[0].row.index;
+            let finalcol = this.copyregion[0].column.index;
+            this.copyregion.forEach(cell => {
+                initialrow = Math.min(cell.row.index,initialrow);
+                initialcol = Math.min(cell.column.index,initialcol);
+                finalrow = Math.max(cell.row.index,finalrow);
+                finalcol = Math.max(cell.column.index,finalcol)
+            });
+            let outstring = "";
+            for(let row = initialrow;row <= finalrow ; row++){
+                for(let col = initialcol;col <= finalcol;col++){
+                    outstring = outstring.concat(this.rows[row].getCell(col).text + "\t");
+                }
+                outstring = outstring.concat("\n");
+            }
+            console.log(outstring);
+            navigator.clipboard.writeText(outstring);
+        }
     }
 
     deselectactivecell(){
@@ -900,12 +925,20 @@ class Grid{
             this.ctx.save();
             this.ctx.strokeStyle = "#ffffff";
             this.ctx.lineWidth = "2";
-            this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            if(this.columnselection.length > 0 || this.rowselection.length > 0){
+                this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            }else{
+                this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3); 
+            }
             this.ctx.setLineDash([4,2]);
             this.ctx.strokeStyle = "#107c41";
             this.ctx.lineWidth = "2";
             this.ctx.lineDashOffset = -this.offset;
-            this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            if(this.columnselection.length > 0 || this.rowselection.length > 0){
+                this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            }else{
+                this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3); 
+            }
             this.ctx.restore();
             if(this.timer === null) this.draw_copy_region_timer();
         }
@@ -945,16 +978,17 @@ class Grid{
             this.ctx.save();
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
-            if(this.columnselection[0] !== 1){
-                this.ctx.beginPath();
-                this.ctx.moveTo(topx + 1.5,0);
-                this.ctx.lineTo(topx + 1.5,this.height);
-                this.ctx.stroke();
-            }
-            this.ctx.beginPath();
-            this.ctx.moveTo(bottomx - 1.5,0);
-            this.ctx.lineTo(bottomx - 1.5,this.height);
-            this.ctx.stroke();
+            this.ctx.strokeRect(topx + 1,1,bottomx - topx - 1,this.height);
+            // if(this.columnselection[0] !== 1){
+            //     this.ctx.beginPath();
+            //     this.ctx.moveTo(topx + 1,0);
+            //     this.ctx.lineTo(topx + 1,this.height);
+            //     this.ctx.stroke();
+            // }
+            // this.ctx.beginPath();
+            // this.ctx.moveTo(bottomx - 1,0);
+            // this.ctx.lineTo(bottomx - 1,this.height);
+            // this.ctx.stroke();
             this.ctx.restore();
             this.draw_copy_region();
 
@@ -983,16 +1017,17 @@ class Grid{
             this.ctx.save();
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
-            if(this.rowselection[0] !== 1){
-                this.ctx.beginPath();
-                this.ctx.moveTo(0,topy + 1.5);
-                this.ctx.lineTo(this.width,topy + 1.5);
-                this.ctx.stroke();
-            }
-            this.ctx.beginPath();
-            this.ctx.moveTo(0,bottomy - 1.5);
-            this.ctx.lineTo(this.width,bottomy - 1.5);
-            this.ctx.stroke();
+            this.ctx.strokeRect(1,topy + 1,this.width,bottomy - topy - 1);
+            // if(this.rowselection[0] !== 1){
+            //     this.ctx.beginPath();
+            //     this.ctx.moveTo(0,topy + 1);
+            //     this.ctx.lineTo(this.width,topy + 1);
+            //     this.ctx.stroke();
+            // }
+            // this.ctx.beginPath();
+            // this.ctx.moveTo(0,bottomy - 1);
+            // this.ctx.lineTo(this.width,bottomy - 1);
+            // this.ctx.stroke();
             this.ctx.restore();
             this.draw_copy_region();
 

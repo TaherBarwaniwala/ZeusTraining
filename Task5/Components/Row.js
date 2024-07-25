@@ -218,8 +218,8 @@ class Row{
     }
 
     getCell(col){
-        for(let cell in this.cells){
-            if(parseInt(this.cells[cell].column.index)===parseInt(col)) return this.cells[cell];
+        if(Object.hasOwn(this.cells,col)){
+            return this.cells[col];
         }
     }
     static create_shadowrow(rows){

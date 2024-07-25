@@ -232,8 +232,8 @@ class Column{
     }
 
     getCell(row){
-        for(let cell in this.cells){
-            if(parseInt(this.cells[cell].row.index)===parseInt(row)) return this.cells[cell];
+        if(Object.hasOwn(this.cells,row)){
+            return this.cells[row];
         }
     }
 

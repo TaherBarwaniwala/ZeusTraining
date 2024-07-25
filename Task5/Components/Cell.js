@@ -192,7 +192,7 @@ class Cell{
                 if(!this.isSelected){
                     this.ctx.strokeStyle =this.focusStyle;
                     this.ctx.lineWidth = "2";
-                    this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+                    this.ctx.strokeRect(this.x + 1,this.y + 1,this.renderWidth - 1,this.height - 1);
                 }
             } else if(this.isSelected){
                 this.ctx.fillStyle = "#e7f1ec";
