@@ -14,10 +14,10 @@ class Row{
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
         this.height = this.cellHeight;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,"row","#101010","#f5f5f5","#393939");
+        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,"row",null,null,"#101010","#f5f5f5","rgb(97,97,97)");
         this.header.align = "right";
         this.header.width = 40;
-        this.cells = [];
+        this.cells = {};
         this.selectFillStyle = "#caead8";
         this.fillStyle = fillStyle;
         this.strokeStyle = strokeStyle;
@@ -50,50 +50,48 @@ class Row{
     }
 
     moveactivecellleft(){
-        let activecellindex = -1;
         let col = -1
-            this.cells.forEach((cell,i)=>{
-                if(cell.isFocus === true){
-                    activecellindex = i;
-                    cell.isFocus = false;
-                    cell.draw();
-                    col = parseInt(cell.column.index);
+        for(let cell in this.cells){
+            if(this.cells[cell].isFocus === true){
+                this.cells[cell].isFocus = false;
+                this.cells[cell].draw();
+                col = parseInt(cell);
                 }
-            });
-                for(let cell in this.cells){
-                    if(parseInt(this.cells[cell].column.index)===col-1){
-                        this.cells[cell].isFocus =true;
-                        this.cells[cell].draw();
-                        return this.cells[cell];
-                    }
-                }
-            return this.cells[activecellindex];
+            }
+        if(Object.hasOwn(this.cells,col -1)){
+            this.cells[col - 1].isFocus =true;
+            this.cells[col - 1].draw();
+            return this.cells[col - 1];
+        }
+            return this.cells[col];
 
     }
 
     moveactivecellright(){
-        let activecellindex = -1;
-        let col = -1;
-        this.cells.forEach((cell,i)=>{
-            if(cell.isFocus === true){
-                activecellindex = i;
-                col = parseInt(cell.column.index);
-                cell.isFocus = false;
-                cell.draw();
-            }
-        });
-            for(let cell in this.cells){
-                if(parseInt(this.cells[cell].column.index)===col+1){
-                    this.cells[cell].isFocus =true;
-                    this.cells[cell].draw();
-                    return this.cells[cell];
+        let col = -1
+        for(let cell in this.cells){
+            if(this.cells[cell].isFocus === true){
+                this.cells[cell].isFocus = false;
+                this.cells[cell].draw();
+                col = parseInt(cell);
                 }
             }
-        return this.cells[activecellindex];
+        if(Object.hasOwn(this.cells,col + 1)){
+            this.cells[col + 1].isFocus =true;
+            this.cells[col + 1].draw();
+            return this.cells[col + 1];
+        }
+            return this.cells[col];
     }
 
     add_cell(cell){
-        this.cells.push(cell);
+        this.cells[cell.column.index] = cell;
+    }
+
+    update_index(){
+        for(let cell in this.cells){
+            this.cells[cell].column.cells[this.index] = this.cells[cell];
+        }
     }
 
     draw(){
@@ -103,17 +101,18 @@ class Row{
 
     draw_cells(){
         if(this.isSelected){
-            this.cells.forEach(cell => {
-                cell.isSelected = true;
-                cell.draw();
-            })
+            for(let cell in this.cells){
+                this.cells[cell].isSelected = true;
+                this.cells[cell].draw();
+            }
         }else{
-            this.cells.forEach((cell)=>{
-                cell.isSelected = false;
-                cell.draw()
-            });
+            for(let cell in this.cells){
+                this.cells[cell].isSelected = false;
+                this.cells[cell].draw();
+            }
         }
     }
+
     draw_header(){
         if(this.isSelected){
             this.header.fillStyle = "#caead8";

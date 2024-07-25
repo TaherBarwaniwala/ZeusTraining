@@ -32,8 +32,11 @@ class Grid{
         this.region = [];
         this.columnselection = [];
         this.rowselection = [];
+        this.copyregion = [];
         this.headerHeight = 40;
         this.headerWidth = 40;
+        this.offset = 0;
+        this.timer = null;
         // this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.footercanvas,"","black","grey");
         this.onpointerdownbound = (e) => this.onpointerdownmaincanvas(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
@@ -94,21 +97,6 @@ class Grid{
         }else if(this.isColDrag(y)){
             this.oncolumndrag(x);
         }
-            // for( let col in this.columns){
-            //     if(this.columns[col].headerhittest(x,y)){
-            //         this.columns[col].isSelected = true;
-            //         this.activecol = col;
-            //         window.addEventListener("pointermove",this.oncolpointermovebound);
-            //         window.addEventListener("pointerup",this.oncolpointerupbound,{ once: true });
-            //         window.addEventListener("pointercancel",this.oncolpointercancelbound,{ once: true });
-            //         this.initialX = x;
-            //         this.initialY = y;
-            //     }else{
-            //         this.columns[col].isSelected = false;
-            //     }
-            // }
-            // for(let row in this.rows){ this.rows[row].isSelected = true;}
-            // this.draw();
     }
 
     isColSelect(y){
@@ -137,7 +125,6 @@ class Grid{
         this.initialX = initialX;
         let cols = this.columnselection.map(col => this.columns[col]);
         this.shadowcol = Column.create_shadowcol(cols);
-        this.getMinMaxAvgCount();
         window.addEventListener("pointermove",this.oncoldragpointermovebound);
         window.addEventListener("pointerup",this.oncoldragpointerupbound,{"once":true});
         window.addEventListener("pointercancel",this.oncoldragpointercancelbound,{"once":true});
@@ -155,12 +142,14 @@ class Grid{
 
     oncoldragpointerup(e){
         this.movecolumns();
+        this.getMinMaxAvgCount();
         window.removeEventListener("pointermove",this.oncoldragpointermovebound);
         window.removeEventListener("pointercancel",this.oncoldragpointercancelbound);
     }
 
     oncoldragpointercancel(e){
         this.movecolumns();
+        this.getMinMaxAvgCount();
         window.removeEventListener("pointermove",this.oncoldragpointermovebound);
         window.removeEventListener("pointerup",this.oncoldragpointerupbound);
     }
@@ -185,12 +174,14 @@ class Grid{
                 this.columns[index].index += finalSelectionIndex - initialSelectionIndex + 1;
                 this.columns[index].header.x += offsetcols;
                 this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].update_index();
             }
             for(let index = initialSelectionIndex;index <= finalSelectionIndex;index++){
                 this.columns[index].x -= offsetSelectedcol;
                 this.columns[index].index -= initialSelectionIndex - this.activecol;
                 this.columns[index].header.x -= offsetSelectedcol;
                 this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].update_index();
             }
             this.columnselection = this.columnselection.map(col => col -= initialSelectionIndex - this.activecol);
 
@@ -202,13 +193,14 @@ class Grid{
                 this.columns[index].index += this.activecol - finalSelectionIndex - 1;
                 this.columns[index].header.x -= offsetSelectedcol;
                 this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].update_index();
             }
             for(let index = finalSelectionIndex + 1;index<this.activecol;index++){
                 this.columns[index].x -= offsetcols;
                 this.columns[index].index -= finalSelectionIndex - initialSelectionIndex + 1;
                 this.columns[index].header.x -= offsetcols;
                 this.columns[index].header.text = Column.getindex(this.columns[index].index);
-
+                this.columns[index].update_index();
             }
             this.columnselection = this.columnselection.map(col => col +=this.activecol - finalSelectionIndex - 1);
 
@@ -373,12 +365,14 @@ class Grid{
                 this.rows[index].index += finalSelectionIndex - initialSelectionIndex + 1;
                 this.rows[index].header.y += offsetrows;
                 this.rows[index].header.text = this.rows[index].index;
+                this.rows[index].update_index();
             }
             for(let index = initialSelectionIndex;index <= finalSelectionIndex;index++){
                 this.rows[index].y -= offsetSelectedrow;
                 this.rows[index].index -= initialSelectionIndex - this.activerow;
                 this.rows[index].header.y -= offsetSelectedrow;
                 this.rows[index].header.text = this.rows[index].index;
+                this.rows[index].update_index();
             }
             this.rowselection = this.rowselection.map(row => row -= initialSelectionIndex - this.activerow);
 
@@ -390,13 +384,14 @@ class Grid{
                 this.rows[index].index += this.activerow - finalSelectionIndex - 1;
                 this.rows[index].header.y += offsetSelectedrow;
                 this.rows[index].header.text = this.rows[index].index;
+                this.rows[index].update_index();
             }
             for(let index = finalSelectionIndex + 1;index<this.activerow;index++){
                 this.rows[index].y -= offsetrows;
                 this.rows[index].index -= finalSelectionIndex - initialSelectionIndex + 1;
                 this.rows[index].header.y -= offsetrows;
                 this.rows[index].header.text = this.rows[index].index;
-
+                this.rows[index].update_index();
             }
             this.rowselection = this.rowselection.map(row => row +=this.activerow - finalSelectionIndex - 1);
 
@@ -497,6 +492,10 @@ class Grid{
                 this.draw();
             }
             this.getMinMaxAvgCount();
+        }else if(e.ctrlKey){
+            this.handleCtrldown(e);
+        }else if(e.code === "Escape"){
+            this.handleEscKeyDown(e);
         }else if(this.activecell && this.istyping){
             if(e.code === "Enter" || e.code === "Escape") this.istyping = false;
             this.activecell.onkeypress(e);
@@ -509,7 +508,6 @@ class Grid{
                 this.istyping = true;
                 this.activecell.onkeypress(e);
             }
-
         }
     }
 
@@ -548,6 +546,23 @@ class Grid{
         this.activecell.isFocus = true;
     }
 
+    handleCtrldown(e){
+        if( e.key === "c" || e.key === "C") this.onCopy();
+    }
+
+    handleEscKeyDown(e){
+        if(this.istyping){
+            this.activecell.onkeypress(e);
+            this.istyping = false;
+        }else{
+            this.remove_copy();
+            this.draw();
+            this.draw_region();
+            if(this.columnselection.length > 0)this.draw_selectedcols();
+            if(this.rowselection.length > 0)this.draw_selectedrows();
+        }
+    }
+
     onregionpointermove(e){
         this.regionselection = true;
         let offsetX = e.pageX - this.topX - this.initialX;
@@ -563,23 +578,24 @@ class Grid{
         if(finalRow && finalCol){
         let rowsrange = this.getRowinRange(initialRow,finalRow);
         let colrange = this.getColinRange(initialCol,finalCol);
-        this.deselectheader();
-        this.removeregion();
-        this.region = [];
+        let region = [];
         let cell;
         colrange.forEach(col => {
             rowsrange.forEach(row => {
                 cell = this.rows[row].getCell(col);
-                this.region.push(cell);
-                cell.isSelected = true;
-                this.columns[col].header.isFocus = true;
-                this.rows[row].header.isFocus = true;
+                region.push(cell);
             });
         });
-        this.activecell.isFocus = true;
-        // this.draw();
-        this.getMinMaxAvgCount();
-        this.draw_region();
+        if(region !== this.region){
+            this.deselectheader();
+            this.removeregion();
+            this.region = region;
+            this.activecell.isFocus = true;
+            // this.draw();
+            this.getMinMaxAvgCount();
+            this.draw_region();
+        }
+
     }
     }
 
@@ -591,6 +607,41 @@ class Grid{
     onregionpointercancel(){
         window.removeEventListener("pointermove",this.onregionpointermovebound);
         window.removeEventListener("pointerup",this.onregionpointerupbound);
+    }
+
+    onCopy(){
+        this.copyregion = [];
+        if(this.region.length > 0){
+            this.draw();
+            this.draw_region();
+            this.copyregion = this.region;
+            if(this.timer !== null){
+                clearInterval(this.timer);
+                this.timer = null;
+            }
+
+        }else if(this.columnselection.length > 0){
+            this.draw();
+            this.draw_selectedcols();
+            this.columnselection.forEach(col => {
+                this.copyregion.push(...this.columns[col].cells);
+            });
+        }else if(this.rowselection.length > 0){
+            this.draw();
+            this.draw_selectedrows();
+            this.rowselection.forEach(row => {
+                this.copyregion.push(...this.rows[row].cells);
+            });
+        }else if(this.activecell){
+            this.draw();
+            this.activecell.draw();
+            this.copyregion = [this.activecell];
+        }
+        if(this.timer !== null){
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        this.draw_copy_region();
     }
 
     deselectactivecell(){
@@ -644,6 +695,12 @@ class Grid{
         );
     }
 
+    remove_copy(){
+        if(this.timer) clearInterval(this.timer);
+        this.timer = null;
+        this.copyregion = [];
+    }
+
     reset(){
         this.deselectcolumns();
         this.deselectrows();
@@ -662,6 +719,8 @@ class Grid{
         this.columnselection = [];
         this.rowselection = [];
         this.getMinMaxAvgCount();
+
+        this.draw();
     }
 
     getRow(y){
@@ -793,20 +852,24 @@ class Grid{
     }
 
     draw_region(){
-        let r1=this.region[0].row.index;
-        let r2 = r1;
-        let c1 = this.region[0].column.index;
-        let c2 = c1;
-        this.region.forEach(cell => {
-            cell.draw();
-            c1 = c1>cell.column.index?cell.column.index:c1;
-            c2 = c2<cell.column.index?cell.column.index:c2;
-            r1 = r1>cell.row.index?cell.row.index:r1;
-            r2 = r2<cell.row.index?cell.row.index:r2;
-        });
-        let rowsrange = this.getRowinRange(r1,r2);
-        let colrange = this.getColinRange(c1,c2);
+ 
         if(this.region.length > 0){
+            let r1=this.region[0].row.index;
+            let r2 = r1;
+            let c1 = this.region[0].column.index;
+            let c2 = c1;
+            this.region.forEach(cell => {
+                cell.isSelected = true;
+                cell.column.header.isFocus = true;
+                cell.row.header.isFocus = true;
+                cell.draw();
+                c1 = c1>cell.column.index?cell.column.index:c1;
+                c2 = c2<cell.column.index?cell.column.index:c2;
+                r1 = r1>cell.row.index?cell.row.index:r1;
+                r2 = r2<cell.row.index?cell.row.index:r2;
+            });
+            let rowsrange = this.getRowinRange(r1,r2);
+            let colrange = this.getColinRange(c1,c2);
             rowsrange.forEach(row =>{
                 this.rows[row].header.draw();
                 this.rows[row].draw_boundary();
@@ -822,14 +885,47 @@ class Grid{
             this.ctx.save();
             this.ctx.strokeStyle = "#107c41";
             this.ctx.lineWidth = "2";
-            this.ctx.strokeRect(topx<bottomx?topx:bottomx,topy<bottomy?topy:bottomy,Math.abs(topx-bottomx),Math.abs(topy-bottomy));
+            this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 1,(topy<bottomy?topy:bottomy) + 1,Math.abs(topx-bottomx) - 1,Math.abs(topy-bottomy) - 1);
             this.ctx.restore();
+            this.draw_copy_region();
         }
     }
 
+    draw_copy_region(){
+        if(this.copyregion.length > 0){
+            let topx = this.copyregion[0].x;
+            let topy = this.copyregion[0].y;
+            let bottomx = this.copyregion[this.copyregion.length-1].x + this.copyregion[this.copyregion.length - 1].width;
+            let bottomy = this.copyregion[this.copyregion.length-1].y + this.copyregion[this.copyregion.length - 1].height;
+            this.ctx.save();
+            this.ctx.strokeStyle = "#ffffff";
+            this.ctx.lineWidth = "2";
+            this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            this.ctx.setLineDash([4,2]);
+            this.ctx.strokeStyle = "#107c41";
+            this.ctx.lineWidth = "2";
+            this.ctx.lineDashOffset = -this.offset;
+            this.ctx.strokeRect((topx<bottomx?topx:bottomx) + 2,(topy<bottomy?topy:bottomy) + 2,Math.abs(topx-bottomx) - 3,Math.abs(topy-bottomy) - 3);
+            this.ctx.restore();
+            if(this.timer === null) this.draw_copy_region_timer();
+        }
+    }
+
+    draw_copy_region_timer(){
+        if(this.timer !== null){
+        this.offset = (this.offset + 1)%5;
+        this.draw_copy_region();
+        }else{
+        this.timer = setInterval(()=> this.draw_copy_region_timer(),100);
+        }
+    }
+
+
     draw_selectedcols(){
         if(this.columnselection.length > 0){
-
+            this.columnselection.forEach(col => {
+                this.columns[col].header.isSelected = true;
+            });
             for(let col in this.columns){
                 this.columns[col].draw_without_boundary();
             }
@@ -860,12 +956,17 @@ class Grid{
             this.ctx.lineTo(bottomx - 1.5,this.height);
             this.ctx.stroke();
             this.ctx.restore();
+            this.draw_copy_region();
+
         }
 
     }
 
     draw_selectedrows(){
         if(this.rowselection.length > 0){
+            this.rowselection.forEach(row => {
+                this.rows[row].header.isSelected = true;
+            });
             for(let row in this.rows){
                 this.rows[row].draw_without_boundary();
             }
@@ -893,6 +994,8 @@ class Grid{
             this.ctx.lineTo(this.width,bottomy - 1.5);
             this.ctx.stroke();
             this.ctx.restore();
+            this.draw_copy_region();
+
         }
 
     }
@@ -912,7 +1015,7 @@ class Grid{
             this.columns[col].draw_boundary();
         }
         if(this.activecell) this.activecell.draw();
-
+        this.draw_copy_region();
     }
 
     getMinMaxAvgCount(){
@@ -937,33 +1040,33 @@ class Grid{
             });
         }else if(this.columnselection.length > 0){
             this.columnselection.forEach(col => {
-                this.columns[col].cells.forEach(cell =>{
-                    if(cell.text !== ""){
+                for(let cell in this.columns[col].cells){
+                    if(this.columns[col].cells[cell].text !== ""){
                         count++;
-                        if(!isNaN(cell.text)){
-                                num = parseFloat(cell.text);
+                        if(!isNaN(this.columns[col].cells[cell].text)){
+                                num = parseFloat(this.columns[col].cells[cell].text);
                                 min = Math.min(min,num);
                                 max = Math.max(max,num);
                                 sum += num;
                                 numcount++;
                         }
                     }
-            })
+            }
             });
         }else if(this.rowselection.length > 0){
             this.rowselection.forEach(row => {
-                this.rows[row].cells.forEach(cell =>{
-                    if(cell.text !== ""){
+                for(let cell in this.rows[row].cells){
+                    if(this.rows[row].cells[cell].text !== ""){
                         count++;
-                        if(!isNaN(cell.text)){
-                                num = parseFloat(cell.text);
+                        if(!isNaN(this.rows[row].cells[cell].text)){
+                                num = parseFloat(this.rows[row].cells[cell].text);
                                 min = Math.min(min,num);
                                 max = Math.max(max,num);
                                 sum += num;
                                 numcount++;
                         }
                     }
-            })
+            }
             });
         }
 

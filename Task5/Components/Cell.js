@@ -173,8 +173,8 @@ class Cell{
             this.ctx.lineTo(this.x + this.width,this.y + 0.5);
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x,this.y + this.height - 0.5);
-            this.ctx.lineTo(this.x + this.width,this.y + this.height - 0.5);
+            this.ctx.moveTo(this.x,this.y + this.height + 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y + this.height + 0.5);
             this.ctx.stroke();
             this.ctx.beginPath();
             this.ctx.moveTo(this.x + this.width - 0.5,this.y);
@@ -208,13 +208,13 @@ class Cell{
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.Header && this.isSelected ? "white":this.textStyle;
         if(this.align === "left"){
-            this.ctx.fillText(this.text,this.x + 4,this.y+this.height - 4);
+            this.ctx.fillText(this.text,this.x + 5,this.y+this.height - 5);
         }else if(this.align === "right"){
             let textwidth = this.ctx.measureText(this.text).width;
-            this.ctx.fillText(this.text,this.x + this.width - textwidth - 4,this.y + this.height - 4);
+            this.ctx.fillText(this.text,this.x + this.width - textwidth - 5,this.y + this.height - 5);
         }else if(this.align === "middle"){
             let textwidth = this.ctx.measureText(this.text).width;
-            this.ctx.fillText(this.text,this.x+this.width/2 - textwidth+1/2,this.y+this.height -4);
+            this.ctx.fillText(this.text,this.x+this.width/2 - textwidth+1/2,this.y+this.height -5);
         }
     }
 
