@@ -69,43 +69,50 @@ class Column{
         if(e.keyCode === 38 ){
              return this.moveactivecellup();
         }
-        if(e.keyCode === 40){
+        if(e.keyCode === 40 || e.code === "Enter"){
             return this.moveactivecelldown();
         }
     }
 
     moveactivecellup(){
         let activecellindex = -1;
+        let row = -1;
         this.cells.forEach((cell,i)=>{
             if(cell.isFocus === true){
                 activecellindex = i;
+                row = parseInt(cell.row.index);
                 cell.isFocus = false;
-                cell.draw();
+                this.cells[activecellindex].isFocus = false;
+                this.cells[activecellindex].draw();
             }
         });
-        if(activecellindex > 0 && activecellindex<this.cells.length){
-            this.cells[activecellindex].isFocus = false;
-            this.cells[activecellindex].draw();
-            this.cells[activecellindex-1].isFocus = true;
-            this.cells[activecellindex - 1].draw();
-            return this.cells[activecellindex - 1];
+        for(let cell in this.cells){
+            if(parseInt(this.cells[cell].row.index) === row-1){
+            this.cells[cell].isFocus = true;
+            this.cells[cell].draw();
+            return this.cells[cell];
+            }
         }
         return this.cells[activecellindex];
     }
 
     moveactivecelldown(){
         let activecellindex = -1;
+        let row = -1;
         this.cells.forEach((cell,i)=>{
             if(cell.isFocus === true){
                 activecellindex = i;
+                this.cells[activecellindex].isFocus = false;
+                this.cells[activecellindex].draw();
+                row = parseInt(cell.row.index);
             }
         });
-        if(activecellindex > -1 && activecellindex<this.cells.length-1){
-            this.cells[activecellindex].isFocus = false;
-            this.cells[activecellindex].draw();
-            this.cells[activecellindex+1].isFocus = true;
-            this.cells[activecellindex+1].draw();
-            return this.cells[activecellindex + 1];
+        for(let cell in this.cells){
+            if(parseInt(this.cells[cell].row.index) === row + 1){
+            this.cells[cell].isFocus = true;
+            this.cells[cell].draw();
+            return this.cells[cell];
+            }
         }
         return this.cells[activecellindex];
     }
@@ -128,22 +135,22 @@ class Column{
     draw_leftBoundary(){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
-        this.ctx.lineWidth = "3";
+        this.ctx.lineWidth = "2";
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x,this.y - this.header.height);
-        this.ctx.lineTo(this.x,this.y+this.height);
+        this.ctx.moveTo(this.x+1.5,this.y - this.header.height);
+        this.ctx.lineTo(this.x+1.5,this.y+this.height);
         this.ctx.stroke();
         this.ctx.restore();
         this.headerctx.save();
         this.headerctx.strokeStyle = "#107c41";
-        this.headerctx.lineWidth = "3";
+        this.headerctx.lineWidth = "2";
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x,this.y);
-        this.headerctx.lineTo(this.x,this.y+this.height);
+        this.headerctx.moveTo(this.x+1.5,this.y);
+        this.headerctx.lineTo(this.x+1.5,this.y+this.height);
         this.headerctx.stroke();
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x - 10,this.y+2);
-        this.headerctx.lineTo(this.x + 10,this.y+2);
+        this.headerctx.moveTo(this.x + 1.5 - 5,this.y+1.5);
+        this.headerctx.lineTo(this.x + 1.5 + 5,this.y+1.5);
         this.headerctx.stroke();
         this.headerctx.restore();
     }
@@ -189,7 +196,7 @@ class Column{
     fill(){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
-        this.ctx.fillRect(this.x,0,this.cellWidth,this.height);
+        this.ctx.fillRect(this.x+0.5,0.5,this.cellWidth,this.height);
         this.ctx.restore();
     }
 
@@ -198,7 +205,7 @@ class Column{
     }
 
     hittest(x){
-        return (x>this.x &&x<this.x+this.cellWidth);
+        return (x>=this.x &&x<this.x+this.cellWidth);
     }
 
     move(x){
@@ -210,6 +217,10 @@ class Column{
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
         this.ctx.fillRect(this.x+x,0,this.cellWidth,this.height);
         this.ctx.restore();
+        this.headerctx.save();
+        this.headerctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
+        this.headerctx.fillRect(this.x+x,15,this.cellWidth,this.height);
+        this.headerctx.restore();
     }
 
     copy(col){
@@ -220,6 +231,12 @@ class Column{
         for(let i=1;i<col.cells.length;i++){
             this.cells[i].x = this.x;
             this.cells[i].width = this.cellWidth;
+        }
+    }
+
+    getCell(row){
+        for(let cell in this.cells){
+            if(parseInt(this.cells[cell].row.index)===parseInt(row)) return this.cells[cell];
         }
     }
 

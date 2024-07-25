@@ -6,16 +6,28 @@ const body = document.body;
 const height = body.clientHeight;
 const width = body.clientWidth;
 canvas.width = width - 40;
-canvas.height = height - 40
+canvas.height = height - 40 - 24;
 canvas.style.width = canvas.width + "px";
-canvas.style.height = canvas.height + "px"
+canvas.style.height = canvas.height + "px";
 
 const column = document.getElementById("C1");
 const row = document.getElementById("R1");
-column.setAttribute("width",(width - 40) + "px");
-column.setAttribute("height","40px");
-row.setAttribute("height",(height - 40) + "px");
-row.setAttribute("width","40px");
+column.width = canvas.width;
+column.height = 40;
+column.style.width = column.width + "px";
+column.style.height = column.height + "px";
+row.width = 40;
+row.height = canvas.height;
+row.style.width = row.width + "px";
+row.style.height = row.height + "px";
+
+/** @type {HTMLCanvasElement} */
+const footer = document.getElementById("footer-canvas");
+footer.height = 24;
+footer.width = column.width + 40;
+footer.style.width = footer.width + "px";
+footer.style.height = footer.height + "px";
+
 const ctx = canvas.getContext('2d');
 
 
@@ -61,7 +73,7 @@ const ctx = canvas.getContext('2d');
 // row.create_row();
 // row.draw();
 
-let grid = new Grid(40,40,0,0,80,25,canvas,column,row);
+let grid = new Grid(40,40,0,0,80,25,canvas,column,row,footer);
 grid.create_grid();
 grid.draw();
 // grid.draw_rows();

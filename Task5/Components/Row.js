@@ -153,22 +153,22 @@ class Row{
     draw_upBoundary(){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
-        this.ctx.lineWidth = "3";
+        this.ctx.lineWidth = "2";
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x - this.header.width,this.y);
-        this.ctx.lineTo(this.x + this.width,this.y);
+        this.ctx.moveTo(this.x - this.header.width,this.y + 1.5);
+        this.ctx.lineTo(this.x + this.width,this.y + 1.5);
         this.ctx.stroke();
         this.ctx.restore();
         this.headerctx.save();
         this.headerctx.strokeStyle = "#107c41";
-        this.headerctx.lineWidth = "3";
+        this.headerctx.lineWidth = "2";
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x ,this.y);
-        this.headerctx.lineTo(this.x + this.width,this.y);
+        this.headerctx.moveTo(this.x + 2,this.y + 1.5);
+        this.headerctx.lineTo(this.x + 2 + this.width,this.y + 1.5);
         this.headerctx.stroke();
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x + 2,this.y - 10);
-        this.headerctx.lineTo(this.x + 2,this.y + 10);
+        this.headerctx.moveTo(this.x + 2,this.y - 5 + 1.5);
+        this.headerctx.lineTo(this.x + 2,this.y + 5 + 1.5);
         this.headerctx.stroke();
         this.headerctx.restore();
     }
@@ -189,7 +189,7 @@ class Row{
     }
 
     hittest(y){
-        return (y>this.y && y < this.y+this.cellHeight);
+        return (y>=this.y && y < this.y+this.cellHeight);
     }
 
     move(y){
@@ -200,6 +200,10 @@ class Row{
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
         this.ctx.fillRect(0,this.y+y,this.width,this.cellHeight);
         this.ctx.restore();
+        this.headerctx.save();
+        this.headerctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
+        this.headerctx.fillRect(0,this.y+y,this.width,this.cellHeight);
+        this.headerctx.restore();
     }
 
     copy(row){
@@ -211,6 +215,12 @@ class Row{
             this.cells[i].text = row.cells[i].text;
             this.cells[i].y = this.y;
             this.cells[i].height = this.cellHeight;
+        }
+    }
+
+    getCell(col){
+        for(let cell in this.cells){
+            if(parseInt(this.cells[cell].column.index)===parseInt(col)) return this.cells[cell];
         }
     }
     static create_shadowrow(rows){

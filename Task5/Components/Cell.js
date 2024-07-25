@@ -96,9 +96,6 @@ class Cell{
         if(this.Header === "column"){
             this.ctx.fillStyle = this.fillStyle;
             this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
-            this.ctx.strokeStyle =this.strokeStyle;
-            this.ctx.lineWidth = this.lineWidth;
-            this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
             if(this.isFocus){
                 this.ctx.beginPath();
                 this.ctx.fillStyle = "#caead8";
@@ -125,13 +122,24 @@ class Cell{
                 this.ctx.stroke();
 
             }
- 
+            this.ctx.strokeStyle =this.strokeStyle;
+            this.ctx.lineWidth = this.lineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x+0.5,this.y);
+            this.ctx.lineTo(this.x + 0.5,this.y + this.height);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + this.width + 0.5,this.y);
+            this.ctx.lineTo(this.x + this.width + 0.5,this.y + this.height);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x,this.y + this.height - 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y + this.height - 0.5);
+            this.ctx.stroke(); 
         }else if(this.Header === "row"){
             this.ctx.fillStyle = this.fillStyle;
             this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
-            this.ctx.strokeStyle =this.strokeStyle;
-            this.ctx.lineWidth = this.lineWidth;
-            this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+
             if(this.isFocus){
                 this.ctx.beginPath();
                 this.ctx.fillStyle = "#caead8";
@@ -140,7 +148,7 @@ class Cell{
                 this.ctx.lineWidth = "5";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = this.focusStyle;
-                this.ctx.moveTo(this.x+this.width,this.y);
+                this.ctx.moveTo(this.x+this.width ,this.y);
                 this.ctx.lineTo(this.x+this.width,this.y+this.height);
                 this.ctx.stroke();
 
@@ -158,7 +166,20 @@ class Cell{
                 this.ctx.stroke();
 
             }
- 
+            this.ctx.strokeStyle =this.strokeStyle;
+            this.ctx.lineWidth = this.lineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x,this.y + 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y + 0.5);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x,this.y + this.height - 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y + this.height - 0.5);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + this.width - 0.5,this.y);
+            this.ctx.lineTo(this.x + this.width - 0.5,this.y + this.height);
+            this.ctx.stroke(); 
         }else{
             this.x = this.column.x;
             this.y = this.row.y;
@@ -170,7 +191,7 @@ class Cell{
                 this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
                 if(!this.isSelected){
                     this.ctx.strokeStyle =this.focusStyle;
-                    this.ctx.lineWidth = "1";
+                    this.ctx.lineWidth = "2";
                     this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
                 }
             } else if(this.isSelected){
@@ -213,7 +234,7 @@ class Cell{
         this.inputbox.setAttribute("type","text");
         this.inputbox.setAttribute("id",`C${this.column.x + 40}${this.row.y +40}${this.height}${this.width}`);
         this.inputbox.setAttribute("class","input-box");
-        this.inputbox.setAttribute("style",`top:${this.row.y + 40}px;left:${this.column.x + 40}px;height:${this.height}px;width:${this.renderWidth}px;`)
+        this.inputbox.setAttribute("style",`top:${this.row.y + 40.5}px;left:${this.column.x + 40.5}px;height:${this.height-1.5}px;width:${this.renderWidth-1.5}px;font:${this.font}`)
         document.body.appendChild(this.inputbox); 
         this.inputbox.addEventListener('pointerdown',() => this.oninputpointerdown());
     }
