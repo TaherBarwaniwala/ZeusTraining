@@ -548,6 +548,7 @@ class Grid{
 
     handleCtrldown(e){
         if( e.key === "c" || e.key === "C") this.onCopy();
+        if( e.key === "v" || e.key === "V") this.onPaste();
     }
 
     handleEscKeyDown(e){
@@ -555,6 +556,7 @@ class Grid{
             this.activecell.onkeypress(e);
             this.istyping = false;
         }else{
+            navigator.clipboard.writeText("");
             this.remove_copy();
             this.draw();
             this.draw_region();
@@ -645,6 +647,104 @@ class Grid{
         this.copy_text_to_clipboard();
     }
 
+    onPaste(){
+        if(this.activecell){
+            let selectionText;
+            let selection = [];
+            navigator.clipboard.readText().then(text => {
+                text = text.replace("\r","");
+                selectionText = text;
+            }).catch(() => {
+                selectionText = "";
+            }).finally(() =>{
+                selection = selectionText.split("\n");
+                for(let index=0;index < selection.length;index++){
+                    selection[index] = selection[index].split("\t");
+                }
+                let selectionrowrange = selection.length;
+                let selectioncolrange = selection[0].length;
+                let activecell = [];
+                if(this.region.length > 0){
+                    let initialrow  = this.region[0].row.index;
+                    let initialcol = this.region[0].column.index;
+                    let finalrow = initialrow;
+                    let finalcol = initialcol;
+                    this.region.forEach(cell => {
+                        initialrow = Math.min(cell.row.index,initialrow);
+                        initialcol = Math.min(cell.column.index,initialcol);
+                        finalrow = Math.max(cell.row.index,finalrow);
+                        finalcol = Math.max(cell.column.index,finalcol);
+                    });
+                    for(let rowindex = 0;rowindex <= finalrow - initialrow - selectionrowrange + 1; rowindex+= selectionrowrange){
+                        for(let colindex = 0;colindex <= finalcol - initialcol - selectioncolrange + 1;colindex += selectioncolrange){
+                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex));
+                        }
+                    }
+                    if(!(activecell.includes(this.rows[initialrow].getCell(initialcol)))){
+                        activecell.push(this.rows[initialrow].getCell(initialcol));
+                    }
+                    
+                }else if(this.columnselection.length > 0){
+                    let initialrow  = 1;
+                    let initialcol = this.columnselection[0];
+                    let finalrow = Object.keys(this.rows).length;
+                    let finalcol = initialcol;
+                    this.columnselection.forEach(col => {
+                        initialcol = Math.min(col,initialcol);
+                        finalcol = Math.max(col,finalcol);
+                    });
+                    for(let rowindex = 0;rowindex <= finalrow - initialrow - selectionrowrange + 1; rowindex+= selectionrowrange){
+                        for(let colindex = 0;colindex <= finalcol - initialcol - selectioncolrange + 1;colindex += selectioncolrange){
+                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex));
+                        }
+                    }
+                    if(!(activecell.includes(this.rows[initialrow].getCell(initialcol)))){
+                        activecell.push(this.rows[initialrow].getCell(initialcol));
+                    }
+                }else if(this.rowselection.length > 0){
+                    let initialcol  = 1;
+                    let initialrow = this.rowselection[0];
+                    let finalcol = Object.keys(this.columns).length;
+                    let finalrow = initialrow;
+                    this.rowselection.forEach(row => {
+                        initialrow = Math.min(row,initialrow);
+                        finalrow = Math.max(row,finalrow);
+                    });
+                    for(let rowindex = 0;rowindex <= finalrow - initialrow - selectionrowrange + 1; rowindex+= selectionrowrange){
+                        for(let colindex = 0;colindex <= finalcol - initialcol - selectioncolrange + 1;colindex += selectioncolrange){
+                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex));
+                        }
+                    }
+                    if(!(activecell.includes(this.rows[initialrow].getCell(initialcol)))){
+                        activecell.push(this.rows[initialrow].getCell(initialcol));
+                    }
+                }else{
+                    activecell.push(this.activecell);
+                }
+                this.reset();
+                activecell.forEach(cell => {
+                    this.paste_selection(cell,selection);
+                })
+            });
+        }
+    }
+
+    paste_selection(activecell , selection){
+        let initialrow = activecell.row.index;
+        let initialcol = activecell.column.index;
+        let rowcount = selection.length;
+        let colcount = selection[0].length;
+        let cell;
+        for(let rowoffset = 0;rowoffset < rowcount;rowoffset++){
+            for(let columnoffset = 0;columnoffset < colcount;columnoffset++){
+                cell = this.rows[initialrow + rowoffset].getCell(initialcol + columnoffset);
+                cell.text = selection[rowoffset][columnoffset];
+                this.region.push(cell);
+            }
+        }
+        this.draw();
+    }
+
     copy_text_to_clipboard(){
         if(this.copyregion.length > 0){
             let initialrow = this.copyregion[0].row.index;
@@ -664,6 +764,8 @@ class Grid{
                 }
                 outstring = outstring.concat("\n");
             }
+            outstring = outstring.replace("\t\n","\n");
+            outstring = outstring.substring(0,outstring.length - 1);
             console.log(outstring);
             navigator.clipboard.writeText(outstring);
         }
@@ -1049,7 +1151,10 @@ class Grid{
         for(const col in this.columns){ 
             this.columns[col].draw_boundary();
         }
+        this.draw_selectedcols();
+        this.draw_selectedrows();
         if(this.activecell) this.activecell.draw();
+        this.draw_region();
         this.draw_copy_region();
     }
 

@@ -83,7 +83,7 @@ class Column{
                 row = parseInt(cell);
                 }
             }
-        if(Object.hasOwn(this.cells,row + 1)){
+        if(Object.hasOwn(this.cells,row - 1)){
             this.cells[row - 1].isFocus =true;
             this.cells[row - 1].draw();
             return this.cells[row - 1];
