@@ -115,10 +115,10 @@ class Cell{
                 this.ctx.lineWidth = "1";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = "white";
-                this.ctx.moveTo(this.x,this.y);
-                this.ctx.lineTo(this.x,this.y+this.height);
-                this.ctx.moveTo(this.x+this.width,this.y);
-                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.moveTo(this.x + 0.5,this.y);
+                this.ctx.lineTo(this.x + 0.5,this.y+this.height);
+                this.ctx.moveTo(this.x+this.width + 0.5,this.y);
+                this.ctx.lineTo(this.x+this.width + 0.5,this.y+this.height);
                 this.ctx.stroke();
 
             }
@@ -187,13 +187,13 @@ class Cell{
             this.align = isNaN(this.text)?"left":"right";
             if(this.isFocus){
                 this.ctx.fillStyle = this.fillStyle;
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x-1,this.y-1,this.width,this.height);
                 if(!this.isSelected){
                     this.ctx.strokeStyle =this.focusStyle;
                     this.ctx.lineWidth = "2";
                     this.ctx.strokeRect(this.x + 1,this.y + 1,this.width - 1,this.height - 1);
                 }
-            } else if(this.isSelected){
+            }else if(this.isSelected){
                 this.ctx.fillStyle = "#e7f1ec";
                 this.ctx.fillRect(this.x,this.y,this.width,this.height);
             }
