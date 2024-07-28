@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="./styles/index.css" />
     <title>Excel clone</title>
   </head>
-  <body style="height: 100vh; width: 100%; margin: 0">
+  <body style="height: 100vh; width: 100%; margin: 0;overflow: hidden;">
     <div class="flex column">
       <div class="all-selector">
         <canvas style="touch-action: none" class="all-selector-canvas"></canvas>
@@ -25,11 +25,17 @@
       </div>
       <div class="main-canvas-container">
         <canvas
-          style="touch-action: none"
-          class="main-canvas"
-          id="C1R1"
-        ></canvas>
+        style="touch-action: none"
+        class="main-canvas"
+        id="C1R1"
+      ></canvas>
       </div>
+        <div class="canvas-container-horizontal scrollbar">
+          <div class="scroll-horizontal"></div>
+        </div>
+        <div class="canvas-container-vertical scrollbar">
+          <div class="scroll-vertical"></div>
+        </div>
     </div>
     <div class="footer">
       <canvas id="footer-canvas"></canvas>
