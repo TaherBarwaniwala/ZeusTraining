@@ -212,7 +212,7 @@ class Grid{
         cols.forEach(col => {
             this.columns[col.index] = col;
         });
-        this.draw();
+        this.draw_selectedcols();
     }
 
     oncolumnselect(x){
@@ -1138,7 +1138,7 @@ class Grid{
     }
 
     draw(){
-        this.ctx.clearRect(0,0,this.canvas.width,this.canvas,this.height);
+
         for(const col in this.columns){ 
             this.columns[col].draw_without_boundary();
         }
@@ -1151,9 +1151,9 @@ class Grid{
         for(const col in this.columns){ 
             this.columns[col].draw_boundary();
         }
-        if(this.activecell) this.activecell.draw();
         this.draw_selectedcols();
         this.draw_selectedrows();
+        if(this.activecell) this.activecell.draw();
         this.draw_region();
         this.draw_copy_region();
     }
