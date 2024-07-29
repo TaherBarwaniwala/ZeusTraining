@@ -21,10 +21,6 @@
     z-index: 2;
 }
 
-.flex.row{
-    height: calc(100vh - 64px);
-}
-
 .all-selector{
     top:0;
     left:0;
@@ -74,10 +70,6 @@
     margin: 0;
     padding: 0;
     display: inline-block;
-    overflow:scroll;
-    height: inherit;
-    scrollbar-width: thin;
-    z-index:1;
 }
 
 .canvas-container-horizontal{
@@ -138,18 +130,20 @@
     min-height: 24px;
     width: 100%;
     z-index: 1;
-    overflow:none;
-}
 
+}
 
 #footer-canvas{
     height: inherit;
     min-height: inherit;
     background-color: #f5f5f5;
 }
+<<<<<<< HEAD
 
 .scrollable{
     position:sticky;
     overflow:scroll;
     // background: rgba(0,0,0,0);
 }
+=======
+>>>>>>> parent of 9d2032b (initial commit of day 29/7/24)
