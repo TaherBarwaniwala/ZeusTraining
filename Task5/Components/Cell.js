@@ -1,9 +1,6 @@
 class Cell{
-    constructor(x,y,width,height,canvas,text = "",Header = false,row=null,column=null,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
-        this.x=x;
-        this.y=y;
-        this.height = height;
-        this.width = width;
+    constructor(canvas,text = "",Header = false,row=null,column=null,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
+
         this.text = text;
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
@@ -22,6 +19,10 @@ class Cell{
         this.column = column;
         this.textAlign = "left";
         this.isSelected = false;
+        this.x=this.column?this.column.x:0;
+        this.y=this.row?this.row.y:15;
+        this.height = this.row?this.row.cellHeight:25;
+        this.width = this.column?this.column.cellWidth:80;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.onkeypressbound = (e) => this.onkeypress(e);
         this.onpointerdownupbound = () => this.onpointerup();

@@ -12,16 +12,16 @@ class Scrollbar{
     onscroll(e){
         this.onscrollfunction();
         if((this.offset_element.getBoundingClientRect().right <= window.innerWidth + 50) && (this.offset_element.getBoundingClientRect().right >= window.innerWidth - 50)){
-            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth + 1000}px;height:${this.offset_element.scrollHeight}px`);
+            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth*2}px;height:${this.offset_element.scrollHeight}px`);
         }
         if((this.offset_element.getBoundingClientRect().bottom <= window.innerHeight + 50) && (this.offset_element.getBoundingClientRect().bottom >= window.innerHeight - 50)){
-            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth}px;height:${this.offset_element.scrollHeight + 1000}px`);
+            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth}px;height:${this.offset_element.scrollHeight*2}px`);
         }
         if((this.offset_element.getBoundingClientRect().left <= 50)&&((this.offset_element.getBoundingClientRect().left >= 0))){
-            this.offset_element.setAttribute("style",`width:${Math.max(2000,this.offset_element.scrollWidth - 1000)}px;height:${this.offset_element.scrollHeight}px`);
+            this.offset_element.setAttribute("style",`width:${Math.max(2000,this.offset_element.scrollWidth/2)}px;height:${this.offset_element.scrollHeight}px`);
         }
         if((this.offset_element.getBoundingClientRect().top <= window.innerHeight + 50) && (this.offset_element.getBoundingClientRect().top >= window.innerHeight - 50)){
-            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth}px;height:${Math.max(2000,this.offset_element.scrollHeight - 1000)}px`);
+            this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth}px;height:${Math.max(2000,this.offset_element.scrollHeight/2)}px`);
         }
     }
 

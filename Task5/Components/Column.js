@@ -19,7 +19,7 @@ class Column{
         this.isSelected = false;
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,Column.getindex(this.index),"column",null,null,"#101010","#f5f5f5","rgb(97,97,97)");
+        this.header = new Cell(this.headercanvas,Column.getindex(this.index-1),"column",null,this,"#101010","#f5f5f5","rgb(97,97,97)");
         this.header.align = "middle";
         this.cells = {};
         this.onpointerdownbound = (e) => this.onpointerdown(e);
@@ -32,9 +32,10 @@ class Column{
 
     static getindex(i){
         i = parseInt(i);
-        if(i<27){
-            return String.fromCharCode(65+i-1);
+        if(i<26){
+            return String.fromCharCode(65+i);
         }else{
+            return Column.getindex(i/26 - 1) + Column.getindex(i%26);
         }
     }
 
@@ -86,9 +87,9 @@ class Column{
         if(Object.hasOwn(this.cells,row - 1)){
             this.cells[row - 1].isFocus =true;
             this.cells[row - 1].draw();
-            return this.cells[row - 1];
+            return [row-1,this.cells[row - 1]];
         }
-            return this.cells[row];
+            return [row-1,new Cell(this.canvas,"",false,null,this)];
     }
 
     moveactivecelldown(){
@@ -103,9 +104,9 @@ class Column{
         if(Object.hasOwn(this.cells,row + 1)){
             this.cells[row + 1].isFocus =true;
             this.cells[row + 1].draw();
-            return this.cells[row + 1];
+            return [row + 1,this.cells[row + 1]];
         }
-            return this.cells[row];
+        return [row+1,new Cell(this.canvas,"",false,null,this)];
     }
 
     add_cell(cell){

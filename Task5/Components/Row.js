@@ -14,7 +14,7 @@ class Row{
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
         this.height = this.cellHeight;
-        this.header = new Cell(this.x,this.y,this.cellWidth,this.cellHeight,this.headercanvas,this.index,"row",null,null,"#101010","#f5f5f5","rgb(97,97,97)");
+        this.header = new Cell(this.headercanvas,this.index,"row",this,null,"#101010","#f5f5f5","rgb(97,97,97)");
         this.header.align = "right";
         this.header.width = 40;
         this.cells = {};
@@ -61,9 +61,10 @@ class Row{
         if(Object.hasOwn(this.cells,col -1)){
             this.cells[col - 1].isFocus =true;
             this.cells[col - 1].draw();
-            return this.cells[col - 1];
+            return [col -1 , this.cells[col - 1]];
         }
-            return this.cells[col];
+            let newcell = new Cell(this.canvas,"",false,this,null);
+            return [col -1 ,newcell];
 
     }
 
@@ -79,9 +80,10 @@ class Row{
         if(Object.hasOwn(this.cells,col + 1)){
             this.cells[col + 1].isFocus =true;
             this.cells[col + 1].draw();
-            return this.cells[col + 1];
+            return [col + 1 , this.cells[col + 1]];
         }
-            return this.cells[col];
+            let newcell = new Cell(this.canvas,"",false,this,null);
+            return [col + 1,newcell];
     }
 
     add_cell(cell){

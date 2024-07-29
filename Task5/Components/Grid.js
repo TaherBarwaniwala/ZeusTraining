@@ -501,8 +501,6 @@ class Grid{
 
     onkeydown(e){
         if(this.activecell && !this.istyping && ((e.keyCode > 36 && e.keyCode < 41)||e.code === "Enter")){
-            e.preventDefault();
-            
             if(e.code === "Enter"){
                 this.handleEnterdown();
             }else{
@@ -553,11 +551,23 @@ class Grid{
         if(this.activecol) this.columns[this.activecol].header.isFocus= false;
         if(this.activerow) this.rows[this.activerow].header.isFocus = false;
         if(e.keyCode === 37 || e.keyCode === 39){
-            this.activecell = this.rows[this.activerow].onkeydown(e);
-            this.activecol = this.activecell.column.index;
+            let res = this.rows[this.activerow].onkeydown(e);
+            this.activecol = res[0];
+            this.activecell = res[1];
+            this.activecell.column = this.columns[this.activecol];
+            this.activecell.x = this.columns[this.activecol].x;
+            this.activecell.width = this.columns[this.activecol].cellWidth;
+            this.rows[this.activerow].add_cell(this.activecell);
+            this.columns[this.activecol].add_cell(this.activecell);
         }else if(e.keyCode ===38 || e.keyCode === 40 || e.code === "Enter"){
-            this.activecell = this.columns[this.activecol].onkeydown(e);
-            this.activerow = this.activecell.row.index;
+            let res = this.columns[this.activecol].onkeydown(e);
+            this.activerow = res[0];
+            this.activecell = res[1];
+            this.activecell.row = this.rows[this.activerow];
+            this.activecell.y = this.rows[this.activerow].y;
+            this.activecell.height = this.rows[this.activerow].cellHeight;
+            this.rows[this.activerow].add_cell(this.activecell);
+            this.columns[this.activecol].add_cell(this.activecell);
         }            
         if(this.activecol) this.columns[this.activecol].header.isFocus = true;
         if(this.activerow) this.rows[this.activerow].header.isFocus = true;
@@ -972,7 +982,7 @@ class Grid{
             columnindex = 1;
             x = this.x;           
             while( x < this.width*2){
-                cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
+                cell = new Cell(this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
                 this.cells.push(cell);
@@ -1168,6 +1178,18 @@ class Grid{
         let scrolloffsetY = this.Scrollbar.getScrollTop();
         let boundedcols = Column.getBoundedColumns(this.columns,this.topX + scrolloffsetX , this.width + scrolloffsetX);
         let boundedrows = Row.getBoundedRows(this.rows,scrolloffsetY,this.height + scrolloffsetY);
+        while(this.width - (this.columns[boundedcols[boundedcols.length-1]].x + this.columns[boundedcols[boundedcols.length-1]].cellWidth - scrolloffsetX) > 0){
+            let index = parseInt(boundedcols[boundedcols.length - 1]);
+            let newcol = new Column(index+1,this.columns[index].x + this.columns[index].cellWidth,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
+            boundedcols.push(newcol);
+            this.columns[index+1] = newcol;
+        }
+        while(this.height - (this.rows[boundedrows[boundedrows.length-1]].y + this.rows[boundedrows[boundedrows.length-1]].cellHeight - scrolloffsetY) > 0){
+            let index = parseInt(boundedrows[boundedrows.length - 1]);
+            let newrow = new Row(index+1,0,this.rows[index].y + this.rows[index].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+            boundedrows.push(newrow);
+            this.rows[index+1] = newrow;
+        }
         for(const col of boundedcols){ 
             this.columns[col].draw_without_boundary(scrolloffsetX,scrolloffsetY);
         }
