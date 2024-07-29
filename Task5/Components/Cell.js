@@ -90,65 +90,67 @@ class Cell{
         this.inputbox.value = this.text;
     }
 
-    draw(){
+    draw(x,y){
         this.ctx.save();
         this.ctx.beginPath();
         if(this.Header === "column"){
             this.ctx.fillStyle = this.fillStyle;
-            this.ctx.fillRect(this.x,this.y,this.width,this.height);
+            this.ctx.fillRect(this.x - x,this.y,this.width,this.height);
             if(this.isFocus){
                 this.ctx.beginPath();
                 this.ctx.fillStyle = "#caead8";
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x - x,this.y,this.width,this.height);
                 this.ctx.strokeStyle =this.strokeStyle;
                 this.ctx.lineWidth = "5";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = this.focusStyle;
-                this.ctx.moveTo(this.x,this.y+this.height);
-                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.moveTo(this.x - x,this.y+this.height);
+                this.ctx.lineTo(this.x - x+this.width,this.y+this.height);
                 this.ctx.stroke();
 
             }else if(this.isSelected){
                 this.ctx.fillStyle = "#107c41";
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x - x,this.y,this.width,this.height);
                 this.ctx.strokeStyle =this.strokeStyle;
                 this.ctx.lineWidth = "1";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = "white";
-                this.ctx.moveTo(this.x,this.y);
-                this.ctx.lineTo(this.x,this.y+this.height);
-                this.ctx.moveTo(this.x+this.width,this.y);
-                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.moveTo(this.x - x,this.y);
+                this.ctx.lineTo(this.x - x,this.y+this.height);
+                this.ctx.moveTo(this.x - x+this.width,this.y);
+                this.ctx.lineTo(this.x - x+this.width,this.y+this.height);
                 this.ctx.stroke();
 
             }
             this.ctx.strokeStyle =this.strokeStyle;
             this.ctx.lineWidth = this.lineWidth;
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x+0.5,this.y);
-            this.ctx.lineTo(this.x + 0.5,this.y + this.height);
+            this.ctx.moveTo(this.x - x+0.5,this.y);
+            this.ctx.lineTo(this.x - x + 0.5,this.y + this.height);
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x + this.width + 0.5,this.y);
-            this.ctx.lineTo(this.x + this.width + 0.5,this.y + this.height);
+            this.ctx.moveTo(this.x - x + this.width + 0.5,this.y);
+            this.ctx.lineTo(this.x - x + this.width + 0.5,this.y + this.height);
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x,this.y + this.height - 0.5);
-            this.ctx.lineTo(this.x + this.width,this.y + this.height - 0.5);
+            this.ctx.moveTo(this.x - x,this.y + this.height - 0.5);
+            this.ctx.lineTo(this.x - x + this.width,this.y + this.height - 0.5);
             this.ctx.stroke(); 
+            if(this.text !== "") this.draw_text(x,0);
+
         }else if(this.Header === "row"){
             this.ctx.fillStyle = this.fillStyle;
-            this.ctx.fillRect(this.x,this.y,this.width,this.height);
+            this.ctx.fillRect(this.x,this.y - y,this.width,this.height);
             if(this.isFocus){
                 this.ctx.beginPath();
                 this.ctx.fillStyle = "#caead8";
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x ,this.y - y,this.width,this.height);
                 this.ctx.strokeStyle =this.strokeStyle;
                 this.ctx.lineWidth = "5";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = this.focusStyle;
-                this.ctx.moveTo(this.x+this.width ,this.y);
-                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.moveTo(this.x +this.width,this.y - y);
+                this.ctx.lineTo(this.x +this.width,this.y - y+this.height);
                 this.ctx.stroke();
 
             }else if(this.isSelected){
@@ -156,29 +158,31 @@ class Cell{
                 this.ctx.lineWidth = "1";
                 // this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height)
                 this.ctx.strokeStyle = "white";
-                this.ctx.moveTo(this.x,this.y);
-                this.ctx.lineTo(this.x,this.y+this.height);
-                this.ctx.moveTo(this.x+this.width,this.y);
-                this.ctx.lineTo(this.x+this.width,this.y+this.height);
+                this.ctx.moveTo(this.x ,this.y - y);
+                this.ctx.lineTo(this.x ,this.y - y+this.height);
+                this.ctx.moveTo(this.x +this.width,this.y - y);
+                this.ctx.lineTo(this.x +this.width,this.y - y+this.height);
                 this.ctx.stroke();
                 this.ctx.fillStyle = "#107c41";
-                this.ctx.fillRect(this.x + 0.5,this.y + 0.5,this.width + 2.5,this.height + 2.5);
+                this.ctx.fillRect(this.x  + 0.5,this.y - y + 0.5,this.width + 2.5,this.height + 2.5);
 
             }
             this.ctx.strokeStyle =this.strokeStyle;
             this.ctx.lineWidth = this.lineWidth;
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x,this.y + 0.5);
-            this.ctx.lineTo(this.x + this.width,this.y + 0.5);
+            this.ctx.moveTo(this.x  ,this.y - y + 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y - y + 0.5);
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x,this.y + this.height + 0.5);
-            this.ctx.lineTo(this.x + this.width,this.y + this.height + 0.5);
+            this.ctx.moveTo(this.x ,this.y - y + this.height + 0.5);
+            this.ctx.lineTo(this.x + this.width,this.y - y + this.height + 0.5);
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x + this.width - 0.5,this.y);
-            this.ctx.lineTo(this.x + this.width - 0.5,this.y + this.height);
+            this.ctx.moveTo(this.x + this.width - 0.5,this.y - y);
+            this.ctx.lineTo(this.x + this.width - 0.5,this.y - y + this.height);
             this.ctx.stroke(); 
+            if(this.text !== "") this.draw_text(0,y);
+
         }else{
             this.x = this.column.x;
             this.y = this.row.y;
@@ -187,34 +191,34 @@ class Cell{
             this.align = isNaN(this.text)?"left":"right";
             if(this.isFocus){
                 this.ctx.fillStyle = this.fillStyle;
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x - x + 1.5,this.y - y + 1.5,this.width - 1.5,this.height - 1.5);
                 if(!this.isSelected){
                     this.ctx.strokeStyle =this.focusStyle;
                     this.ctx.lineWidth = "2";
-                    this.ctx.strokeRect(this.x + 1,this.y + 1,this.width - 1,this.height - 1);
+                    this.ctx.strokeRect(this.x - x + 1,this.y - y + 1,this.width - 1,this.height - 1);
                 }
             } else if(this.isSelected){
                 this.ctx.fillStyle = "#e7f1ec";
-                this.ctx.fillRect(this.x,this.y,this.width,this.height);
+                this.ctx.fillRect(this.x - x,this.y - y,this.width,this.height);
             }
+        if(this.text !== "") this.draw_text(x,y);
         }
-        if(this.text !== "") this.draw_text();
         this.ctx.restore();
   
     }
 
-    draw_text(){
+    draw_text(x,y){
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.Header && this.isSelected ? "white":this.textStyle;
         let visblefraction = 1;
         let textwidth = this.ctx.measureText(this.text).width;
         if(textwidth > this.width) visblefraction = this.width/textwidth;
         if(this.align === "left"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x + 5,this.y+this.height - 5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + 5,this.y - y +this.height - 5);
         }else if(this.align === "right"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x + this.width - textwidth - 5,this.y + this.height - 5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - textwidth - 5,this.y - y  + this.height - 5);
         }else if(this.align === "middle"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x+this.width/2 - textwidth+1/2,this.y+this.height -5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - textwidth+1/2,this.y - y +this.height -5);
         }
     }
 
@@ -232,15 +236,15 @@ class Cell{
     create_inputbox(){
         this.inputbox = document.createElement('input');
         this.inputbox.setAttribute("type","text");
-        this.inputbox.setAttribute("id",`C${this.column.x + 40}${this.row.y +40}${this.height}${this.width}`);
+        this.inputbox.setAttribute("id",`C${this.column.x}${this.row.y}${this.height}${this.width}`);
         this.inputbox.setAttribute("class","input-box");
-        this.inputbox.setAttribute("style",`top:${this.row.y + 40.5}px;left:${this.column.x + 40.5}px;height:${this.height-1.5}px;width:${this.renderWidth-1.5}px;font:${this.font}`)
-        document.body.appendChild(this.inputbox); 
+        this.inputbox.setAttribute("style",`top:${this.row.y + 0.5}px;left:${this.column.x + 0.5}px;height:${this.height-1.5}px;width:${this.renderWidth-1.5}px;font:${this.font}`)
+        this.canvas.parentElement.appendChild(this.inputbox); 
         this.inputbox.addEventListener('pointerdown',() => this.oninputpointerdown());
     }
     remove_inputbox(){
         if(this.inputbox){
-            document.body.removeChild(this.inputbox);
+            this.canvas.parentElement.removeChild(this.inputbox);
             this.inputbox = null;
         }
     }

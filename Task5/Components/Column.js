@@ -123,60 +123,60 @@ class Column{
         this.draw_boundary();
     }
 
-    draw_without_boundary(){
-        this.fill();
-        this.draw_header();
-        this.draw_cells();
+    draw_without_boundary(x,y){
+        this.fill(x);
+        this.draw_header(x);
+        this.draw_cells(x,y);
     }
 
-    draw_leftBoundary(){
+    draw_leftBoundary(x){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
         this.ctx.lineWidth = "2";
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x+1.5,this.y - this.header.height);
-        this.ctx.lineTo(this.x+1.5,this.y+this.height);
+        this.ctx.moveTo(this.x+1.5 - x,this.y - this.header.height);
+        this.ctx.lineTo(this.x+1.5 - x,this.y+this.height);
         this.ctx.stroke();
         this.ctx.restore();
         this.headerctx.save();
         this.headerctx.strokeStyle = "#107c41";
         this.headerctx.lineWidth = "2";
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x+1.5,this.y);
-        this.headerctx.lineTo(this.x+1.5,this.y+this.height);
+        this.headerctx.moveTo(this.x+1.5 - x,this.y);
+        this.headerctx.lineTo(this.x+1.5 - x,this.y+this.height);
         this.headerctx.stroke();
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x + 1.5 - 5,this.y+1.5);
-        this.headerctx.lineTo(this.x + 1.5 + 5,this.y+1.5);
+        this.headerctx.moveTo(this.x + 1.5 - 5 - x,this.y+1.5);
+        this.headerctx.lineTo(this.x + 1.5 + 5 - x,this.y+1.5);
         this.headerctx.stroke();
         this.headerctx.restore();
     }
 
-    draw_cells(){
+    draw_cells(x,y){
         if(this.isSelected){
             for(let cell in this.cells){
                 this.cells[cell].isSelected = true;
-                this.cells[cell].draw();
+                this.cells[cell].draw(x,y);
             }
         }else{
             for(let cell in this.cells){
                 this.cells[cell].isSelected = false;
-                this.cells[cell].draw();
+                this.cells[cell].draw(x,y);
             }
         }
     }
 
 
-    draw_header(){
+    draw_header(x){
         if(this.isSelected){
             this.header.fillStyle = "#caead8";
         }else{
             this.header.fillStyle = "#f5f5f5";
         }
-        this.header.draw();
+        this.header.draw(x,0);
     }
 
-    draw_boundary(){
+    draw_boundary(x){
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.strokeStyle =this.strokeStyle;
@@ -184,16 +184,16 @@ class Column{
         // this.ctx.moveTo(this.x+0.5,0);
         // this.ctx.lineTo(this.x+0.5,this.height);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x+0.5+this.cellWidth,0);
-        this.ctx.lineTo(this.x+0.5+this.cellWidth,this.height);
+        this.ctx.moveTo(this.x - x +0.5+this.cellWidth,0);
+        this.ctx.lineTo(this.x - x +0.5+this.cellWidth,this.height);
         this.ctx.stroke();
         this.ctx.restore();
     }
 
-    fill(){
+    fill(x){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
-        this.ctx.fillRect(this.x+0.5,0.5,this.cellWidth,this.height);
+        this.ctx.fillRect(this.x+0.5 - x,0.5,this.cellWidth,this.height);
         this.ctx.restore();
     }
 
@@ -249,6 +249,17 @@ class Column{
         }
         let cellWidth = (finalcol.x+finalcol.cellWidth) - initialcol.x;
         return new Column(initialcol.index,initialcol.x,initialcol.y,cellWidth,initialcol.cellHeight,initialcol.canvas,initialcol.headercanvas,"0.1","#000000","rgba(202, 234, 216,0.5)");
+    }
+
+    static getBoundedColumns(columns,x,w){
+        let boundedcols = [];
+        for(let col in columns){
+            if( (columns[col].x >= x && columns[col].x + columns[col].cellWidth <= x + w) || (columns[col].x <= x && columns[col].x + columns[col].cellWidth >= x + w) || 
+                (columns[col].x >= x && columns[col].x <= x + w) || (columns[col].x + columns[col].cellWidth >= x && columns[col].x + columns[col].cellWidth <= x + w)){
+                boundedcols.push(col);
+            }
+        }
+        return boundedcols;
     }
 
 

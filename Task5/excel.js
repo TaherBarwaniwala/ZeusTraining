@@ -1,4 +1,5 @@
 import Grid from "./Components/Grid.js";
+import Scrollbar from "./Components/Scollbar.js";
 
 /**@type {HTMLCanvasElement} */
 const canvas= document.getElementById("C1R1");
@@ -76,5 +77,6 @@ const ctx = canvas.getContext('2d');
 let grid = new Grid(40,40,0,0,80,25,canvas,column,row,footer);
 grid.create_grid();
 grid.draw();
+let scroll = new Scrollbar();
 // grid.draw_rows();
 // grid.draw_cols();

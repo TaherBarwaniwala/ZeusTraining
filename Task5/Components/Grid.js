@@ -1,6 +1,7 @@
 import Cell from './Cell.js';
 import Row from './Row.js';
 import Column from './Column.js';
+import Scrollbar from './Scollbar.js';
 
 class Grid{
     constructor(topX,topY,x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas){
@@ -37,6 +38,8 @@ class Grid{
         this.headerWidth = 40;
         this.offset = 0;
         this.timer = null;
+        this.Scrollbar = new Scrollbar();
+        this.Scrollbar.setOnScrollFunction(()=>this.draw())
         // this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.footercanvas,"","black","grey");
         this.onpointerdownbound = (e) => this.onpointerdownmaincanvas(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
@@ -69,22 +72,25 @@ class Grid{
 
 
     onpointerdownmaincanvas(e){
-        let x = e.pageX - this.topX;
-        let y = e.pageY - this.topY;
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let x = e.pageX - this.topX - scrolloffsetX;
+        let y = e.pageY - this.topY - scrolloffsetY;
         this.cellspointerdown(e);
     }
 
     onpointerdowncolumn(e){
         let x = e.clientX;
         let y = e.clientY;
-        
         this.colheaderpointerdown(x,y);
     }
 
     colheaderpointerdown(x,y){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.isColSelect(y)){
             this.reset();
-            this.activecol = this.getCol(x-this.topX);
+            this.activecol = this.getCol(x-this.topX + scrolloffsetX);
             this.columns[this.activecol].header.isSelected = true;
             this.columns[this.activecol].isSelected = true;
             this.activecell = this.columns[this.activecol].getCell(1);
@@ -108,7 +114,8 @@ class Grid{
     }
 
     oncolumndrag(x){
-        let initialX = x - this.topX;
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let initialX = x - this.topX + scrolloffsetX;
         let currentcol = parseInt(this.getCol(initialX));
         if(!this.columnselection.includes(currentcol)){
             this.reset();
@@ -131,16 +138,17 @@ class Grid{
     }
 
     oncoldragpointermove(e){
-        let offsetX = e.pageX - this.topX - this.initialX;
+        let offsetX = e.pageX - this.topX - this.initialX + this.Scrollbar.getScrollLeft();
         this.draw();
         if(this.getCol(this.initialX+offsetX) !== this.activecol){
             this.activecol = this.getCol(this.initialX+offsetX);
         }
-        this.shadowcol.moveShadow(offsetX);
-        this.columns[this.activecol].draw_leftBoundary();
+        this.shadowcol.moveShadow(offsetX - this.Scrollbar.getScrollLeft());
+        this.columns[this.activecol].draw_leftBoundary(this.Scrollbar.getScrollLeft());
     }
 
     oncoldragpointerup(e){
+        this.shadowcol = null;
         this.movecolumns();
         this.getMinMaxAvgCount();
         window.removeEventListener("pointermove",this.oncoldragpointermovebound);
@@ -148,6 +156,7 @@ class Grid{
     }
 
     oncoldragpointercancel(e){
+        this.shadowcol = null;
         this.movecolumns();
         this.getMinMaxAvgCount();
         window.removeEventListener("pointermove",this.oncoldragpointermovebound);
@@ -219,7 +228,7 @@ class Grid{
         this.deselectrows();
         this.deselectheader();
         this.removeregion();
-        this.initialX = x - this.topX;
+        this.initialX = x - this.topX + this.Scrollbar.getScrollLeft();
         window.addEventListener("pointermove",this.oncolselectpointermovebound);
         window.addEventListener("pointerup",this.oncolselectpointerupbound,{"once":true});
         window.addEventListener("pointercancel",this.oncolselectpointercancelbound,{"once":true});
@@ -236,7 +245,7 @@ class Grid{
     }
 
     oncolselectpointermove(e){
-        let offsetX = e.pageX - this.initialX - this.topX;
+        let offsetX = e.pageX - this.initialX - this.topX + this.Scrollbar.getScrollLeft();
         let initialCol = this.getCol(this.initialX);
         let finalCol = this.getCol(this.initialX + offsetX);
         if(initialCol && finalCol){
@@ -262,9 +271,10 @@ class Grid{
 
     
     rowheaderpointerdown(x,y){
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.isRowSelect(x)){
             this.reset();
-            this.activerow = this.getRow(y-this.topY);
+            this.activerow = this.getRow(y-this.topY + scrolloffsetY);
             this.rows[this.activerow].header.isSelected = true;
             this.rows[this.activerow].isSelected = true;
             this.activecell = this.rows[this.activerow].getCell(1);
@@ -301,7 +311,8 @@ class Grid{
     }
 
     onrowdrag(y){
-        let initialY = y - this.topY;
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let initialY = y - this.topY + scrolloffsetY;
         let currentrow = parseInt(this.getRow(initialY));
         if(!this.rowselection.includes(currentrow)){
             this.reset();
@@ -326,20 +337,23 @@ class Grid{
     }
 
     onrowdragpointermove(e){
-        let offsetY = e.pageY - this.topY - this.initialY;
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let offsetY = e.pageY - this.topY - this.initialY + scrolloffsetY;
         this.activerow = this.getRow(this.initialY+offsetY);
         this.draw();
-        this.shadowrow.moveShadow(offsetY);
-        if(this.activerow)this.rows[this.activerow].draw_upBoundary();
+        this.shadowrow.moveShadow(offsetY - scrolloffsetY);
+        if(this.activerow)this.rows[this.activerow].draw_upBoundary(scrolloffsetY);
     }
 
     onrowdragpointerup(e){
+        this.shadowrow = null;
         this.moverows();
         window.removeEventListener("pointermove",this.onrowdragpointermovebound);
         window.removeEventListener("pointercancel",this.onrowdragpointercancelbound);
     }
 
     onrowdragpointercancel(e){
+        this.shadowrow = null;
         this.moverows();
         window.removeEventListener("pointermove",this.onrowdragpointermovebound);
         window.removeEventListener("pointerup",this.onrowdragpointerupbound);
@@ -415,7 +429,7 @@ class Grid{
         this.deselectcolumns();
         this.deselectheader();
         this.removeregion();
-        this.initialY = y - this.topY;
+        this.initialY = y - this.topY + this.Scrollbar.getScrollTop();
         window.addEventListener("pointermove",this.onrowselectpointermovebound);
         window.addEventListener("pointerup",this.onrowselectpointerupbound,{"once":true});
         window.addEventListener("pointercancel",this.onrowselectpointercancelbound,{"once":true});
@@ -432,7 +446,7 @@ class Grid{
     }
 
     onrowselectpointermove(e){
-        let offsetY = e.pageY - this.initialY - this.topY;
+        let offsetY = e.pageY - this.initialY - this.topY + this.Scrollbar.getScrollTop();
         let initialRow = this.getRow(this.initialY);
         let finalRow = this.getRow(this.initialY + offsetY);
         if(initialRow && finalRow){
@@ -452,18 +466,20 @@ class Grid{
 
 
     cellspointerdown(e){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         let activecell = this.activecell;
         this.reset();
         this.activecell = activecell;
-        let x = e.pageX - this.topX;
-        let y = e.pageY - this.topY;
-        this.initialX = e.pageX - this.topX;
-        this.initialY = e.pageY - this.topY;
+        let x = e.pageX - this.topX + scrolloffsetX;
+        let y = e.pageY - this.topY + scrolloffsetY;
+        this.initialX = e.pageX - this.topX + scrolloffsetX;
+        this.initialY = e.pageY - this.topY + scrolloffsetY;
         this.activecol = this.getCol(this.initialX);
         this.activerow = this.getRow(this.initialY)
         if(this.activecol !== -1 && this.activerow!==-1){
             if(this.activecell === this.columns[this.activecol].getCell(this.activerow)){
-                this.activecell.create_inputbox(this.topX,this.topY);
+                this.activecell.create_inputbox(this.topX + scrolloffsetX,this.topY + scrolloffsetY);
                 this.activecell.isFocus = true;
                 this.activecell.inputbox.style.opacity = 1;
                 this.activecell.inputbox.value = this.activecell.text;
@@ -485,6 +501,8 @@ class Grid{
 
     onkeydown(e){
         if(this.activecell && !this.istyping && ((e.keyCode > 36 && e.keyCode < 41)||e.code === "Enter")){
+            e.preventDefault();
+            
             if(e.code === "Enter"){
                 this.handleEnterdown();
             }else{
@@ -566,6 +584,8 @@ class Grid{
     }
 
     onregionpointermove(e){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         this.regionselection = true;
         let offsetX = e.pageX - this.topX - this.initialX;
         let offsetY = e.pageY - this.topY - this.initialY;
@@ -575,8 +595,8 @@ class Grid{
         let initialCol = this.getCol(this.initialX);
         let finalRow = null;
         let finalCol = null;
-        finalRow = this.getRow(e.pageY - this.topX);
-        finalCol = this.getCol(e.pageX - this.topY);
+        finalRow = this.getRow(e.pageY - this.topY + scrolloffsetY);
+        finalCol = this.getCol(e.pageX - this.topX + scrolloffsetX);
         if(finalRow && finalCol){
         let rowsrange = this.getRowinRange(initialRow,finalRow);
         let colrange = this.getColinRange(initialCol,finalCol);
@@ -766,7 +786,6 @@ class Grid{
             }
             outstring = outstring.replace("\t\n","\n");
             outstring = outstring.substring(0,outstring.length - 1);
-            console.log(outstring);
             navigator.clipboard.writeText(outstring);
         }
     }
@@ -851,15 +870,15 @@ class Grid{
     }
 
     getRow(y){
-        if(y< this.y + this.cellHeight) return 1;
-        if(y> this.y + this.height) return Object.keys(this.rows).length;
+        // if(y< this.y + this.cellHeight) return 1;
+        // if(y> this.y + this.height) return Object.keys(this.rows).length;
         for(let row in this.rows){
             if(this.rows[row].hittest(y)) return row;
         }
     }
     getCol(x){
-        if(x<this.x + this.cellWidth) return 1;
-        if(x>this.x + this.width) return Object.keys(this.columns).length;
+        // if(x<this.x + this.cellWidth) return 1;
+        // if(x>this.x + this.width) return Object.keys(this.columns).length;
         for(let col in this.columns){
             if(this.columns[col].hittest(x)) return col;
         }
@@ -935,24 +954,24 @@ class Grid{
         let y =this.y;
         let cell = null;
         let columnindex = 1;
-        while(y < this.height){
+        while(y < this.height*2){
             this.rows[rowindex] = new Row(rowindex,x,y,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
             rowindex+=1;
             y+=this.cellHeight;
         }
         x = this.x;
         y =this.y+15;
-        while(x < this.width){
+        while(x < this.width*2){
             this.columns[columnindex] = new Column(columnindex,x,y,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
             columnindex += 1;
             x+=this.cellWidth;
         }
         y =this.y;
         rowindex = 1;
-        while( y < this.height){
+        while( y < this.height*2){
             columnindex = 1;
             x = this.x;           
-            while( x < this.width){
+            while( x < this.width*2){
                 cell = new Cell(x,y,this.cellWidth,this.cellHeight,this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
@@ -979,7 +998,8 @@ class Grid{
     }
 
     draw_region(){
- 
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.region.length > 0){
             let r1=this.region[0].row.index;
             let r2 = r1;
@@ -989,7 +1009,7 @@ class Grid{
                 cell.isSelected = true;
                 cell.column.header.isFocus = true;
                 cell.row.header.isFocus = true;
-                cell.draw();
+                cell.draw(scrolloffsetX,scrolloffsetY);
                 c1 = c1>cell.column.index?cell.column.index:c1;
                 c2 = c2<cell.column.index?cell.column.index:c2;
                 r1 = r1>cell.row.index?cell.row.index:r1;
@@ -998,17 +1018,17 @@ class Grid{
             let rowsrange = this.getRowinRange(r1,r2);
             let colrange = this.getColinRange(c1,c2);
             rowsrange.forEach(row =>{
-                this.rows[row].header.draw();
-                this.rows[row].draw_boundary();
+                this.rows[row].header.draw(scrolloffsetX,scrolloffsetY);
+                this.rows[row].draw_boundary(scrolloffsetY);
             });
             colrange.forEach(col => {
-                this.columns[col].header.draw();
-                this.columns[col].draw_boundary();
+                this.columns[col].header.draw(scrolloffsetX,scrolloffsetY);
+                this.columns[col].draw_boundary(scrolloffsetX);
             });
-            let topx = this.region[0].x;
-            let topy = this.region[0].y;
-            let bottomx = this.region[this.region.length-1].x + this.region[this.region.length - 1].width;
-            let bottomy = this.region[this.region.length-1].y + this.region[this.region.length - 1].height;
+            let topx = this.region[0].x - scrolloffsetX;
+            let topy = this.region[0].y - scrolloffsetY;
+            let bottomx = this.region[this.region.length-1].x - scrolloffsetX + this.region[this.region.length - 1].width;
+            let bottomy = this.region[this.region.length-1].y - scrolloffsetY + this.region[this.region.length - 1].height;
             this.ctx.save();
             this.ctx.strokeStyle = "#107c41";
             this.ctx.lineWidth = "2";
@@ -1019,11 +1039,13 @@ class Grid{
     }
 
     draw_copy_region(){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.copyregion.length > 0){
-            let topx = this.copyregion[0].x;
-            let topy = this.copyregion[0].y;
-            let bottomx = this.copyregion[this.copyregion.length-1].x + this.copyregion[this.copyregion.length - 1].width;
-            let bottomy = this.copyregion[this.copyregion.length-1].y + this.copyregion[this.copyregion.length - 1].height;
+            let topx = this.copyregion[0].x - scrolloffsetX;
+            let topy = this.copyregion[0].y - scrolloffsetY;
+            let bottomx = this.copyregion[this.copyregion.length-1].x - scrolloffsetX + this.copyregion[this.copyregion.length - 1].width;
+            let bottomy = this.copyregion[this.copyregion.length-1].y - scrolloffsetY + this.copyregion[this.copyregion.length - 1].height;
             this.ctx.save();
             this.ctx.strokeStyle = "#ffffff";
             this.ctx.lineWidth = "2";
@@ -1057,26 +1079,28 @@ class Grid{
 
 
     draw_selectedcols(){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.columnselection.length > 0){
             this.columnselection.forEach(col => {
                 this.columns[col].header.isSelected = true;
             });
             for(let col in this.columns){
-                this.columns[col].draw_without_boundary();
+                this.columns[col].draw_without_boundary(scrolloffsetX,scrolloffsetY);
             }
             for(let row in this.rows){
                 this.rows[row].header.isFocus = true;
-                this.rows[row].draw_boundary();
-                this.rows[row].draw_header();
+                this.rows[row].draw_boundary(scrolloffsetY);
+                this.rows[row].draw_header(scrolloffsetY);
             }
             for(let col in this.columns){
-                this.columns[col].draw_boundary();
+                this.columns[col].draw_boundary(scrolloffsetX);
             }
             // this.draw();
-            if(this.activecell) this.activecell.draw();
+            if(this.activecell) this.activecell.draw(scrolloffsetX,scrolloffsetY);
             // this.draw();
-            let topx = this.columns[this.columnselection[0]].x;
-            let bottomx = this.columns[this.columnselection[this.columnselection.length-1]].x + this.columns[this.columnselection[this.columnselection.length - 1]].width;
+            let topx = this.columns[this.columnselection[0]].x - scrolloffsetX;
+            let bottomx = this.columns[this.columnselection[this.columnselection.length-1]].x - scrolloffsetX+ this.columns[this.columnselection[this.columnselection.length - 1]].width;
             this.ctx.save();
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
@@ -1099,23 +1123,25 @@ class Grid{
     }
 
     draw_selectedrows(){
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
         if(this.rowselection.length > 0){
             this.rowselection.forEach(row => {
                 this.rows[row].header.isSelected = true;
             });
             for(let row in this.rows){
-                this.rows[row].draw_without_boundary();
+                this.rows[row].draw_without_boundary(scrolloffsetX,scrolloffsetY);
             }
             for(let row in this.rows){
-                this.rows[row].draw_boundary();
+                this.rows[row].draw_boundary(scrolloffsetY);
             }
             for(let col in this.columns){
             this.columns[col].header.isFocus = true;
-            this.columns[col].draw_boundary();
-            this.columns[col].draw_header();
+            this.columns[col].draw_boundary(scrolloffsetX);
+            this.columns[col].draw_header(scrolloffsetX);
             }
-            let topy = this.rows[this.rowselection[0]].y;
-            let bottomy = this.rows[this.rowselection[this.rowselection.length-1]].y + this.rows[this.rowselection[this.rowselection.length - 1]].height;
+            let topy = this.rows[this.rowselection[0]].y - scrolloffsetY;
+            let bottomy = this.rows[this.rowselection[this.rowselection.length-1]].y + this.rows[this.rowselection[this.rowselection.length - 1]].height - scrolloffsetY;
             this.ctx.save();
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
@@ -1138,22 +1164,25 @@ class Grid{
     }
 
     draw(){
-
-        for(const col in this.columns){ 
-            this.columns[col].draw_without_boundary();
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let boundedcols = Column.getBoundedColumns(this.columns,this.topX + scrolloffsetX , this.width + scrolloffsetX);
+        let boundedrows = Row.getBoundedRows(this.rows,scrolloffsetY,this.height + scrolloffsetY);
+        for(const col of boundedcols){ 
+            this.columns[col].draw_without_boundary(scrolloffsetX,scrolloffsetY);
         }
-        for(const row in this.rows){ 
-            this.rows[row].draw_without_boundary();
+        for(const row of boundedrows){ 
+            this.rows[row].draw_without_boundary(scrolloffsetX,scrolloffsetY);
         }
-        for(const row in this.rows){ 
-            this.rows[row].draw_boundary();
+        for(const row of boundedrows){ 
+            this.rows[row].draw_boundary(scrolloffsetY);
         }
-        for(const col in this.columns){ 
-            this.columns[col].draw_boundary();
+        for(const col of boundedcols){ 
+            this.columns[col].draw_boundary(scrolloffsetX);
         }
         this.draw_selectedcols();
         this.draw_selectedrows();
-        if(this.activecell) this.activecell.draw();
+        if(this.activecell) this.activecell.draw(scrolloffsetX,scrolloffsetY);
         this.draw_region();
         this.draw_copy_region();
     }

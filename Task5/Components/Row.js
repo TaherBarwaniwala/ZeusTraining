@@ -99,43 +99,43 @@ class Row{
         this.draw_boundary();
     }
 
-    draw_cells(){
+    draw_cells(x,y){
         if(this.isSelected){
             for(let cell in this.cells){
                 this.cells[cell].isSelected = true;
-                this.cells[cell].draw();
+                this.cells[cell].draw(x,y);
             }
         }else{
             for(let cell in this.cells){
                 this.cells[cell].isSelected = false;
-                this.cells[cell].draw();
+                this.cells[cell].draw(x,y);
             }
         }
     }
 
-    draw_header(){
+    draw_header(y){
         if(this.isSelected){
             this.header.fillStyle = "#caead8";
         }else{
             this.header.fillStyle = "#f5f5f5";
         }
-        this.header.draw();
+        this.header.draw(0,y);
     }
 
-    draw_without_boundary(){
-        this.fill();
-        this.draw_header();
-        this.draw_cells();
+    draw_without_boundary(x,y){
+        this.fill(y);
+        this.draw_header(y);
+        this.draw_cells(x,y);
     }
 
-    fill(){
+    fill(y){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
-        this.ctx.fillRect(this.x,this.y,this.x + this.width,this.cellHeight);
+        this.ctx.fillRect(this.x,this.y - y,this.x + this.width,this.cellHeight);
         this.ctx.restore();
     }
 
-    draw_boundary(){
+    draw_boundary(y){
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.lineWidth = this.lineWidth;
@@ -143,31 +143,31 @@ class Row{
         // this.ctx.moveTo(this.x,this.y + 0.5);
         // this.ctx.lineTo(this.x + this.width,this.y + 0.5);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x,this.y+this.cellHeight + 0.5);
-        this.ctx.lineTo(this.x+this.width,this.y + this.cellHeight + 0.5);
+        this.ctx.moveTo(this.x,this.y - y +this.cellHeight + 0.5);
+        this.ctx.lineTo(this.x+this.width,this.y - y  + this.cellHeight + 0.5);
         this.ctx.stroke();
         this.ctx.restore();
     }
 
-    draw_upBoundary(){
+    draw_upBoundary(y){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
         this.ctx.lineWidth = "2";
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x - this.header.width,this.y + 1.5);
-        this.ctx.lineTo(this.x + this.width,this.y + 1.5);
+        this.ctx.moveTo(this.x - this.header.width,this.y - y + 1.5);
+        this.ctx.lineTo(this.x + this.width,this.y - y + 1.5);
         this.ctx.stroke();
         this.ctx.restore();
         this.headerctx.save();
         this.headerctx.strokeStyle = "#107c41";
         this.headerctx.lineWidth = "2";
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x + 2,this.y + 1.5);
-        this.headerctx.lineTo(this.x + 2 + this.width,this.y + 1.5);
+        this.headerctx.moveTo(this.x + 2,this.y - y + 1.5);
+        this.headerctx.lineTo(this.x + 2 + this.width,this.y - y + 1.5);
         this.headerctx.stroke();
         this.headerctx.beginPath();
-        this.headerctx.moveTo(this.x + 2,this.y - 5 + 1.5);
-        this.headerctx.lineTo(this.x + 2,this.y + 5 + 1.5);
+        this.headerctx.moveTo(this.x + 2,this.y - y - 5 + 1.5);
+        this.headerctx.lineTo(this.x + 2,this.y - y + 5 + 1.5);
         this.headerctx.stroke();
         this.headerctx.restore();
     }
@@ -234,6 +234,17 @@ class Row{
         }
         let cellHeight = (finalrow.y+finalrow.cellHeight) - initialrow.y;
         return new Row(initialrow.index,initialrow.x,initialrow.y,initialrow.cellWidth,cellHeight,initialrow.canvas,initialrow.headercanvas,"0.1","#000000","rgba(202, 234, 216,0.5)");
+    }
+
+    static getBoundedRows(rows,y,h){
+        let boundedrows = [];
+        for(let row in rows){
+            if( (rows[row].y >= y && rows[row].y + rows[row].cellHeight <= y + h) || (rows[row].y <= y && rows[row].y + rows[row].cellHeight >= y + h) || 
+                (rows[row].y >= y && rows[row].y <= y + h) || (rows[row].y + rows[row].cellHeight >= y && rows[row].y + rows[row].cellHeight <= y + h)){
+                boundedrows.push(row);
+            }
+        }
+        return boundedrows;
     }
 }
 
