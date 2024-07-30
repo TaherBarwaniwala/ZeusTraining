@@ -851,7 +851,10 @@ class Grid{
 
     deselectactivecell(){
         this.istyping = false;
-        if(this.activecell) this.activecell.remove_inputbox();
+        if(this.activecell){
+        this.activecell.remove_inputbox();
+        if(this.activecell.text === "") Cell.deleteCell(this.activecell);
+        }
     }
 
     removeregion(){
@@ -881,6 +884,7 @@ class Grid{
         this.cells.forEach(cell => {
             cell.isSelected = false;
             cell.isFocus = false;
+            if(cell.text.length === 0) Cell.deleteCell(cell);
         });
     }
 
@@ -924,8 +928,8 @@ class Grid{
         this.columnselection = [];
         this.rowselection = [];
         this.getMinMaxAvgCount();
-
         this.draw();
+        console.log(this.rows);
     }
 
     getRow(y){
@@ -1100,10 +1104,20 @@ class Grid{
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
         let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.copyregion.length > 0){
-            let topx = this.copyregion[0].x - scrolloffsetX;
-            let topy = this.copyregion[0].y - scrolloffsetY;
-            let bottomx = this.copyregion[this.copyregion.length-1].x - scrolloffsetX + this.copyregion[this.copyregion.length - 1].width;
-            let bottomy = this.copyregion[this.copyregion.length-1].y - scrolloffsetY + this.copyregion[this.copyregion.length - 1].height;
+            let topx = this.copyregion[0].x;
+            let topy = this.copyregion[0].y;
+            let bottomx = this.copyregion[this.copyregion.length-1].x + this.copyregion[this.copyregion.length - 1].width;
+            let bottomy = this.copyregion[this.copyregion.length-1].y + this.copyregion[this.copyregion.length - 1].height;
+            this.copyregion.forEach(cell => {
+                topx = topx<cell.x?topx:cell.x;
+                topy = topy<cell.y?topy:cell.y;
+                bottomx = bottomx > cell.x + cell.width?bottomx:cell.x + cell.width;
+                bottomy = bottomy > cell.y + cell.height?bottomy:cell.y + cell.height;
+            });
+            topx -= scrolloffsetX;
+            bottomx -= scrolloffsetX;
+            topy -= scrolloffsetY;
+            bottomy -= scrolloffsetY;
             this.ctx.save();
             this.ctx.strokeStyle = "#ffffff";
             this.ctx.lineWidth = "2";

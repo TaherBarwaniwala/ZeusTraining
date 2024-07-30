@@ -285,8 +285,6 @@ class Cell{
         if(cell.row && cell.column){
             let rowindex = cell.row.index;
             let colindex = cell.column.index;
-            cell.row.cells[colindex] = null;
-            cell.column.cells[rowindex] = null;
             delete cell.row.cells[colindex];
             delete cell.column.cells[rowindex];
         };
