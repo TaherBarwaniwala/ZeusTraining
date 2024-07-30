@@ -14,7 +14,7 @@ class Column{
         this.width = cellWidth;
         this.cellHeight = cellHeight;
         this.cellWidth = cellWidth;
-        this.selectFillStyle = "#caead8";
+        this.selectFillStyle = "#e7f1ec";
         this.fillStyle = fillStyle;
         this.isSelected = false;
         this.strokeStyle = strokeStyle;
@@ -84,6 +84,7 @@ class Column{
                 row = parseInt(cell);
                 }
             }
+        if(row === 1) return [1,this.cells[1]]
         if(Object.hasOwn(this.cells,row - 1)){
             this.cells[row - 1].isFocus =true;
             this.cells[row - 1].draw();
@@ -154,6 +155,7 @@ class Column{
     }
 
     draw_cells(x,y){
+       if(Object.keys(this.cells).length > 0){
         if(this.isSelected){
             for(let cell in this.cells){
                 this.cells[cell].isSelected = true;
@@ -165,6 +167,7 @@ class Column{
                 this.cells[cell].draw(x,y);
             }
         }
+       }
     }
 
 
@@ -235,6 +238,10 @@ class Column{
     getCell(row){
         if(Object.hasOwn(this.cells,row)){
             return this.cells[row];
+        }else{
+            let cell = new Cell(this.canvas,"",false,null,this);
+            this.cells[row] = cell;
+            return cell;
         }
     }
 

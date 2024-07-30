@@ -239,7 +239,7 @@ class Cell{
         this.inputbox.setAttribute("type","text");
         this.inputbox.setAttribute("id",`C${this.column.x}${this.row.y}${this.height}${this.width}`);
         this.inputbox.setAttribute("class","input-box");
-        this.inputbox.setAttribute("style",`top:${this.row.y + 0.5}px;left:${this.column.x + 0.5}px;height:${this.height-1.5}px;width:${this.renderWidth-1.5}px;font:${this.font}`)
+        this.inputbox.setAttribute("style",`top:${this.row.y + 0.5}px;left:${this.column.x + 0.5}px;height:${this.row.cellHeight-1.5}px;width:${this.row.cellWidth-1.5}px;font:${this.font}`)
         this.canvas.parentElement.appendChild(this.inputbox); 
         this.inputbox.addEventListener('pointerdown',() => this.oninputpointerdown());
     }
@@ -260,6 +260,28 @@ class Cell{
         this.ctx.fillStyle = this.textStyle;
         this.ctx.fillText(this.text,this.x + x+ 4,this.y+y+this.height - 4);
         this.ctx.restore();
+    }
+    update_row(row){
+        if(!row){
+            var a =10;
+        }
+        this.row = row;
+    }
+    update_col(col){
+        if(!col){
+            var a = 10;
+        }
+        this.column = col;
+    }
+    static deleteCell(cell){
+        if(cell.row && cell.column){
+            let rowindex = cell.row.index;
+            let colindex = cell.column.index;
+            cell.row.cells[colindex] = null;
+            cell.column.cells[rowindex] = null;
+            delete cell.row.cells[colindex];
+            delete cell.column.cells[rowindex];
+        };
     }
 }
 

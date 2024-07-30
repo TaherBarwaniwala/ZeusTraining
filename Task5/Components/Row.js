@@ -18,7 +18,7 @@ class Row{
         this.header.align = "right";
         this.header.width = 40;
         this.cells = {};
-        this.selectFillStyle = "#caead8";
+        this.selectFillStyle = "#e7f1ec";
         this.fillStyle = fillStyle;
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;;
@@ -58,6 +58,7 @@ class Row{
                 col = parseInt(cell);
                 }
             }
+        if(col === 1) return [1,this.cells[1]]
         if(Object.hasOwn(this.cells,col -1)){
             this.cells[col - 1].isFocus =true;
             this.cells[col - 1].draw();
@@ -87,6 +88,9 @@ class Row{
     }
 
     add_cell(cell){
+        if(!cell.column){
+            var a = 10;
+        }
         this.cells[cell.column.index] = cell;
     }
 
@@ -102,15 +106,17 @@ class Row{
     }
 
     draw_cells(x,y){
-        if(this.isSelected){
-            for(let cell in this.cells){
-                this.cells[cell].isSelected = true;
-                this.cells[cell].draw(x,y);
-            }
-        }else{
-            for(let cell in this.cells){
-                this.cells[cell].isSelected = false;
-                this.cells[cell].draw(x,y);
+        if(Object.keys(this.cells).length > 0){
+            if(this.isSelected){
+                for(let cell in this.cells){
+                    this.cells[cell].isSelected = true;
+                    this.cells[cell].draw(x,y);
+                }
+            }else{
+                for(let cell in this.cells){
+                    this.cells[cell].isSelected = false;
+                    this.cells[cell].draw(x,y);
+                }
             }
         }
     }
@@ -222,6 +228,10 @@ class Row{
     getCell(col){
         if(Object.hasOwn(this.cells,col)){
             return this.cells[col];
+        }else{
+            let cell = new Cell(this.canvas,"",false,this,null);
+            this.cells[col] = cell; 
+            return cell;
         }
     }
     static create_shadowrow(rows){
