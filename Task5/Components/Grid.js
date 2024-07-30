@@ -97,9 +97,7 @@ class Grid{
             this.activecol = this.getCol(x-this.topX + scrolloffsetX);
             this.columns[this.activecol].header.isSelected = true;
             this.columns[this.activecol].isSelected = true;
-            this.activecell = this.columns[this.activecol].getCell(1);
-            this.rows[1].add_cell(this.activecell);
-            this.activecell.update_row(this.rows[1]);
+            this.activecell = this.columns[this.activecol].getCell(1)?this.columns[this.activecol].getCell(1):Cell.createCell(this.rows[1],this.columns[this.activecol]);
             this.activecell.isFocus = true;
             this.columnselection = [this.activecol];
             this.getMinMaxAvgCount();
@@ -128,9 +126,7 @@ class Grid{
             this.activecol = currentcol;
             this.columns[this.activecol].header.isSelected = true;
             this.columns[this.activecol].isSelected = true;
-            this.activecell = this.columns[this.activecol].getCell(1);
-            this.rows(1).add_cell(this.activecell);
-            this.activecell.update_row(this.rows[this.activerow]);
+            this.activecell = this.columns[this.activecol].getCell(1)?this.columns[this.activecol].getCell(1):Cell.createCell(this.rows[1],this.columns[this.activecol]);
             this.activecell.isFocus = true;
             this.columnselection = [this.activecol];
             this.draw_selectedcols();
@@ -190,14 +186,14 @@ class Grid{
                 this.columns[index].x += offsetcols;
                 this.columns[index].index += finalSelectionIndex - initialSelectionIndex + 1;
                 this.columns[index].header.x += offsetcols;
-                this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].header.text = Column.getindex(this.columns[index].index-1);
                 this.columns[index].update_index();
             }
             for(let index = initialSelectionIndex;index <= finalSelectionIndex;index++){
                 this.columns[index].x -= offsetSelectedcol;
                 this.columns[index].index -= initialSelectionIndex - this.activecol;
                 this.columns[index].header.x -= offsetSelectedcol;
-                this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].header.text = Column.getindex(this.columns[index].index-1);
                 this.columns[index].update_index();
             }
             this.columnselection = this.columnselection.map(col => col -= initialSelectionIndex - this.activecol);
@@ -209,14 +205,14 @@ class Grid{
                 this.columns[index].x -= offsetSelectedcol;
                 this.columns[index].index += this.activecol - finalSelectionIndex - 1;
                 this.columns[index].header.x -= offsetSelectedcol;
-                this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].header.text = Column.getindex(this.columns[index].index-1);
                 this.columns[index].update_index();
             }
             for(let index = finalSelectionIndex + 1;index<this.activecol;index++){
                 this.columns[index].x -= offsetcols;
                 this.columns[index].index -= finalSelectionIndex - initialSelectionIndex + 1;
                 this.columns[index].header.x -= offsetcols;
-                this.columns[index].header.text = Column.getindex(this.columns[index].index);
+                this.columns[index].header.text = Column.getindex(this.columns[index].index-1);
                 this.columns[index].update_index();
             }
             this.columnselection = this.columnselection.map(col => col +=this.activecol - finalSelectionIndex - 1);
@@ -285,9 +281,7 @@ class Grid{
             this.activerow = this.getRow(y-this.topY + scrolloffsetY);
             this.rows[this.activerow].header.isSelected = true;
             this.rows[this.activerow].isSelected = true;
-            this.activecell = this.rows[this.activerow].getCell(1);
-            this.columns[1].add_cell(this.activecell);
-            this.activecell.update_col(this.columns[1]);
+            this.activecell = this.rows[this.activerow].getCell(1)?this.rows[this.activerow].getCell(1):Cell.createCell(this.rows[this.activerow],this.columns[1]);
             this.activecell.isFocus = true;
             this.rowselection = [this.activerow];
             this.getMinMaxAvgCount();
@@ -329,9 +323,7 @@ class Grid{
             this.activerow = currentrow;
             this.rows[this.activerow].header.isSelected = true;
             this.rows[this.activerow].isSelected = true;
-            this.activecell = this.rows[this.activerow].getCell(1);
-            this.activecell.update_col(this.columns[1]);
-            this.columns[1].add_cell(this.activecell);
+            this.activecell = this.rows[this.activerow].getCell(1)?this.rows[this.activerow].getCell(1):Cell.createCell(this.rows[this.activerow],this.columns[1]);
             this.activecell.isFocus = true;
             this.rowselection = [this.activerow];
             this.draw_selectedrows();
@@ -489,7 +481,7 @@ class Grid{
         this.activecol = this.getCol(this.initialX);
         this.activerow = this.getRow(this.initialY)
         if(this.activecol !== -1 && this.activerow!==-1){
-            if(this.activecell === this.columns[this.activecol].getCell(this.activerow)){
+            if(this.activecell && this.activecell === this.columns[this.activecol].getCell(this.activerow)){
                 this.activecell.create_inputbox(this.topX + scrolloffsetX,this.topY + scrolloffsetY);
                 this.activecell.isFocus = true;
                 this.activecell.inputbox.style.opacity = 1;
@@ -497,9 +489,7 @@ class Grid{
                 this.activecell.inputbox.focus();
                 this.istyping = true;
             }else if(this.activecell) this.activecell.isFocus = false;
-            this.activecell = this.columns[this.activecol].getCell(this.activerow);
-            this.rows[this.activerow].add_cell(this.activecell);
-            this.activecell.update_row(this.rows[this.activerow]);
+            this.activecell = this.columns[this.activecol].getCell(this.activerow)?this.columns[this.activecol].getCell(this.activerow):Cell.createCell(this.rows[this.activerow],this.columns[this.activecol]);
             this.activecell.isFocus = true;
             this.columns[this.activecol].header.isFocus = true;
             this.rows[this.activerow].header.isFocus = true;
@@ -528,8 +518,8 @@ class Grid{
         }else if(this.activecell && this.istyping){
             if(e.code === "Enter" || e.code === "Escape") this.istyping = false;
             this.activecell.onkeypress(e);
+            this.draw();
         }else if(this.activecell){
-            // this.activecell.create_inputbox(this.topX,this.topY);
             if(e.code === "Enter" || e.code === "Escape"){
                 this.istyping = false;
             }else{
@@ -596,6 +586,7 @@ class Grid{
         if(this.istyping){
             this.activecell.onkeypress(e);
             this.istyping = false;
+            this.draw();
         }else{
             navigator.clipboard.writeText("");
             this.remove_copy();
@@ -627,9 +618,7 @@ class Grid{
         let cell;
         colrange.forEach(col => {
             rowsrange.forEach(row => {
-                cell = this.rows[row].getCell(col);
-                cell.update_col(this.columns[col]);
-                this.columns[col].add_cell(cell);
+                cell = this.rows[row].getCell(col)?this.rows[row].getCell(col):Cell.createCell(this.rows[row],this.columns[col]);
                 region.push(cell);
             });
         });
@@ -743,9 +732,7 @@ class Grid{
                                     this.columncanvas);
                                 this.columns[initialcol + colindex] = col;
                             }
-                            cell = this.rows[initialrow + rowindex].getCell(initialcol + colindex);
-                            this.columns[initialcol + colindex].add_cell(cell);
-                            cell.update_col(this.columns[initialcol + colindex]);
+                            cell = this.rows[initialrow + rowindex].getCell(initialcol + colindex)?this.rows[initialrow + rowindex].getCell(initialcol + colindex):Cell.createCell(this.rows[initialrow + rowindex],this.columns[initialcol + colindex]);
                             activecell.push(cell);
                             
                         }
@@ -765,7 +752,7 @@ class Grid{
                     });
                     for(let rowindex = 0;rowindex <= finalrow - initialrow - selectionrowrange + 1; rowindex+= selectionrowrange){
                         for(let colindex = 0;colindex <= finalcol - initialcol - selectioncolrange + 1;colindex += selectioncolrange){
-                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex));
+                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex)?this.rows[initialrow + rowindex].getCell(initialcol + colindex):Cell.createCell(this.rows[initialrow + rowindex],this.columns[initialcol + colindex]));
                         }
                     }
                     if(!(activecell.includes(this.rows[initialrow].getCell(initialcol)))){
@@ -782,7 +769,7 @@ class Grid{
                     });
                     for(let rowindex = 0;rowindex <= finalrow - initialrow - selectionrowrange + 1; rowindex+= selectionrowrange){
                         for(let colindex = 0;colindex <= finalcol - initialcol - selectioncolrange + 1;colindex += selectioncolrange){
-                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex));
+                            activecell.push(this.rows[initialrow + rowindex].getCell(initialcol + colindex)?this.rows[initialrow + rowindex].getCell(initialcol + colindex):Cell.createCell(this.rows[initialrow + rowindex],this.columns[initialcol + colindex]));
                         }
                     }
                     if(!(activecell.includes(this.rows[initialrow].getCell(initialcol)))){
@@ -827,9 +814,7 @@ class Grid{
                         this.columncanvas);
                     this.columns[initialcol + columnoffset] = col;
                 }
-                cell = this.rows[initialrow + rowoffset].getCell(initialcol + columnoffset);
-                cell.update_col(this.columns[initialcol + columnoffset]);
-                this.columns[initialcol + columnoffset].add_cell(cell);
+                cell = this.rows[initialrow + rowoffset].getCell(initialcol + columnoffset)?this.rows[initialrow + rowoffset].getCell(initialcol + columnoffset):Cell.createCell(this.rows[initialrow + rowoffset],this.columns[initialcol + columnoffset]);
                 cell.text = selection[rowoffset][columnoffset];
                 this.region.push(cell);
             }
@@ -852,7 +837,7 @@ class Grid{
             let outstring = "";
             for(let row = initialrow;row <= finalrow ; row++){
                 for(let col = initialcol;col <= finalcol;col++){
-                    if(this.rows.cells && this.rows.cells.hasOwnProperty(col))
+                    if(this.rows[row].cells && this.rows[row].cells.hasOwnProperty(col))
                     outstring = outstring.concat(this.rows[row].getCell(col).text);
                     outstring = outstring.concat("\t")
                 }
@@ -1060,12 +1045,12 @@ class Grid{
 
 
     draw_rows(){
-        for(const row in this.rows){ 
+        for(let row of this.boundedrows){ 
             this.rows[row].draw();
         }
     }
     draw_cols(){
-        for(const col in this.columns){ 
+        for(let col of this.boundedcols){ 
             this.columns[col].draw();
         }
     }
@@ -1158,15 +1143,15 @@ class Grid{
             this.columnselection.forEach(col => {
                 this.columns[col].header.isSelected = true;
             });
-            for(let col in this.columns){
+            for(let col of this.boundedcols){
                 this.columns[col].draw_without_boundary(scrolloffsetX,scrolloffsetY);
             }
-            for(let row in this.rows){
+            for(let row of this.boundedrows){
                 this.rows[row].header.isFocus = true;
                 this.rows[row].draw_boundary(scrolloffsetY);
                 this.rows[row].draw_header(scrolloffsetY);
             }
-            for(let col in this.columns){
+            for(let col of this.boundedcols){
                 this.columns[col].draw_boundary(scrolloffsetX);
             }
             // this.draw();
@@ -1202,13 +1187,13 @@ class Grid{
             this.rowselection.forEach(row => {
                 this.rows[row].header.isSelected = true;
             });
-            for(let row in this.rows){
+            for(let row of this.boundedrows){
                 this.rows[row].draw_without_boundary(scrolloffsetX,scrolloffsetY);
             }
-            for(let row in this.rows){
+            for(let row of this.boundedrows){
                 this.rows[row].draw_boundary(scrolloffsetY);
             }
-            for(let col in this.columns){
+            for(let col of this.boundedcols){
             this.columns[col].header.isFocus = true;
             this.columns[col].draw_boundary(scrolloffsetX);
             this.columns[col].draw_header(scrolloffsetX);

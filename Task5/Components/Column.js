@@ -238,11 +238,7 @@ class Column{
     getCell(row){
         if(Object.hasOwn(this.cells,row)){
             return this.cells[row];
-        }else{
-            let cell = new Cell(this.canvas,"",false,null,this);
-            this.cells[row] = cell;
-            return cell;
-        }
+        }else return null;
     }
 
     static create_shadowcol(cols){

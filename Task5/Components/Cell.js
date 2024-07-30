@@ -219,7 +219,7 @@ class Cell{
         }else if(this.align === "right"){
             this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - textwidth - 5,this.y - y  + this.height - 5);
         }else if(this.align === "middle"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - textwidth+1/2,this.y - y +this.height -5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - (textwidth+1)/2,this.y - y +this.height -5);
         }
     }
 
@@ -273,6 +273,14 @@ class Cell{
         }
         this.column = col;
     }
+
+    static createCell(row,column){
+        let cell = new Cell(row.canvas,"",false,row,column);
+        row.add_cell(cell);
+        column.add_cell(cell);
+        return cell;
+    }
+
     static deleteCell(cell){
         if(cell.row && cell.column){
             let rowindex = cell.row.index;
