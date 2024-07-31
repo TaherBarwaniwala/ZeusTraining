@@ -1,7 +1,5 @@
 class Cell{
     constructor(canvas,text = "",Header = false,row=null,column=null,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
-
-        this.text = text;
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
         this.strokeStyle = strokeStyle;
@@ -23,10 +21,14 @@ class Cell{
         this.y=this.row?this.row.y:15;
         this.height = this.row?this.row.cellHeight:25;
         this.width = this.column?this.column.cellWidth:80;
+        this.text = text;
+        this.ctx.font = font;
+        this.textwidth = this.ctx.measureText(this.text).width;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         this.onkeypressbound = (e) => this.onkeypress(e);
         this.onpointerdownupbound = () => this.onpointerup();
         // this.canvas.addEventListener('pointerdown',this.onpointerdownbound)
+        return new Proxy(this,handler);
 
     }
 
@@ -96,6 +98,8 @@ class Cell{
         this.ctx.beginPath();
         if(this.Header === "column"){
             this.ctx.fillStyle = this.fillStyle;
+            this.x = this.column.x;
+            this.width = this.column.cellWidth;
             this.ctx.fillRect(this.x - x,this.y,this.width,this.height);
             if(this.isFocus){
                 this.ctx.beginPath();
@@ -140,6 +144,8 @@ class Cell{
             if(this.text !== "") this.draw_text(x,0);
 
         }else if(this.Header === "row"){
+            this.y = this.row.y;
+            this.height = this.row.cellHeight;
             this.ctx.fillStyle = this.fillStyle;
             this.ctx.fillRect(this.x,this.y - y,this.width,this.height);
             if(this.isFocus){
@@ -188,7 +194,7 @@ class Cell{
             this.x = this.column.x;
             this.y = this.row.y;
             this.height = this.row.cellHeight;
-            this.width = this.row.cellWidth;
+            this.width = this.column.cellWidth;
             this.align = isNaN(this.text)?"left":"right";
             if(this.isFocus){
                 this.ctx.fillStyle = this.fillStyle;
@@ -212,14 +218,13 @@ class Cell{
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.Header && this.isSelected ? "white":this.textStyle;
         let visblefraction = 1;
-        let textwidth = this.ctx.measureText(this.text).width;
-        if(textwidth > this.width) visblefraction = this.width/textwidth;
+        if(this.textwidth > this.width) visblefraction = this.width/this.textwidth;
         if(this.align === "left"){
             this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + 5,this.y - y +this.height - 5);
         }else if(this.align === "right"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - textwidth - 5,this.y - y  + this.height - 5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - this.textwidth - 5,this.y - y  + this.height - 5);
         }else if(this.align === "middle"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - (textwidth+1)/2,this.y - y +this.height -5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - (this.textwidth+1)/2,this.y - y +this.height -5);
         }
     }
 
@@ -237,9 +242,9 @@ class Cell{
     create_inputbox(){
         this.inputbox = document.createElement('input');
         this.inputbox.setAttribute("type","text");
-        this.inputbox.setAttribute("id",`C${this.column.x}${this.row.y}${this.height}${this.width}`);
+        this.inputbox.setAttribute("id",`C${this.column.x}${this.row.y}${this.row.cellHeight}${this.column.cellWidth}`);
         this.inputbox.setAttribute("class","input-box");
-        this.inputbox.setAttribute("style",`top:${this.row.y + 0.5}px;left:${this.column.x + 0.5}px;height:${this.row.cellHeight-1.5}px;width:${this.row.cellWidth-1.5}px;font:${this.font}`)
+        this.inputbox.setAttribute("style",`top:${this.row.y + 0.5}px;left:${this.column.x + 0.5}px;height:${this.row.cellHeight-1.5}px;width:${this.column.cellWidth-1.5}px;font:${this.font}`)
         this.canvas.parentElement.appendChild(this.inputbox); 
         this.inputbox.addEventListener('pointerdown',() => this.oninputpointerdown());
     }
@@ -274,6 +279,7 @@ class Cell{
         this.column = col;
     }
 
+
     static createCell(row,column){
         let cell = new Cell(row.canvas,"",false,row,column);
         row.add_cell(cell);
@@ -289,6 +295,17 @@ class Cell{
             delete cell.column.cells[rowindex];
         };
     }
+}
+
+const handler = {
+    set(obj,prop,value){
+        if(prop === "text"){
+            let textwidth= obj.ctx.measureText(value).width;
+            Reflect.set(obj,"textwidth",textwidth);
+        }
+        Reflect.set(obj,prop,value);
+        return true;
+    },
 }
 
 export default Cell;

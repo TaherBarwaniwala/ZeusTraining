@@ -23,6 +23,8 @@ class Row{
         this.strokeStyle = strokeStyle;
         this.lineWidth = lineWidth;;
         this.isSelected = false;
+        this.initialHeight = this.cellHeight;
+        this.initialY = this.y;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         // this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e) => this.onkeydown(e);
@@ -199,6 +201,10 @@ class Row{
         return (y>=this.y && y < this.y+this.cellHeight);
     }
 
+    edgehittest(y){
+        return (y <= this.y + this.cellHeight + 2 && y >= this.y + this.cellHeight - 2);
+    }
+
     move(y){
         this.cells.forEach(cell => cell.move(0,y));
     }
@@ -230,6 +236,15 @@ class Row{
             return this.cells[col];
         }else return null;
     }
+
+    resizeEdge(y){
+        this.cellHeight  = this.initialHeight + y;
+    }
+
+    resizeY(y){
+        this.y = this.initialY + y;
+    }
+
     static create_shadowrow(rows){
         let initialrow;
         let finalrow;
@@ -255,7 +270,7 @@ class Row{
         return boundedrows;
     }
 
-    static removeRows(rows,boundedrows){
+    static async removeRows(rows,boundedrows){
         for(let row in rows){
             if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && rows[row].header.isFocus === false){
                 delete rows[row];

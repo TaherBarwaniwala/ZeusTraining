@@ -22,6 +22,8 @@ class Column{
         this.header = new Cell(this.headercanvas,Column.getindex(this.index-1),"column",null,this,"#101010","#f5f5f5","rgb(97,97,97)");
         this.header.align = "middle";
         this.cells = {};
+        this.initialWidth = this.cellWidth;
+        this.initialX = this.x;
         this.onpointerdownbound = (e) => this.onpointerdown(e);
         // this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e) => this.onkeydown(e);
@@ -209,6 +211,10 @@ class Column{
         return (x>=this.x &&x<this.x+this.cellWidth);
     }
 
+    edgehittest(x){
+        return (x <= this.x + this.cellWidth + 5 && x >= this.x + this.cellWidth - 5);
+    }
+
     move(x){
         this.cells.forEach(cell => cell.move(x,0));
     }
@@ -241,6 +247,14 @@ class Column{
         }else return null;
     }
 
+    resizeEdge(x){
+        this.cellWidth  = this.initialWidth + x;
+    }
+
+    resizeX(x){
+        this.x = this.initialX + x;
+    }
+
     static create_shadowcol(cols){
         let initialcol;
         let finalcol;
@@ -266,7 +280,7 @@ class Column{
         return boundedcols;
     }
 
-    static removeColumns(columns,boundedcols){
+    static async removeColumns(columns,boundedcols){
         for(let col in columns){
             if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && columns[col].header.isFocus === false){
                 delete columns[col];
