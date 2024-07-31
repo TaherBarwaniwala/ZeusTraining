@@ -254,6 +254,15 @@ class Row{
         }
         return boundedrows;
     }
+
+    static removeRows(rows,boundedrows){
+        for(let row in rows){
+            if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && rows[row].header.isFocus === false){
+                delete rows[row];
+            }
+        }
+    }
+
 }
 
 export default Row;

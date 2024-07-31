@@ -266,6 +266,13 @@ class Column{
         return boundedcols;
     }
 
+    static removeColumns(columns,boundedcols){
+        for(let col in columns){
+            if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && columns[col].header.isFocus === false){
+                delete columns[col];
+            }
+        }
+    }
 
 
 

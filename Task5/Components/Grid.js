@@ -19,7 +19,6 @@ class Grid{
         this.footerctx = footercanvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
-        this.cells = [];
         this.rows = {};
         this.columns = {};
         this.activecell = null;
@@ -881,11 +880,21 @@ class Grid{
     }
 
     deselectcells(){
-        this.cells.forEach(cell => {
-            cell.isSelected = false;
-            cell.isFocus = false;
-            if(cell.text.length === 0) Cell.deleteCell(cell);
-        });
+        // this.cells.forEach(cell => {
+        //     cell.isSelected = false;
+        //     cell.isFocus = false;
+        //     if(cell.text.length === 0) Cell.deleteCell(cell);
+        // });
+        let curentcell,curentrow;
+        for(let row in this.rows){
+            curentrow = this.rows[row];
+            for(let cell in curentrow.cells){
+                curentcell = curentrow.cells[cell];
+                curentcell.isSelected = false;
+                curentcell.isFocus = false;
+                if(curentcell.text.length <= 0) Cell.deleteCell(curentcell);
+            }
+        }
     }
 
     deselectcolumns(){
@@ -929,7 +938,6 @@ class Grid{
         this.rowselection = [];
         this.getMinMaxAvgCount();
         this.draw();
-        console.log(this.rows);
     }
 
     getRow(y){
@@ -1038,7 +1046,6 @@ class Grid{
                 cell = new Cell(this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
                 this.columns[columnindex].add_cell(cell);
                 this.rows[rowindex].add_cell(cell);
-                this.cells.push(cell);
                 columnindex += 1;
                 x+=this.cellWidth;
             }
@@ -1241,20 +1248,146 @@ class Grid{
         this.boundedcols = Column.getBoundedColumns(this.columns,this.topX + this.scrolloffsetX , this.width + this.scrolloffsetX);
         this.boundedrows = Row.getBoundedRows(this.rows,this.scrolloffsetY,this.height + this.scrolloffsetY);
 
-        if(this.boundedcols.length > 0 && this.boundedrows.length > 0){
-            while(this.width - (this.columns[this.boundedcols[this.boundedcols.length-1]].x + this.columns[this.boundedcols[this.boundedcols.length-1]].cellWidth - this.scrolloffsetX) > 0){
-                let index = parseInt(this.boundedcols[this.boundedcols.length - 1]);
+
+
+        // Handling columns and rows before and after the starting and ending indices if there is some gap;
+        // Hnadles empty bounded column array
+        if(this.boundedcols.length < 1){
+            let columnkeys = Object.keys(this.columns);
+            let closestCol = columnkeys.pop();
+            for(let col of columnkeys){
+                if(Math.abs(this.columns[col].x + this.columns[col].cellWidth - this.scrolloffsetX) < Math.abs(this.columns[closestCol].x + this.columns[closestCol].cellWidth - this.scrolloffsetX)){
+                    closestCol = col;
+                }
+            }
+            if(this.columns[closestCol].x - this.scrolloffsetX > 0){
+                let index = parseInt(closestCol);
+                index -= Math.floor((this.columns[closestCol].x - this.scrolloffsetX)/this.cellWidth);
+                let x = this.columns[closestCol].x - index*this.cellWidth;
+                this.columns[index.toString()] = new Column(index,x,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
+                this.boundedcols.push(index.toString());
+            }else{
+                let index = parseInt(closestCol);
+                index += Math.floor((this.scrolloffsetX - this.columns[closestCol].x - this.columns[closestCol].cellWidth)/this.cellWidth) + 1;
+                let x = this.columns[closestCol].x + this.columns[closestCol].cellWidth + Math.floor((this.scrolloffsetX - this.columns[closestCol].x - this.columns[closestCol].cellWidth)/this.cellWidth)*this.cellWidth;
+                this.columns[index.toString()] = new Column(index,x,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
+                this.boundedcols.push(index.toString());
+            }
+            console.log(this.boundedcols);
+            console.log(this.columns[this.boundedcols[0]]);
+        }
+        //handles empty boundedrows array
+        if(this.boundedrows.length < 1){
+            let rowkeys = Object.keys(this.rows);
+            let closestRow = rowkeys.pop();
+            for(let row of rowkeys){
+                if(Math.abs(this.rows[row].y + this.rows[row].cellHeight - this.scrolloffsetY) < Math.abs(this.rows[closestRow].y + this.rows[closestRow].cellHeight - this.scrolloffsetY)){
+                    closestRow = row;
+                }
+            }
+            if(this.rows[closestRow].y - this.scrolloffsetY > 0){
+                let index = parseInt(closestRow);
+                index -= Math.floor((this.rows[closestRow].y - this.scrolloffsetY)/this.cellHeight);
+                let y = this.rows[closestRow].y - index*this.cellHeight;
+                this.rows[index.toString()] = new Row(index,0,y,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                this.boundedrows.push(index.toString());
+            }else{
+                let index = parseInt(closestRow);
+                index += Math.floor((this.scrolloffsetY - this.rows[closestRow].y - this.rows[closestRow].cellHeight)/this.cellHeight) + 1;
+                let y = this.rows[closestRow].y + this.rows[closestRow].cellHeight + Math.floor((this.scrolloffsetY - this.rows[closestRow].y - this.rows[closestRow].cellHeight)/this.cellHeight)*this.cellHeight;
+                this.rows[index.toString()] = new Row(index,0,y,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                this.boundedrows.push(index.toString());
+            }
+            console.log(this.boundedrows);
+            console.log(this.rows[this.boundedrows[0]]);
+        }
+
+        while(this.width - (this.columns[this.boundedcols[this.boundedcols.length-1]].x + this.columns[this.boundedcols[this.boundedcols.length-1]].cellWidth - this.scrolloffsetX) > 0){
+            let index = parseInt(this.boundedcols[this.boundedcols.length - 1]);
+            if(this.columns.hasOwnProperty(index + 1)){
+                this.boundedcols.push((index + 1).toString());
+            }else{
                 let newcol = new Column(index+1,this.columns[index].x + this.columns[index].cellWidth,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
-                this.boundedcols.push(newcol.index);
+                this.boundedcols.push(newcol.index.toString());
                 this.columns[index+1] = newcol;
             }
-            while(this.height - (this.rows[this.boundedrows[this.boundedrows.length-1]].y + this.rows[this.boundedrows[this.boundedrows.length-1]].cellHeight - this.scrolloffsetY) > 0){
-                let index = parseInt(this.boundedrows[this.boundedrows.length - 1]);
+        }
+        while((this.columns[this.boundedcols[0]].x - this.x - this.scrolloffsetX) > 0){
+            let index = parseInt(this.boundedcols[0]);
+            if(index === 1) break;
+            if(this.columns.hasOwnProperty(index - 1)){
+                this.boundedcols.unshift((index - 1).toString());
+            }else{
+                let newcol = new Column(index-1,this.columns[index].x - this.columns[index].cellWidth,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
+                this.boundedcols.unshift(newcol.index.toString());
+                this.columns[index-1] = newcol;
+            }
+        }
+        while(this.height - (this.rows[this.boundedrows[this.boundedrows.length-1]].y + this.rows[this.boundedrows[this.boundedrows.length-1]].cellHeight - this.scrolloffsetY) > 0){
+            let index = parseInt(this.boundedrows[this.boundedrows.length - 1]);
+            if(this.rows.hasOwnProperty(index + 1)){
+                this.boundedrows.push((index+1).toString());
+            }else{
                 let newrow = new Row(index+1,0,this.rows[index].y + this.rows[index].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
-                this.boundedrows.push(newrow.index);
+                this.boundedrows.push(newrow.index.toString());
                 this.rows[index+1] = newrow;
             }
         }
+        while(this.rows[this.boundedrows[0]].y - this.scrolloffsetY - this.y > 0){
+            let index = parseInt(this.boundedrows[0]);
+            if(index === 1) break;
+            if(this.rows.hasOwnProperty(index - 1)){
+                this.boundedrows.unshift((index-1).toString());
+            }else{
+                let newrow = new Row(index-1,0,this.rows[index].y - this.rows[index].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                this.boundedrows.unshift(newrow.index.toString());
+                this.rows[index-1] = newrow;
+            }
+        }
+        //handling gaps in between if there is any
+        let prevEnd = this.rows[this.boundedrows[0]].y + this.rows[this.boundedrows[0]].cellHeight,nextStart;
+        for(let row =1 ; row < this.boundedrows.length ; row++){
+            nextStart = this.rows[this.boundedrows[row]].y;
+            if(nextStart - prevEnd > 0){
+                while(nextStart - (this.rows[this.boundedrows[row-1]].y + this.rows[this.boundedrows[row-1]].cellHeight) > 0){
+                    let index = parseInt(this.boundedrows[row - 1]);
+                    if(this.rows.hasOwnProperty(index + 1)){
+                        this.boundedrows.splice(row,0,(index+1).toString());
+                    }else{
+                        let newrow = new Row(index+1,0,this.rows[index].y + this.rows[index].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                        this.boundedrows.splice(row,0,newrow.index.toString());
+                        this.rows[index+1] = newrow;
+                    }
+                    row++;
+                }
+            }
+            prevEnd = nextStart + this.rows[this.boundedrows[row]].cellHeight;
+        }
+        prevEnd = this.columns[this.boundedcols[0]].x + this.columns[this.boundedcols[0]].cellWidth,nextStart;
+        for(let col =1 ; col < this.boundedcols.length ; col++){
+            nextStart = this.columns[this.boundedcols[col]].x;
+            if(nextStart - prevEnd > 0){
+                while(nextStart - (this.columns[this.boundedcols[col-1]].x + this.columns[this.boundedcols[col-1]].cellWidth) > 0){
+                    let index = parseInt(this.boundedcols[col - 1]);
+                    if(this.columns.hasOwnProperty(index + 1)){
+                        this.boundedcols.splice(col,0,(index+1).toString());
+                    }else{
+                        let newcol = new Column(index+1,this.columns[index].x + this.columns[index].cellWidth,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
+                        this.boundedcols.splice(col,0,newcol.index.toString());
+                        this.columns[index+1] = newcol;
+                    }
+                    col++;
+                }
+            }
+            prevEnd = nextStart + this.columns[this.boundedcols[col]].cellWidth;
+        }
+
+
+
+
+
+
+
         for(const col of this.boundedcols){ 
             this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
         }
@@ -1272,6 +1405,8 @@ class Grid{
         if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
         this.draw_region();
         this.draw_copy_region();
+        Column.removeColumns(this.columns,this.boundedcols);
+        Row.removeRows(this.rows,this.boundedrows);
     }
 
     getMinMaxAvgCount(){
