@@ -43,7 +43,6 @@ class Grid{
         this.boundedcols = Column.getBoundedColumns(this.columns,this.topX + this.scrolloffsetX , this.width + this.scrolloffsetX);
         this.boundedrows = Row.getBoundedRows(this.rows,this.scrolloffsetY,this.height + this.scrolloffsetY);
         this.Scrollbar.setOnScrollFunction(()=>this.draw())
-        // this.stats = new Cell(this.x+this.width/2,this.y+this.height-this.cellHeight,this.width/2,this.cellHeight,this.footercanvas,"","black","grey");
         this.onpointerdownbound = (e) => this.onpointerdownmaincanvas(e);
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
         this.onkeydownbound = (e)=> this.onkeydown(e);
@@ -337,23 +336,6 @@ class Grid{
         }else if(this.isRowDrag(x)){
             this.onrowdrag(y);
         }
-        // for(let row in this.rows){
-        //     if(this.rows[row].headerhittest(x,y)){
-        //         this.rows[row].isSelected = true;
-        //         this.activerow = row;
-        //         window.addEventListener("pointermove",this.onrowpointermovebound);
-        //         window.addEventListener("pointerup",this.onrowpointerupbound,{ once: true });
-        //         window.addEventListener("pointercancel",this.onrowpointercancelbound,{ once: true });
-        //         this.initialX = x;
-        //         this.initialY = y;
-        //     }else{
-        //         this.rows[row].isSelected = false;
-        //     }
-        // }
-        // for( let col in this.columns){
-        //     this.columns[col].isSelected = true;
-        // }
-        // this.draw();
     }
 
     isRowDrag(x){
@@ -718,7 +700,6 @@ class Grid{
             this.removeregion();
             this.region = region;
             this.activecell.isFocus = true;
-            // this.draw();
             this.getMinMaxAvgCount();
             this.draw_region();
         }
@@ -972,11 +953,6 @@ class Grid{
     }
 
     deselectcells(){
-        // this.cells.forEach(cell => {
-        //     cell.isSelected = false;
-        //     cell.isFocus = false;
-        //     if(cell.text.length === 0) Cell.deleteCell(cell);
-        // });
         let curentcell,curentrow;
         for(let row in this.rows){
             curentrow = this.rows[row];
@@ -1282,16 +1258,6 @@ class Grid{
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
             this.ctx.strokeRect(topx + 1,1,bottomx - topx - 1,this.height);
-            // if(this.columnselection[0] !== 1){
-            //     this.ctx.beginPath();
-            //     this.ctx.moveTo(topx + 1,0);
-            //     this.ctx.lineTo(topx + 1,this.height);
-            //     this.ctx.stroke();
-            // }
-            // this.ctx.beginPath();
-            // this.ctx.moveTo(bottomx - 1,0);
-            // this.ctx.lineTo(bottomx - 1,this.height);
-            // this.ctx.stroke();
             this.ctx.restore();
             this.draw_copy_region();
 
@@ -1323,16 +1289,6 @@ class Grid{
             this.ctx.strokeStyle ="#107c41";
             this.ctx.lineWidth = "2";
             this.ctx.strokeRect(1,topy + 1,this.width,bottomy - topy - 1);
-            // if(this.rowselection[0] !== 1){
-            //     this.ctx.beginPath();
-            //     this.ctx.moveTo(0,topy + 1);
-            //     this.ctx.lineTo(this.width,topy + 1);
-            //     this.ctx.stroke();
-            // }
-            // this.ctx.beginPath();
-            // this.ctx.moveTo(0,bottomy - 1);
-            // this.ctx.lineTo(this.width,bottomy - 1);
-            // this.ctx.stroke();
             this.ctx.restore();
             this.draw_copy_region();
 
@@ -1345,9 +1301,6 @@ class Grid{
         this.scrolloffsetY = this.Scrollbar.getScrollTop();
         this.boundedcols = Column.getBoundedColumns(this.columns,this.topX + this.scrolloffsetX , this.width + this.scrolloffsetX);
         this.boundedrows = Row.getBoundedRows(this.rows,this.topY + this.scrolloffsetY,this.height + this.scrolloffsetY);
-
-
-
         // Handling columns and rows before and after the starting and ending indices if there is some gap;
         // Hnadles empty bounded column array
         if(this.boundedcols.length < 1){
@@ -1477,12 +1430,6 @@ class Grid{
             }
             prevEnd = nextStart + this.columns[this.boundedcols[col]].cellWidth;
         }
-
-
-
-
-
-
 
         for(const col of this.boundedcols){ 
             this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
