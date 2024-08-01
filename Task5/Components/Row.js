@@ -272,7 +272,7 @@ class Row{
 
     static async removeRows(rows,boundedrows){
         for(let row in rows){
-            if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && rows[row].header.isFocus === false){
+            if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && !rows[row].header.isFocus && !rows[row].header.isSelected){
                 delete rows[row];
             }
         }

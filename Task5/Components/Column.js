@@ -282,7 +282,7 @@ class Column{
 
     static async removeColumns(columns,boundedcols){
         for(let col in columns){
-            if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && columns[col].header.isFocus === false){
+            if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && !columns[col].header.isFocus && !columns[col].header.isSelected){
                 delete columns[col];
             }
         }

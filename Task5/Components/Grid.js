@@ -618,36 +618,43 @@ class Grid{
     }
 
     handleArrawkeyDown(e){
-        let tempcell = this.activecell;
-        this.reset();
-        this.activecell = tempcell;
-        this.activecell.isFocus = true;
-        this.activecol = this.activecell.column.index;
-        this.activerow = this.activecell.row.index;
-        if(this.activecol) this.columns[this.activecol].header.isFocus= false;
-        if(this.activerow) this.rows[this.activerow].header.isFocus = false;
-        if(e.keyCode === 37 || e.keyCode === 39){
-            let res = this.rows[this.activerow].onkeydown(e);
-            this.activecol = res[0];
-            this.activecell = res[1];
-            this.activecell.column = this.columns[this.activecol];
-            this.activecell.x = this.columns[this.activecol].x;
-            this.activecell.width = this.columns[this.activecol].cellWidth;
-            this.rows[this.activerow].add_cell(this.activecell);
-            this.columns[this.activecol].add_cell(this.activecell);
-        }else if(e.keyCode ===38 || e.keyCode === 40 || e.code === "Enter"){
-            let res = this.columns[this.activecol].onkeydown(e);
-            this.activerow = res[0];
-            this.activecell = res[1];
-            this.activecell.row = this.rows[this.activerow];
-            this.activecell.y = this.rows[this.activerow].y;
-            this.activecell.height = this.rows[this.activerow].cellHeight;
-            this.rows[this.activerow].add_cell(this.activecell);
-            this.columns[this.activecol].add_cell(this.activecell);
-        }            
-        if(this.activecol) this.columns[this.activecol].header.isFocus = true;
-        if(this.activerow) this.rows[this.activerow].header.isFocus = true;
-        this.activecell.isFocus = true;
+        if(this.activecell&& this.boundedrows.includes(this.activecell.row.index.toString()) && this.boundedcols.includes(this.activecell.column.index.toString())){
+            this.activecell.isFocus = true;
+            this.activecol = this.activecell.column.index;
+            this.activerow = this.activecell.row.index;
+            if(this.activecol) this.columns[this.activecol].header.isFocus= false;
+            if(this.activerow) this.rows[this.activerow].header.isFocus = false;
+            if(e.keyCode === 37 || e.keyCode === 39){
+                let res = this.rows[this.activerow].onkeydown(e);
+                this.activecol = res[0];
+                if(!this.columns[this.activecol]){
+                    delete this.rows[this.activerow].cells[this.activecol];
+                    return;
+                }
+                this.activecell = res[1];
+                this.activecell.column = this.columns[this.activecol];
+                this.activecell.x = this.columns[this.activecol].x;
+                this.activecell.width = this.columns[this.activecol].cellWidth;
+                this.rows[this.activerow].add_cell(this.activecell);
+                this.columns[this.activecol].add_cell(this.activecell);
+            }else if(e.keyCode ===38 || e.keyCode === 40 || e.code === "Enter"){
+                let res = this.columns[this.activecol].onkeydown(e);
+                this.activerow = res[0];
+                if(!this.rows[this.activerow]){
+                    delete this.columns[this.activecol].cells[this.activerow];
+                    return;
+                }
+                this.activecell = res[1];
+                this.activecell.row = this.rows[this.activerow];
+                this.activecell.y = this.rows[this.activerow].y;
+                this.activecell.height = this.rows[this.activerow].cellHeight;
+                this.rows[this.activerow].add_cell(this.activecell);
+                this.columns[this.activecol].add_cell(this.activecell);
+            }            
+            if(this.activecol) this.columns[this.activecol].header.isFocus = true;
+            if(this.activerow) this.rows[this.activerow].header.isFocus = true;
+            this.activecell.isFocus = true;
+    }
     }
 
     handleCtrldown(e){
@@ -701,7 +708,7 @@ class Grid{
             this.region = region;
             this.activecell.isFocus = true;
             this.getMinMaxAvgCount();
-            this.draw_region();
+            this.draw();
         }
 
     }
@@ -935,7 +942,6 @@ class Grid{
             this.deselectheader();
             this.region = [];
             this.regionselection = false;
-            this.draw();
         }
     }
 
@@ -1135,9 +1141,11 @@ class Grid{
     }
 
     draw_region(){
-        let scrolloffsetX = this.Scrollbar.getScrollLeft();
-        let scrolloffsetY = this.Scrollbar.getScrollTop();
+
         if(this.region.length > 0){
+            this.set_bounding_region();
+            let scrolloffsetX = this.Scrollbar.getScrollLeft();
+            let scrolloffsetY = this.Scrollbar.getScrollTop();
             let r1=this.region[0].row.index;
             let r2 = r1;
             let c1 = this.region[0].column.index;
@@ -1146,7 +1154,7 @@ class Grid{
                 cell.isSelected = true;
                 cell.column.header.isFocus = true;
                 cell.row.header.isFocus = true;
-                if(cell.row.index in this.boundedrows && cell.column.index in this.boundedcols){
+                if(this.boundedrows.includes(cell.row.index.toString()) && this.boundedcols.includes(cell.column.index.toString())){
                     cell.draw(scrolloffsetX,scrolloffsetY);
                 }
                 c1 = c1>cell.column.index?cell.column.index:c1;
@@ -1156,14 +1164,15 @@ class Grid{
             });
             let rowsrange = this.getRowinRange(r1,r2);
             let colrange = this.getColinRange(c1,c2);
+            // this.draw();
             rowsrange.forEach(row =>{
-                if(row in this.boundedrows){
+                if(this.boundedrows.includes(row.toString())){
                     this.rows[row].header.draw(scrolloffsetX,scrolloffsetY);
                     this.rows[row].draw_boundary(scrolloffsetY);
                 }
             });
             colrange.forEach(col => {
-                if(col in this.boundedcols){
+                if(this.boundedcols.includes(col.toString())){
                     this.columns[col].header.draw(scrolloffsetX,scrolloffsetY);
                     this.columns[col].draw_boundary(scrolloffsetX);
                 }
@@ -1182,9 +1191,10 @@ class Grid{
     }
 
     draw_copy_region(){
-        let scrolloffsetX = this.Scrollbar.getScrollLeft();
-        let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.copyregion.length > 0){
+            this.set_bounding_region();
+            let scrolloffsetX = this.Scrollbar.getScrollLeft();
+            let scrolloffsetY = this.Scrollbar.getScrollTop();
             let topx = this.copyregion[0].x;
             let topy = this.copyregion[0].y;
             let bottomx = this.copyregion[this.copyregion.length-1].x + this.copyregion[this.copyregion.length - 1].width;
@@ -1232,9 +1242,11 @@ class Grid{
 
 
     draw_selectedcols(){
-        let scrolloffsetX = this.Scrollbar.getScrollLeft();
-        let scrolloffsetY = this.Scrollbar.getScrollTop();
+
         if(this.columnselection.length > 0){
+            this.set_bounding_region();
+            let scrolloffsetX = this.Scrollbar.getScrollLeft();
+            let scrolloffsetY = this.Scrollbar.getScrollTop();
             this.columnselection.forEach(col => {
                 this.columns[col].header.isSelected = true;
             });
@@ -1266,9 +1278,11 @@ class Grid{
     }
 
     draw_selectedrows(){
-        let scrolloffsetY = this.Scrollbar.getScrollTop();
-        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+
         if(this.rowselection.length > 0){
+            this.set_bounding_region();
+            let scrolloffsetY = this.Scrollbar.getScrollTop();
+            let scrolloffsetX = this.Scrollbar.getScrollLeft();
             this.rowselection.forEach(row => {
                 this.rows[row].header.isSelected = true;
             });
@@ -1297,6 +1311,113 @@ class Grid{
     }
 
     draw(){
+       this.set_bounding_region();
+        for(const col of this.boundedcols){ 
+            this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
+        }
+        for(const row of this.boundedrows){ 
+            this.rows[row].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
+        }
+        for(const row of this.boundedrows){ 
+            this.rows[row].draw_boundary(this.scrolloffsetY);
+        }
+        for(const col of this.boundedcols){ 
+            this.columns[col].draw_boundary(this.scrolloffsetX);
+        }
+        this.draw_selectedcols();
+        this.draw_selectedrows();
+        if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
+        this.draw_region();
+        this.draw_copy_region();
+        Column.removeColumns(this.columns,this.boundedcols);
+        Row.removeRows(this.rows,this.boundedrows);
+    }
+
+    getMinMaxAvgCount(){
+        let count = 0;
+        let min = 9999999999;
+        let max = 0;
+        let sum = 0;
+        let num;
+        let numcount = 0;
+        if(this.region.length > 0){
+            this.region.forEach(cell => {
+                if(cell.text !== ""){
+                    count++;
+                    if(!isNaN(cell.text)){
+                            num = parseFloat(cell.text);
+                            min = Math.min(min,num);
+                            max = Math.max(max,num);
+                            sum += num;
+                            numcount++;
+                    }
+                }
+            });
+        }else if(this.columnselection.length > 0){
+            this.columnselection.forEach(col => {
+                for(let cell in this.columns[col].cells){
+                    if(this.columns[col].cells[cell].text !== ""){
+                        count++;
+                        if(!isNaN(this.columns[col].cells[cell].text)){
+                                num = parseFloat(this.columns[col].cells[cell].text);
+                                min = Math.min(min,num);
+                                max = Math.max(max,num);
+                                sum += num;
+                                numcount++;
+                        }
+                    }
+            }
+            });
+        }else if(this.rowselection.length > 0){
+            this.rowselection.forEach(row => {
+                for(let cell in this.rows[row].cells){
+                    if(this.rows[row].cells[cell].text !== ""){
+                        count++;
+                        if(!isNaN(this.rows[row].cells[cell].text)){
+                                num = parseFloat(this.rows[row].cells[cell].text);
+                                min = Math.min(min,num);
+                                max = Math.max(max,num);
+                                sum += num;
+                                numcount++;
+                        }
+                    }
+            }
+            });
+        }
+
+        if(numcount > 0){
+            let stats = {
+                "count":count,
+                "min":min,
+                "max":max,
+                "avg":sum/numcount,
+                "sum":sum,
+                "numcount":numcount,
+            }
+            this.draw_stats(stats);
+        }else{
+        this.footerctx.save();
+        this.footerctx.fillStyle ="white";
+        this.footerctx.fillRect(0,0,this.width + this.topX,this.height + this.topY);
+        this.footerctx.restore();
+        }
+    }
+
+    draw_stats(stats){
+        let text = `Average :${stats.avg}\t\t Count :${stats.count}\t\t NumCount :${stats.numcount}\t\t  Min :${stats.min}\t\t Max :${stats.max}\t\t Sum :${stats.sum}\t`;
+        this.footerctx.save();
+        // this.footerctx.strokeStyle = "#e0e0e0";
+        this.footerctx.fillStyle ="white";
+        this.footerctx.lineWidth = "1";
+        let textwidth = this.footerctx.measureText(text).width;
+        this.footerctx.font = "12px Arial";
+        this.footerctx.fillRect(0,0,this.width + this.topX,this.height + this.topY);
+        this.footerctx.fillStyle = "rgb(96, 94, 92)";
+        this.footerctx.fillText(text,this.x + this.width - textwidth - 40,20);
+        this.footerctx.restore();
+    }
+
+    set_bounding_region(){
         this.scrolloffsetX = this.Scrollbar.getScrollLeft();
         this.scrolloffsetY = this.Scrollbar.getScrollTop();
         this.boundedcols = Column.getBoundedColumns(this.columns,this.topX + this.scrolloffsetX , this.width + this.scrolloffsetX);
@@ -1431,109 +1552,6 @@ class Grid{
             prevEnd = nextStart + this.columns[this.boundedcols[col]].cellWidth;
         }
 
-        for(const col of this.boundedcols){ 
-            this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
-        }
-        for(const row of this.boundedrows){ 
-            this.rows[row].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
-        }
-        for(const row of this.boundedrows){ 
-            this.rows[row].draw_boundary(this.scrolloffsetY);
-        }
-        for(const col of this.boundedcols){ 
-            this.columns[col].draw_boundary(this.scrolloffsetX);
-        }
-        this.draw_selectedcols();
-        this.draw_selectedrows();
-        if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
-        this.draw_region();
-        this.draw_copy_region();
-        Column.removeColumns(this.columns,this.boundedcols);
-        Row.removeRows(this.rows,this.boundedrows);
-    }
-
-    getMinMaxAvgCount(){
-        let count = 0;
-        let min = 9999999999;
-        let max = 0;
-        let sum = 0;
-        let num;
-        let numcount = 0;
-        if(this.region.length > 0){
-            this.region.forEach(cell => {
-                if(cell.text !== ""){
-                    count++;
-                    if(!isNaN(cell.text)){
-                            num = parseFloat(cell.text);
-                            min = Math.min(min,num);
-                            max = Math.max(max,num);
-                            sum += num;
-                            numcount++;
-                    }
-                }
-            });
-        }else if(this.columnselection.length > 0){
-            this.columnselection.forEach(col => {
-                for(let cell in this.columns[col].cells){
-                    if(this.columns[col].cells[cell].text !== ""){
-                        count++;
-                        if(!isNaN(this.columns[col].cells[cell].text)){
-                                num = parseFloat(this.columns[col].cells[cell].text);
-                                min = Math.min(min,num);
-                                max = Math.max(max,num);
-                                sum += num;
-                                numcount++;
-                        }
-                    }
-            }
-            });
-        }else if(this.rowselection.length > 0){
-            this.rowselection.forEach(row => {
-                for(let cell in this.rows[row].cells){
-                    if(this.rows[row].cells[cell].text !== ""){
-                        count++;
-                        if(!isNaN(this.rows[row].cells[cell].text)){
-                                num = parseFloat(this.rows[row].cells[cell].text);
-                                min = Math.min(min,num);
-                                max = Math.max(max,num);
-                                sum += num;
-                                numcount++;
-                        }
-                    }
-            }
-            });
-        }
-
-        if(numcount > 0){
-            let stats = {
-                "count":count,
-                "min":min,
-                "max":max,
-                "avg":sum/numcount,
-                "sum":sum,
-                "numcount":numcount,
-            }
-            this.draw_stats(stats);
-        }else{
-        this.footerctx.save();
-        this.footerctx.fillStyle ="white";
-        this.footerctx.fillRect(0,0,this.width + this.topX,this.height + this.topY);
-        this.footerctx.restore();
-        }
-    }
-
-    draw_stats(stats){
-        let text = `Average :${stats.avg}\t\t Count :${stats.count}\t\t NumCount :${stats.numcount}\t\t  Min :${stats.min}\t\t Max :${stats.max}\t\t Sum :${stats.sum}\t`;
-        this.footerctx.save();
-        // this.footerctx.strokeStyle = "#e0e0e0";
-        this.footerctx.fillStyle ="white";
-        this.footerctx.lineWidth = "1";
-        let textwidth = this.footerctx.measureText(text).width;
-        this.footerctx.font = "12px Arial";
-        this.footerctx.fillRect(0,0,this.width + this.topX,this.height + this.topY);
-        this.footerctx.fillStyle = "rgb(96, 94, 92)";
-        this.footerctx.fillText(text,this.x + this.width - textwidth - 40,20);
-        this.footerctx.restore();
     }
 }
 

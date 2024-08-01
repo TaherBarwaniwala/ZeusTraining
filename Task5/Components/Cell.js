@@ -288,7 +288,7 @@ class Cell{
     }
 
     static deleteCell(cell){
-        if(cell.row && cell.column){
+        if(cell.row && cell.column && !cell.isFocus && !cell.isSelected){
             let rowindex = cell.row.index;
             let colindex = cell.column.index;
             delete cell.row.cells[colindex];
