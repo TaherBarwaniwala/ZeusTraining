@@ -190,8 +190,10 @@ class Grid{
         if(this.getCol(this.initialX+offsetX) !== this.activecol){
             this.activecol = this.getCol(this.initialX+offsetX);
         }
-        this.shadowcol.moveShadow(offsetX - this.Scrollbar.getScrollLeft());
-        this.columns[this.activecol].draw_leftBoundary(this.Scrollbar.getScrollLeft());
+        if(this.columns[this.activecol]){
+            this.shadowcol.moveShadow(offsetX - this.Scrollbar.getScrollLeft());
+            this.columns[this.activecol].draw_leftBoundary(this.Scrollbar.getScrollLeft());
+        }
     }
 
     oncoldragpointerup(e){
@@ -414,8 +416,10 @@ class Grid{
         let offsetY = e.pageY - this.topY - this.initialY + scrolloffsetY;
         this.activerow = this.getRow(this.initialY+offsetY);
         this.draw();
-        this.shadowrow.moveShadow(offsetY - scrolloffsetY);
-        if(this.activerow)this.rows[this.activerow].draw_upBoundary(scrolloffsetY);
+        if(this.rows[this.activerow]){
+            this.shadowrow.moveShadow(offsetY - scrolloffsetY);
+            if(this.activerow)this.rows[this.activerow].draw_upBoundary(scrolloffsetY);
+        }
     }
 
     onrowdragpointerup(e){
@@ -916,7 +920,7 @@ class Grid{
             let outstring = "";
             for(let row = initialrow;row <= finalrow ; row++){
                 for(let col = initialcol;col <= finalcol;col++){
-                    if(this.rows[row].cells && this.rows[row].cells.hasOwnProperty(col))
+                    if(this.rows[row] && this.columns[col] && this.rows[row].cells && this.rows[row].cells.hasOwnProperty(col))
                     outstring = outstring.concat(this.rows[row].getCell(col).text);
                     outstring = outstring.concat("\t")
                 }
