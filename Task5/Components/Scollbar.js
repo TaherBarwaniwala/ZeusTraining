@@ -23,7 +23,7 @@ class Scrollbar{
         if((this.offset_element.getBoundingClientRect().top <= window.innerHeight + 50) && (this.offset_element.getBoundingClientRect().top >= window.innerHeight - 50)){
             this.offset_element.setAttribute("style",`width:${this.offset_element.scrollWidth}px;height:${Math.max(2000,this.offset_element.scrollHeight/2)}px`);
         }
-        window.setTimeout(this.onscrollfunction,100);
+        window.setTimeout(this.onscrollfunction,200);
     }
 
     getScrollLeft(){

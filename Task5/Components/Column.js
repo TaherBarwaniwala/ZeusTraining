@@ -212,7 +212,7 @@ class Column{
     }
 
     edgehittest(x){
-        return (x <= this.x + this.cellWidth + 5 && x >= this.x + this.cellWidth - 5);
+        return (x <= this.x + this.cellWidth + 2 && x >= this.x + this.cellWidth - 2);
     }
 
     move(x){
@@ -280,9 +280,9 @@ class Column{
         return boundedcols;
     }
 
-    static async removeColumns(columns,boundedcols){
+    static removeColumns(columns,boundedcols){
         for(let col in columns){
-            if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && !columns[col].header.isFocus && !columns[col].header.isSelected){
+            if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && !columns[col].header.isFocus && !columns[col].header.isSelected && columns[col].initialWidth === columns[col].cellWidth){
                 delete columns[col];
             }
         }

@@ -270,9 +270,9 @@ class Row{
         return boundedrows;
     }
 
-    static async removeRows(rows,boundedrows){
+    static removeRows(rows,boundedrows){
         for(let row in rows){
-            if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && !rows[row].header.isFocus && !rows[row].header.isSelected){
+            if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && !rows[row].header.isFocus && !rows[row].header.isSelected && rows[row].initialHeight === rows[row].cellHeight){
                 delete rows[row];
             }
         }
