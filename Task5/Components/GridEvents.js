@@ -34,11 +34,7 @@ class GridEvents{
         this.initialY = e.pageY - this.grid.topY + scrolloffsetY;
         this.grid.activecol = this.grid.getCol(this.initialX);
         this.grid.activerow = this.grid.getRow(this.initialY)
-        if(this.grid.columnEvents.isColEdgeSelect(x)){
-            this.grid.columnEvents.oncolumnedgedrag(e.pageX);
-        }else if(this.grid.rowEvents.isRowEdgeSelect(y)){
-            this.grid.rowEvents.onrowedgedrag(e.pageY);
-        }else if(this.grid.activecol !== -1 && this.grid.activerow!==-1){
+        if(this.grid.activecol !== -1 && this.grid.activerow!==-1){
             if(this.grid.activecell && this.grid.activecell === this.grid.columns[this.grid.activecol].getCell(this.grid.activerow)){
                 this.grid.activecell.create_inputbox(this.grid.topX + scrolloffsetX,this.grid.topY + scrolloffsetY);
                 this.grid.activecell.isFocus = true;

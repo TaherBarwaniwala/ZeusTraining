@@ -9,7 +9,7 @@ import KeyboardEvents from './KeyboardEvents.js';
 import MouseHoverEvents from './MouseHoverEvents.js';
 
 class Grid{
-    constructor(x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas){
+    constructor(x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas,allselectorcanvas){
         this.topX = canvas.offsetParent.offsetLeft;
         this.topY = canvas.offsetParent.offsetTop;
         console.log(this.topX,this.topY);
@@ -22,6 +22,7 @@ class Grid{
         this.columncanvas = columncanvas;
         this.rowcanvas = rowcanvas;
         this.footercanvas = footercanvas;
+        this.allselectorcanvas = allselectorcanvas;
         this.footerctx = footercanvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
@@ -54,7 +55,12 @@ class Grid{
         this.gridEvents = new GridEvents(this,this.canvas,this.Scrollbar)
         this.columnEvents = new ColumnEvents(this,this.columncanvas,this.Scrollbar);
         this.rowEvents = new RowEvents(this,this.rowcanvas,this.Scrollbar);
+        this.draw_triangle();
+        this.onpointerdownallselectorbound = () => this.onpointerdownallselector();
+        this.allselectorcanvas.addEventListener("pointerdown",this.onpointerdownallselectorbound);
     }
+
+
 
     onCopy(){
         this.copyregion = [];
@@ -524,7 +530,20 @@ class Grid{
     }
 
 
-
+    draw_triangle(){
+        this.allselectorctx = this.allselectorcanvas.getContext("2d");
+        this.allselectorctx.save();
+        let triangle = new Path2D();
+        this.allselectorctx.strokeStyle = "#e0e0e0";
+        this.allselectorctx.fillStyle = "#e0e0e0";
+        triangle.moveTo(40,0);
+        triangle.lineTo(40,40);
+        triangle.lineTo(0,40);
+        triangle.lineTo(40,0);
+        triangle.closePath();
+        this.allselectorctx.fill(triangle);
+        this.allselectorctx.restore();
+    }
 
     draw(){
        this.set_bounding_region();

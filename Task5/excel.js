@@ -29,6 +29,12 @@ footer.width = column.width + 40;
 footer.style.width = footer.width + "px";
 footer.style.height = footer.height + "px";
 
+const allSelector = document.getElementById("all-selector-canvas");
+allSelector.height = 40;
+allSelector.width = 40;
+allSelector.style.height = allSelector.height + "px";
+allSelector.style.width = allSelector.width + "px";
+
 const ctx = canvas.getContext('2d');
 
 
@@ -74,7 +80,7 @@ const ctx = canvas.getContext('2d');
 // row.create_row();
 // row.draw();
 
-let grid = new Grid(0,0,80,25,canvas,column,row,footer);
+let grid = new Grid(0,0,80,25,canvas,column,row,footer,allSelector);
 grid.create_grid();
 grid.draw();
 let scroll = new Scrollbar();
