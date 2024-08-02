@@ -9,9 +9,10 @@ import KeyboardEvents from './KeyboardEvents.js';
 import MouseHoverEvents from './MouseHoverEvents.js';
 
 class Grid{
-    constructor(topX,topY,x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas){
-        this.topX = topX;
-        this.topY = topY;
+    constructor(x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas){
+        this.topX = canvas.offsetParent.offsetLeft;
+        this.topY = canvas.offsetParent.offsetTop;
+        console.log(this.topX,this.topY);
         this.x = x;
         this.y = y;
         this.cellWidth = cellWidth;

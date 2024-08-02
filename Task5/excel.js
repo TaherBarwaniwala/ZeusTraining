@@ -74,7 +74,7 @@ const ctx = canvas.getContext('2d');
 // row.create_row();
 // row.draw();
 
-let grid = new Grid(40,40,0,0,80,25,canvas,column,row,footer);
+let grid = new Grid(0,0,80,25,canvas,column,row,footer);
 grid.create_grid();
 grid.draw();
 let scroll = new Scrollbar();

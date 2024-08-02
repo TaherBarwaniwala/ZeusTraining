@@ -22,7 +22,7 @@
 }
 
 .flex.row {
-  height: calc(100vh - 64px);
+  height: calc(100vh - 112px);
 }
 
 .all-selector {
@@ -111,6 +111,7 @@
   position: sticky;
   z-index: 1;
   overflow: none;
+  border-top: 1px solid #e0e0e0;
 }
 
 #footer-canvas {
@@ -128,4 +129,15 @@
 .scroll-offset {
   height: 200%;
   width: 200%;
+}
+
+.upload-file-form {
+  background-color: #f5f5f5;
+  padding-left: 40px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.upload-file-label {
+  padding-right: 50px;
 }/*# sourceMappingURL=index.css.map */

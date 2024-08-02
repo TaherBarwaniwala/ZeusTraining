@@ -80,8 +80,10 @@ class GridEvents{
         let cell;
         colrange.forEach(col => {
             rowsrange.forEach(row => {
+               if(this.grid.rows[row] && this.grid.columns[col]){
                 cell = this.grid.rows[row].getCell(col)?this.grid.rows[row].getCell(col):Cell.createCell(this.grid.rows[row],this.grid.columns[col]);
                 region.push(cell);
+               }
             });
         });
         if(region !== this.grid.region){

@@ -48,11 +48,11 @@ class ColumnEvents{
     }
 
     isColSelect(y){
-        return (y>this.grid.headerHeight - 25);
+        return (y>this.grid.topY - this.grid.headerHeight + 15);
     }
 
     isColDrag(y){
-        return (y<this.grid.headerHeight - 25);
+        return (y > this.grid.topY - this.grid.headerHeight && y<this.grid.topY - this.grid.headerHeight + 15);
     }
 
     isColEdgeSelect(x){
