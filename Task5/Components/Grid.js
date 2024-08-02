@@ -60,6 +60,13 @@ class Grid{
         this.allselectorcanvas.addEventListener("pointerdown",this.onpointerdownallselectorbound);
     }
 
+    onpointerdownallselector(){
+        this.reset();
+        this.columnselection = Object.keys(this.columns);
+        this.rowselection = Object.keys(this.rows);
+        this.activecell = this.rows[1].getCell(1);
+        this.draw();
+    }
 
 
     onCopy(){
@@ -75,13 +82,13 @@ class Grid{
 
         }else if(this.columnselection.length > 0){
             this.draw();
-            this.columnEvents.draw_selectedcols();
+            if(this.rowselection.length === 0)this.columnEvents.draw_selectedcols();
             this.columnselection.forEach(col => {
                 this.copyregion.push(...Object.values(this.columns[col].cells));
             });
         }else if(this.rowselection.length > 0){
             this.draw();
-            this.rowEvents.draw_selectedrows();
+            if(this.columnselection.length === 0)this.rowEvents.draw_selectedrows();
             this.rowselection.forEach(row => {
                 this.copyregion.push(...Object.values(this.rows[row].cells));
             });
@@ -547,6 +554,7 @@ class Grid{
 
     draw(){
        this.set_bounding_region();
+       this.draw_allselector();
         for(const col of this.boundedcols){ 
             this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
         }
@@ -559,13 +567,31 @@ class Grid{
         for(const col of this.boundedcols){ 
             this.columns[col].draw_boundary(this.scrolloffsetX);
         }
-        this.columnEvents.draw_selectedcols();
-        this.rowEvents.draw_selectedrows();
-        if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
         this.gridEvents.draw_region();
+        if(this.rowselection.length === 0)this.columnEvents.draw_selectedcols();
+        if(this.columnselection.length === 0)this.rowEvents.draw_selectedrows();
+        if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
         this.draw_copy_region();
         Column.removeColumns(this.columns,this.boundedcols);
         Row.removeRows(this.rows,this.boundedrows);
+    }
+
+    draw_allselector(){
+        if(this.rowselection.length > 0 && this.columnselection.length > 0){
+            for(let col of this.boundedcols){
+                // if(this.boundedcols.includes(col.toString())){
+                    this.columns[col].header.isSelected = true;
+                    this.columns[col].isSelected = true;
+                // }
+            }
+            for(let row of this.boundedrows){
+                // if(this.boundedrows.includes(row.toString())){
+                    this.rows[row].isSelected = true;
+                    this.rows[row].header.isSelected = true;
+                // }
+            }
+            this.getMinMaxAvgCount();
+        }
     }
 
     getMinMaxAvgCount(){
