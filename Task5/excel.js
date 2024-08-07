@@ -1,3 +1,4 @@
+import FormSubmission from "./Components/FormSubmission.js";
 import Grid from "./Components/Grid.js";
 import Scrollbar from "./Components/Scollbar.js";
 
@@ -10,8 +11,9 @@ canvas.width = width - 40;
 canvas.height = height - 40 - 24;
 canvas.style.width = canvas.width + "px";
 canvas.style.height = canvas.height + "px";
-
+/** @type {HTMLCanvasElement} */
 const column = document.getElementById("C1");
+/** @type {HTMLCanvasElement} */
 const row = document.getElementById("R1");
 column.width = canvas.width;
 column.height = 40;
@@ -28,7 +30,7 @@ footer.height = 24;
 footer.width = column.width + 40;
 footer.style.width = footer.width + "px";
 footer.style.height = footer.height + "px";
-
+/** @type {HTMLCanvasElement} */
 const allSelector = document.getElementById("all-selector-canvas");
 allSelector.height = 40;
 allSelector.width = 40;
@@ -84,5 +86,7 @@ let grid = new Grid(0,0,80,25,canvas,column,row,footer,allSelector);
 grid.create_grid();
 grid.draw();
 let scroll = new Scrollbar();
+let form = document.getElementById("form");
+let formsubmit = new FormSubmission(form);
 // grid.draw_rows();
 // grid.draw_cols();

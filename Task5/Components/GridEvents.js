@@ -1,6 +1,14 @@
 import Cell from "./Cell.js";
+import Grid from "./Grid.js";
+import Scrollbar from "./Scollbar.js";
 
 class GridEvents{
+    /**
+     * 
+     * @param {Grid} grid 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {Scrollbar} Scrollbar 
+     */
     constructor(grid,canvas,Scrollbar){
         this.grid = grid;
         this.Scrollbar = Scrollbar;
@@ -12,6 +20,11 @@ class GridEvents{
         this.canvas.addEventListener('pointerdown',this.onpointerdownbound);
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e ;
+     */
+
     onpointerdownmaincanvas(e){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
         let scrolloffsetY = this.Scrollbar.getScrollTop();
@@ -21,6 +34,10 @@ class GridEvents{
     }
 
  
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
 
     cellspointerdown(e){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
@@ -54,6 +71,10 @@ class GridEvents{
         }
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
     
     onregionpointermove(e){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();

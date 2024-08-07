@@ -9,6 +9,18 @@ import KeyboardEvents from './KeyboardEvents.js';
 import MouseHoverEvents from './MouseHoverEvents.js';
 
 class Grid{
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} cellWidth 
+     * @param {Number} cellHeight 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {HTMLCanvasElement} columncanvas 
+     * @param {HTMLCanvasElement} rowcanvas 
+     * @param {HTMLCanvasElement} footercanvas 
+     * @param {HTMLCanvasElement} allselectorcanvas 
+     */
     constructor(x,y,cellWidth,cellHeight,canvas,columncanvas,rowcanvas,footercanvas,allselectorcanvas){
         this.topX = canvas.offsetParent.offsetLeft;
         this.topY = canvas.offsetParent.offsetTop;
@@ -49,7 +61,7 @@ class Grid{
         this.scrolloffsetY = this.Scrollbar.getScrollTop();
         this.boundedcols = Column.getBoundedColumns(this.columns,this.topX + this.scrolloffsetX , this.width + this.scrolloffsetX);
         this.boundedrows = Row.getBoundedRows(this.rows,this.scrolloffsetY,this.height + this.scrolloffsetY);
-        this.Scrollbar.setOnScrollFunction(()=>this.draw())
+        this.Scrollbar.setOnScrollFunction(()=>this.onscroll())
         this.mouseHoverEvents = new MouseHoverEvents(this,this.Scrollbar);
         this.keyboardEvents = new KeyboardEvents(this);
         this.gridEvents = new GridEvents(this,this.canvas,this.Scrollbar)
@@ -59,6 +71,10 @@ class Grid{
         this.onpointerdownallselectorbound = () => this.onpointerdownallselector();
         this.allselectorcanvas.addEventListener("pointerdown",this.onpointerdownallselectorbound);
     }
+
+    /**
+     * 
+     */
 
     onpointerdownallselector(){
         this.reset();
@@ -210,6 +226,12 @@ class Grid{
         }
     }
 
+    /**
+     * 
+     * @param {Cell} activecell 
+     * @param {Array<String>} selection 
+     */
+
     paste_selection(activecell , selection){
         let initialrow = activecell.row.index;
         let initialcol = activecell.column.index;
@@ -359,6 +381,12 @@ class Grid{
         this.draw();
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Number | String}
+     */
+
     getRow(y){
         if(y< this.y + this.cellHeight) return 1;
         // if(y> this.y + this.height) return Object.keys(this.rows).length;
@@ -366,6 +394,11 @@ class Grid{
             if(this.rows[row].hittest(y)) return row;
         }
     }
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Number | String}
+     */
     getCol(x){
         if(x<this.x + this.cellWidth) return 1;
         // if(x>this.x + this.width) return Object.keys(this.columns).length;
@@ -374,10 +407,12 @@ class Grid{
         }
     }
     
-    getColDiff(c1,c2){
-        return c1.charCodeAt(0) - c2.charCodeAt(0);
-    }
-
+/**
+ * 
+ * @param {Number | String} r1 
+ * @param {Number | String} r2 
+ * @returns {Array<Number>}
+ */
     getRowinRange(r1,r2){
         let rows = [];
         r1 = parseInt(r1);
@@ -397,6 +432,13 @@ class Grid{
             return rows;
         }
     }
+
+    /**
+     * 
+     * @param {Number | String} c1 
+     * @param {Number | String} c2 
+     * @returns {Array<Number>}
+     */
     getColinRange(c1,c2){
         let cols = [];
         c1 = parseInt(c1);
@@ -428,16 +470,6 @@ class Grid{
         return "in";
     }
 
-    colheaderhittest(x,y){
-        if(x>this.cellWidth && y < this.cellHeight) return true;
-        return false;
-    }
-
-    rowheaderhittest(x,y){
-        if(x < this.cellWidth && y > this.cellHeight) return true;
-        return false;
-    }
-
     create_grid(){
         let rowindex = 1;
         let x = this.x;
@@ -456,21 +488,23 @@ class Grid{
             columnindex += 1;
             x+=this.cellWidth;
         }
-        y =this.y;
-        rowindex = 1;
-        while( y < this.height){
-            columnindex = 1;
-            x = this.x;           
-            while( x < this.width){
-                cell = new Cell(this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
-                this.columns[columnindex].add_cell(cell);
-                this.rows[rowindex].add_cell(cell);
-                columnindex += 1;
-                x+=this.cellWidth;
-            }
-            rowindex += 1;
-            y += this.cellHeight;
-        }
+        this.set_bounding_region();
+        this.get_bounding_region();
+        // y =this.y;
+        // rowindex = 1;
+        // while( y < this.height){
+        //     columnindex = 1;
+        //     x = this.x;           
+        //     while( x < this.width){
+        //         cell = new Cell(this.canvas,y*x + x,false,this.rows[rowindex],this.columns[columnindex]);
+        //         this.columns[columnindex].add_cell(cell);
+        //         this.rows[rowindex].add_cell(cell);
+        //         columnindex += 1;
+        //         x+=this.cellWidth;
+        //     }
+        //     rowindex += 1;
+        //     y += this.cellHeight;
+        // }
     }
 
 
@@ -541,19 +575,19 @@ class Grid{
         this.allselectorctx = this.allselectorcanvas.getContext("2d");
         this.allselectorctx.save();
         let triangle = new Path2D();
-        this.allselectorctx.strokeStyle = "#e0e0e0";
-        this.allselectorctx.fillStyle = "#e0e0e0";
-        triangle.moveTo(40,0);
-        triangle.lineTo(40,40);
-        triangle.lineTo(0,40);
-        triangle.lineTo(40,0);
+        this.allselectorctx.strokeStyle = "#a0a0a0";
+        this.allselectorctx.fillStyle = "#a0a0a0";
+        triangle.moveTo(37,20);
+        triangle.lineTo(37,37);
+        triangle.lineTo(20,37);
+        triangle.lineTo(37,20);
         triangle.closePath();
         this.allselectorctx.fill(triangle);
         this.allselectorctx.restore();
     }
 
     draw(){
-       this.set_bounding_region();
+        this.set_bounding_region();
        this.draw_allselector();
         for(const col of this.boundedcols){ 
             this.columns[col].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
@@ -664,6 +698,10 @@ class Grid{
         }
     }
 
+    /**
+     * 
+     * @param {Object}} stats 
+     */
     draw_stats(stats){
         let text = `Average :${stats.avg}\t\t Count :${stats.count}\t\t NumCount :${stats.numcount}\t\t  Min :${stats.min}\t\t Max :${stats.max}\t\t Sum :${stats.sum}\t`;
         this.footerctx.save();
@@ -751,6 +789,7 @@ class Grid{
             if(this.columns.hasOwnProperty(index - 1)){
                 this.boundedcols.unshift((index - 1).toString());
             }else{
+                if(index-1 <= 0) break;
                 let newcol = new Column(index-1,this.columns[index].x - this.columns[index].cellWidth,15,this.cellWidth,this.cellHeight,this.canvas,this.columncanvas);
                 this.boundedcols.unshift(newcol.index.toString());
                 this.columns[index-1] = newcol;
@@ -772,6 +811,7 @@ class Grid{
             if(this.rows.hasOwnProperty(index - 1)){
                 this.boundedrows.unshift((index-1).toString());
             }else{
+                if(index-1 <= 0 ) break;
                 let newrow = new Row(index-1,0,this.rows[index].y - this.rows[index].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
                 this.boundedrows.unshift(newrow.index.toString());
                 this.rows[index-1] = newrow;
@@ -815,6 +855,87 @@ class Grid{
             prevEnd = nextStart + this.columns[this.boundedcols[col]].cellWidth;
         }
 
+    }
+
+    async get_bounding_region(){
+        if(this.boundedrows.length > 0){
+            try{
+                for(let row of this.boundedrows){
+                    if(!this.rows[parseInt(row)+50] || Object.keys(this.rows[parseInt(row)+50].cells).length === 0){
+                        fetch(`http://localhost:5081/api/UserDataCollection/${this.rows[row].index}`).then(async(res)=>{
+                            let responseArray = await res.json();
+                            // let i =1;
+                            // for(let key in responseArray[0]){
+                            //     if(this.columns[i].columnsName && this.columns[i].columnsName !== key) this.columns[i].columnsName = key;
+                            //     i++;
+                            // }
+                            // i=0;
+                            // row = parseInt(row);
+                            // for(let res of responseArray){
+                            //     let rowobj;
+                            //     if(this.rows[row+i]){
+                            //         rowobj = this.rows[row+1];
+                            //     }else{
+                            //         rowobj = new Row(row+i,0,this.rows[row-1]?this.rows[row-1].y)
+                            //     }
+                            // }
+                            // console.log(responseArray[0]);
+                            responseArray.sort((a,b)=>a["id"]-b["id"]);
+                            let i = 1;
+
+                            for(let j = 0;j<responseArray.length;j++){
+                                let res = responseArray[j];
+                                if(res["id"]!==parseInt(row) + j) continue;
+                                // console.log(res);
+                                let rowobj = this.rows[res["id"]];
+
+                                if(rowobj === null || rowobj === undefined){
+                                    if(!this.rows[parseInt(res["id"])-1]) continue;
+                                    rowobj = new Row(res["id"],0,this.rows[parseInt(res["id"])-1].y + this.rows[parseInt(res["id"])-1].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                                }
+                                i = 1;
+                                for(let key in res){
+                                    let cell = Cell.createCell(rowobj,this.columns[i.toString()]);
+                                    cell.text = res[key];
+                                    i++;
+                                }
+                                this.rows[res['id']] = rowobj;
+                            // console.log(row.index);
+
+                            }
+                            this.draw();
+                        });
+                        let removable_rows = Object.keys(this.rows).filter((index)=>index < row-200 || index > row + 200);
+                        Row.removeThisRows(this.rows,removable_rows);
+                        this.draw();
+                        break;
+                    }
+                }
+            }catch(e){
+                console.error(e);
+            }
+        }
+        // for(let row of this.boundedrows){
+        //     try{
+        //             fetch(`http://localhost:5081/api/UserDatas/${this.rows[row].index}`).then(async (res) => {
+        //             let response =await res.json();
+        //             let i = 1;
+        //             for(let key in response){
+        //                 let cell = Cell.createCell(this.rows[row],this.columns[i.toString()]);
+        //                 cell.text = response[key];
+        //                 i++;
+        //             }
+        //             this.draw();
+        //         });
+        //     }catch(e){
+        //         console.error(e);
+        //     }
+        // }
+    }
+
+    onscroll(){
+        this.draw();
+        this.get_bounding_region();
     }
 }
 

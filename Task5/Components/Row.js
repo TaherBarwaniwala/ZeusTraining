@@ -2,6 +2,19 @@ import Cell from './Cell.js';
 
 
 class Row{
+    /**
+     * 
+     * @param {Number | String} index 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} cellWidth 
+     * @param {Number} cellHeight 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {HTMLCanvasElement} headercanvas 
+     * @param {String} lineWidth 
+     * @param {String} strokeStyle 
+     * @param {String} fillStyle 
+     */
     constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "1",strokeStyle = "#e0e0e0",fillStyle = "white"){
         this.index = index;
         this.x = x;
@@ -31,6 +44,11 @@ class Row{
         // window.addEventListener('keydown',this.onkeydownbound);
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
+
     onpointerdown(e){
         if(this.headerhittest(e.pageX,e.pageY))
         if(!this.isSelected){
@@ -43,6 +61,11 @@ class Row{
         this.draw()
     }
 
+    /**
+     * 
+     * @param {KeyboardEvent} e 
+     * @returns {Array}
+     */
     onkeydown(e){
         if(e.keyCode === 37 ){
             return this.moveactivecellleft();
@@ -89,6 +112,10 @@ class Row{
             return [col + 1,newcell];
     }
 
+    /**
+     * 
+     * @param {Cell} cell 
+     */
     add_cell(cell){
         if(!cell.column){
             var a = 10;
@@ -107,6 +134,11 @@ class Row{
         this.draw_boundary();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     draw_cells(x,y){
         if(Object.keys(this.cells).length > 0){
             if(this.isSelected){
@@ -123,6 +155,10 @@ class Row{
         }
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     */
     draw_header(y){
         if(this.isSelected){
             this.header.fillStyle = "#caead8";
@@ -132,12 +168,21 @@ class Row{
         this.header.draw(0,y);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     draw_without_boundary(x,y){
         this.fill(y);
         this.draw_header(y);
         this.draw_cells(x,y);
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     */
     fill(y){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
@@ -145,6 +190,10 @@ class Row{
         this.ctx.restore();
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     */
     draw_boundary(y){
         this.ctx.save();
         this.ctx.beginPath();
@@ -159,6 +208,10 @@ class Row{
         this.ctx.restore();
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     */
     draw_upBoundary(y){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
@@ -193,21 +246,44 @@ class Row{
         }while(cellx + this.cellWidth < this.width + this.cellWidth);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     headerhittest(x,y){
         return this.header.hittest(x,y);
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     hittest(y){
         return (y>=this.y && y < this.y+this.cellHeight);
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     edgehittest(y){
         return (y <= this.y + this.cellHeight + 2 && y >= this.y + this.cellHeight - 2);
     }
-
+/**
+ * 
+ * @param {Number} y 
+ */
     move(y){
         this.cells.forEach(cell => cell.move(0,y));
     }
+    /**
+     * 
+     * @param {Number} y 
+     */
     moveShadow(y){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
@@ -218,7 +294,10 @@ class Row{
         this.headerctx.fillRect(0,this.y+y,this.width,this.cellHeight);
         this.headerctx.restore();
     }
-
+/**
+ * 
+ * @param {Row} row 
+ */
     copy(row){
         this.canvas = row.canvas;
         this.cellHeight = row.cellHeight;
@@ -230,21 +309,35 @@ class Row{
             this.cells[i].height = this.cellHeight;
         }
     }
-
+/**
+ * 
+ * @param {Number |String} col 
+ * @returns 
+ */
     getCell(col){
         if(Object.hasOwn(this.cells,col)){
             return this.cells[col];
         }else return null;
     }
-
+/**
+ * 
+ * @param {Number} y 
+ */
     resizeEdge(y){
         this.cellHeight  = this.initialHeight + y;
     }
-
+/**
+ * 
+ * @param {Number} y 
+ */
     resizeY(y){
         this.y = this.initialY + y;
     }
-
+/**
+ * 
+ * @param {Array<Row>} rows 
+ * @returns {Row}
+ */
     static create_shadowrow(rows){
         let initialrow;
         let finalrow;
@@ -258,7 +351,13 @@ class Row{
         let cellHeight = (finalrow.y+finalrow.cellHeight) - initialrow.y;
         return new Row(initialrow.index,initialrow.x,initialrow.y,initialrow.cellWidth,cellHeight,initialrow.canvas,initialrow.headercanvas,"0.1","#000000","rgba(202, 234, 216,0.5)");
     }
-
+/**
+ * 
+ * @param {Iterable<Row>} rows 
+ * @param {Number} y 
+ * @param {Number} h 
+ * @returns {Array<String>}
+ */
     static getBoundedRows(rows,y,h){
         let boundedrows = [];
         for(let row in rows){
@@ -270,11 +369,27 @@ class Row{
         return boundedrows;
     }
 
+    /**
+     * 
+     * @param {Iterable<Row>} rows 
+     * @param {Array<String>} boundedrows 
+     */
     static removeRows(rows,boundedrows){
         for(let row in rows){
             if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && !rows[row].header.isFocus && !rows[row].header.isSelected && rows[row].initialHeight === rows[row].cellHeight){
                 delete rows[row];
             }
+        }
+    }
+
+    static removeThisRows(rows,removable_rows){
+        for(let row of removable_rows){
+            // if(boundedrows.indexOf(row) < 0 && Object.keys(rows[row].cells).length === 0 && !rows[row].header.isFocus && !rows[row].header.isSelected && rows[row].initialHeight === rows[row].cellHeight){
+            for(let cell in rows[row]){
+                Cell.deleteCell(cell);
+            }
+            delete rows[row];
+            // }
         }
     }
 

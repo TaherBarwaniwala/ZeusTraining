@@ -1,7 +1,21 @@
 import Cell from './Cell.js';
+import Row from './Row.js';
 
 
 class Column{
+    /**
+     * 
+     * @param {Number | String} index 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} cellWidth 
+     * @param {Number} cellHeight 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {HTMLCanvasElement} headercanvas 
+     * @param {String} lineWidth 
+     * @param {String} strokeStyle 
+     * @param {String} fillStyle 
+     */
     constructor(index,x,y,cellWidth,cellHeight,canvas,headercanvas,lineWidth = "1",strokeStyle = "#e0e0e0",fillStyle="white"){
         this.index = index;
         this.x = x;
@@ -30,8 +44,14 @@ class Column{
         // window.addEventListener('keydown',this.onkeydownbound);
         this.onpointermovebound = (e) => onpointermove(e);
         this.shadowcol = null;
+        this.columnName = "";
     }
 
+    /**
+     * 
+     * @param {Number} i 
+     * @returns {String}
+     */
     static getindex(i){
         i = parseInt(i);
         if(i<26){
@@ -40,6 +60,10 @@ class Column{
             return Column.getindex(i/26 - 1) + Column.getindex(i%26);
         }
     }
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
 
     onpointerdown(e){
         if(this.headerhittest(e.pageX,e.pageY))
@@ -60,6 +84,11 @@ class Column{
         this.header.isFocus = false;
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
+
     onopintermove(e){
         let offsetX = e.pageX - this.initialX;
         let offsetY = e.pageY - this.initialY;
@@ -67,7 +96,11 @@ class Column{
             this.shadowcol.move(offsetX,offsetY);
         }
     }
-
+ /**
+  * 
+  * @param {KeyboardEvent} e 
+  * @returns 
+  */
     onkeydown(e){
         if(e.keyCode === 38 ){
              return this.moveactivecellup();
@@ -112,6 +145,10 @@ class Column{
         return [row+1,new Cell(this.canvas,"",false,null,this)];
     }
 
+    /**
+     * 
+     * @param {Cell} cell 
+     */
     add_cell(cell){
         this.cells[cell.row.index] = cell;
     }
@@ -127,12 +164,21 @@ class Column{
         this.draw_boundary();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     draw_without_boundary(x,y){
         this.fill(x);
         this.draw_header(x);
         this.draw_cells(x,y);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     draw_leftBoundary(x){
         this.ctx.save();
         this.ctx.strokeStyle = "#107c41";
@@ -156,6 +202,11 @@ class Column{
         this.headerctx.restore();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     draw_cells(x,y){
        if(Object.keys(this.cells).length > 0){
         if(this.isSelected){
@@ -172,7 +223,10 @@ class Column{
        }
     }
 
-
+/**
+ * 
+ * @param {Number} x 
+ */
     draw_header(x){
         if(this.isSelected){
             this.header.fillStyle = "#caead8";
@@ -182,6 +236,10 @@ class Column{
         this.header.draw(x,0);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     draw_boundary(x){
         this.ctx.save();
         this.ctx.beginPath();
@@ -196,6 +254,10 @@ class Column{
         this.ctx.restore();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     fill(x){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
@@ -203,22 +265,46 @@ class Column{
         this.ctx.restore();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     headerhittest(x,y){
         return this.header.hittest(x,y);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Boolean}
+     */
     hittest(x){
         return (x>=this.x &&x<this.x+this.cellWidth);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Boolean}
+     */
     edgehittest(x){
         return (x <= this.x + this.cellWidth + 2 && x >= this.x + this.cellWidth - 2);
     }
 
+/**
+ * 
+ * @param {Number} x 
+ */
     move(x){
         this.cells.forEach(cell => cell.move(x,0));
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     moveShadow(x){
         this.ctx.save();
         this.ctx.fillStyle = this.isSelected?this.selectFillStyle:this.fillStyle;
@@ -230,6 +316,10 @@ class Column{
         this.headerctx.restore();
     }
 
+    /**
+     * 
+     * @param {Column} col 
+     */
     copy(col){
         this.canvas = col.canvas;
         this.cellHeight = col.cellHeight;
@@ -241,20 +331,38 @@ class Column{
         }
     }
 
+    /**
+     * 
+     * @param {String | Number} row 
+     * @returns {Cell | null}
+     */
     getCell(row){
         if(Object.hasOwn(this.cells,row)){
             return this.cells[row];
         }else return null;
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     resizeEdge(x){
         this.cellWidth  = this.initialWidth + x;
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     resizeX(x){
         this.x = this.initialX + x;
     }
 
+    /**
+     * 
+     * @param {Array<Column>} cols 
+     * @returns {Column}
+     */
     static create_shadowcol(cols){
         let initialcol;
         let finalcol;
@@ -280,6 +388,11 @@ class Column{
         return boundedcols;
     }
 
+    /**
+     * 
+     * @param {Iterable<Column>} columns 
+     * @param {Array<String>} boundedcols 
+     */
     static removeColumns(columns,boundedcols){
         for(let col in columns){
             if(boundedcols.indexOf(col) < 0 && Object.keys(columns[col].cells).length === 0 && !columns[col].header.isFocus && !columns[col].header.isSelected && columns[col].initialWidth === columns[col].cellWidth){

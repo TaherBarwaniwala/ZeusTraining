@@ -1,4 +1,12 @@
+import Grid from "./Grid.js";
+import Scrollbar from "./Scollbar.js";
+
 class MouseHoverEvents{
+    /**
+     * 
+     * @param {Grid} grid 
+     * @param {Scrollbar} scrollbar 
+     */
     constructor(grid,scrollbar){
         this.grid = grid;
         this.Scrollbar = scrollbar;
@@ -6,6 +14,11 @@ class MouseHoverEvents{
         window.addEventListener("mousemove",this.onmousemovebound);
     
     }
+    /**
+     * 
+     * @param {MouseEvent} e 
+     * @returns {null}
+     */
     changemouseicon(e){
         let x = e.clientX - this.grid.topX + this.Scrollbar.getScrollLeft(),y = e.clientY - this.grid.topY + this.Scrollbar.getScrollTop();
         if(document.body.style.cursor === "grabbing") return;
@@ -22,7 +35,10 @@ class MouseHoverEvents{
         }
         
     }
-
+/**
+ * 
+ * @param {MouseEvent} e 
+ */
     onmousemove(e){
         window.setTimeout(this.changemouseicon(e),500);
     }

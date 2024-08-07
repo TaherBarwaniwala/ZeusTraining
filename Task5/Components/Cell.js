@@ -1,4 +1,22 @@
+import Column from "./Column.js";
+import Row from "./Row.js";
+
 class Cell{
+    /**
+     * 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {String} text 
+     * @param {String} Header 
+     * @param {Row} row 
+     * @param {Column} column 
+     * @param {String} strokeStyle 
+     * @param {String} fillStyle 
+     * @param {String} textStyle 
+     * @param {String} align 
+     * @param {Srting} lineWidth 
+     * @param {String} font 
+     * @returns {Cell}
+     */
     constructor(canvas,text = "",Header = false,row=null,column=null,strokeStyle = "#101010",fillStyle="white",textStyle = "black",align = "left",lineWidth="0.1",font="12px Arial"){
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
@@ -32,22 +50,9 @@ class Cell{
 
     }
 
-    onpointerup(){
-        
-    }
-
 
     onpointerdown(){
-        // if(this.inputbox){
-        //     this.isFocus = false;
-        //     if(this.inputbox.value !== "") this.text = this.inputbox.value;
-        //     this.remove_inputbox();
-        //     this.draw();
-        // }else{
-        //     this.isFocus = true;
-        //     this.create_inputbox();
-        //     this.draw();
-        // }
+
         this.isFocus != this.isFocus;
         if(this.inputbox){
             this.text = this.inputbox.value;
@@ -55,12 +60,21 @@ class Cell{
         }
         this.draw();
     }
-
+/**
+ * 
+ * @param {Number} x 
+ * @param {Number} y 
+ * @returns {Boolean}
+ */
     hittest(x,y){
         if(x<this.x + 2 || x>this.x+this.width - 2 || y<this.y + 2 || y>this.y+this.height - 2) return false;
         return true;
     }
 
+    /**
+     * 
+     * @param {KeyboardEvent} event 
+     */
     onkeypress(event){
         if(event.key === 'Escape'){
             this.remove_inputbox();
@@ -92,6 +106,12 @@ class Cell{
         this.inputbox.focus();
         this.inputbox.value = this.text;
     }
+
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
 
     draw(x,y){
         this.ctx.save();
@@ -214,6 +234,12 @@ class Cell{
   
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+
     draw_text(x,y){
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.Header && this.isSelected ? "white":this.textStyle;
@@ -229,13 +255,13 @@ class Cell{
     }
 
 
-    clear(){
+    clear(x,y){
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.fillStyle = this.fillStyle;
-        this.ctx.fillRect(this.x,this.y,this.renderWidth,this.height);
+        this.ctx.fillRect(this.x - x,this.y - y,this.renderWidth,this.height);
         this.ctx.strokeStyle = this.isFocus?this.focusStyle:this.strokeStyle;
-        this.ctx.strokeRect(this.x,this.y,this.renderWidth,this.height);
+        this.ctx.strokeRect(this.x - x,this.y - y,this.renderWidth,this.height);
         this.ctx.restore();
     }
 
@@ -252,8 +278,15 @@ class Cell{
         if(this.inputbox){
             this.canvas.parentElement.removeChild(this.inputbox);
             this.inputbox = null;
+            Cell.updateCellDB(this);
         }
     }
+
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     move(x,y){
         this.ctx.save();
         this.ctx.beginPath();
@@ -266,12 +299,21 @@ class Cell{
         this.ctx.fillText(this.text,this.x + x+ 4,this.y+y+this.height - 4);
         this.ctx.restore();
     }
+    /**
+     * 
+     * @param {Row} row 
+     */
     update_row(row){
         if(!row){
             var a =10;
         }
         this.row = row;
     }
+
+    /**
+     * 
+     * @param {Column} col 
+     */
     update_col(col){
         if(!col){
             var a = 10;
@@ -279,13 +321,23 @@ class Cell{
         this.column = col;
     }
 
-
+    /**
+     * 
+     * @param {Row} row 
+     * @param {Column} column 
+     * @returns {Cell}
+     */
     static createCell(row,column){
         let cell = new Cell(row.canvas,"",false,row,column);
         row.add_cell(cell);
         column.add_cell(cell);
         return cell;
     }
+
+    /**
+     * 
+     * @param {Cell} cell 
+     */
 
     static deleteCell(cell){
         if(cell.row && cell.column && !cell.isFocus && !cell.isSelected){
@@ -294,6 +346,30 @@ class Cell{
             delete cell.row.cells[colindex];
             delete cell.column.cells[rowindex];
         };
+    }
+
+    static updateCellDB(cell){
+        let obj = {};
+        obj["Id"] = cell.row.cells[1]?.text;
+        obj["Email"] = cell.row.cells[2]?.text;
+        obj["Name"] = cell.row.cells[3]?.text;
+        obj["Country"] = cell.row.cells[4]?.text;
+        obj["State"] = cell.row.cells[5]?.text;
+        obj["City"] = cell.row.cells[6]?.text;
+        obj["TelephoneNumber"] = cell.row.cells[7]?.text;
+        obj["AddressLine1"] = cell.row.cells[8]?.text;
+        obj["AddressLine2"] = cell.row.cells[9]?.text;
+        obj["DOB"] = cell.row.cells[10]?.text;
+        obj["FY2019_20"] = cell.row.cells[11]?.text;
+        obj["FY2020_21"] = cell.row.cells[12]?.text;
+        obj["FY2021_22"] = cell.row.cells[13]?.text;
+        obj["FY2022_23"] = cell.row.cells[14]?.text;
+        obj["FY2023_24"] = cell.row.cells[15]?.text;
+        fetch(`http://localhost:5081/api/UserDatas/${obj["Id"]}`,{
+            method:"PUT",
+            body:JSON.stringify(obj),
+            headers : new Headers({"content-type":"application/json"}),
+        }).then((res)=>console.log(res));
     }
 }
 

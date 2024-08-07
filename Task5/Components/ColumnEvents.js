@@ -1,7 +1,16 @@
 import Cell from "./Cell.js";
 import Column from "./Column.js";
+import Grid from "./Grid.js";
+import Scrollbar from "./Scollbar.js";
 
 class ColumnEvents{
+
+    /**
+     * 
+     * @param {Grid} grid 
+     * @param {HTMLCanvasElement} columnscanvas 
+     * @param {Scrollbar} Scrollbar 
+     */
     constructor(grid,columnscanvas,Scrollbar){
         this.grid = grid;
         this.columncanvas = columnscanvas;
@@ -12,19 +21,30 @@ class ColumnEvents{
         this.onpointerdowncolumnbound = (e) => this.onpointerdowncolumn(e);
         this.columncanvas.addEventListener("pointerdown",this.onpointerdowncolumnbound);
         this.oncolselectpointermovebound = (e) => this.oncolselectpointermove(e);
-        this.oncolselectpointercancelbound = (e) => this.oncolselectpointercancel(e);
-        this.oncolselectpointerupbound = (e) => this.oncolselectpointerup(e);
+        this.oncolselectpointercancelbound = () => this.oncolselectpointercancel();
+        this.oncolselectpointerupbound = () => this.oncolselectpointerup();
         this.oncoldragpointermovebound = (e) => this.oncoldragpointermove(e);
-        this.oncoldragpointercancelbound = (e) => this.oncoldragpointercancel(e);
-        this.oncoldragpointerupbound = (e) => this.oncoldragpointerup(e);
+        this.oncoldragpointercancelbound = () => this.oncoldragpointercancel();
+        this.oncoldragpointerupbound = () => this.oncoldragpointerup();
         this.oncolumnedgepointermovebound = (e)=>this.oncolumnedgepointermove(e);
     }
+
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
 
     onpointerdowncolumn(e){
         let x = e.clientX;
         let y = e.clientY;
         this.colheaderpointerdown(x,y);
     }
+
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
 
     colheaderpointerdown(x,y){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
@@ -47,14 +67,29 @@ class ColumnEvents{
         }
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     isColSelect(y){
         return (y>this.grid.topY - this.grid.headerHeight + 15);
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
     isColDrag(y){
         return (y > this.grid.topY - this.grid.headerHeight && y<this.grid.topY - this.grid.headerHeight + 15);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Boolean}
+     */
     isColEdgeSelect(x){
         for(let col of this.grid.boundedcols){
             if(this.grid.columns[col].edgehittest(x)) return true;
@@ -62,6 +97,10 @@ class ColumnEvents{
         return false;
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     oncolumnedgedrag(x){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
         this.initialX = x - this.topX + scrolloffsetX;
@@ -82,6 +121,10 @@ class ColumnEvents{
         
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
     oncolumnedgepointermove(e){
         let offsetX = e.pageX - this.topX - this.initialX + this.Scrollbar.getScrollLeft();
         let activecol = parseInt(this.grid.activecol);
@@ -96,6 +139,10 @@ class ColumnEvents{
         this.grid.draw();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     */
     oncolumndrag(x){
         let scrolloffsetX = this.Scrollbar.getScrollLeft();
         let initialX = x - this.topX + scrolloffsetX;
@@ -120,6 +167,10 @@ class ColumnEvents{
         window.addEventListener("pointercancel",this.oncoldragpointercancelbound);
     }
 
+    /**
+     * 
+     * @param {Number} e 
+     */
     oncoldragpointermove(e){
         document.body.style.cursor = "grabbing";
         let offsetX = e.pageX - this.topX - this.initialX + this.Scrollbar.getScrollLeft();
@@ -133,7 +184,7 @@ class ColumnEvents{
         }
     }
 
-    oncoldragpointerup(e){
+    oncoldragpointerup(){
         document.body.style.cursor = "grab";
         this.shadowcol = null;
         this.movecolumns();
@@ -143,7 +194,7 @@ class ColumnEvents{
         window.removeEventListener("pointerup",this.oncoldragpointerupbound);
     }
 
-    oncoldragpointercancel(e){
+    oncoldragpointercancel(){
         document.body.style.cursor = "grab";
         this.shadowcol = null;
         this.movecolumns();
@@ -218,7 +269,11 @@ class ColumnEvents{
         });
         this.draw_selectedcols();
     }
-
+    
+    /**
+     * 
+     * @param {Number} x 
+     */
     oncolumnselect(x){
         this.grid.deselectrows();
         this.initialX = x - this.topX + this.Scrollbar.getScrollLeft();
@@ -227,16 +282,20 @@ class ColumnEvents{
         window.addEventListener("pointercancel",this.oncolselectpointercancelbound);
     }
 
-    oncolselectpointerup(e){
+    oncolselectpointerup(){
         window.removeEventListener("pointermove",this.oncolselectpointermovebound);
         window.removeEventListener("pointercancel",this.oncolselectpointercancelbound);
     }
 
-    oncolselectpointercancel(e){
+    oncolselectpointercancel(){
         window.removeEventListener("pointermove",this.oncolselectpointermovebound);
         window.removeEventListener("pointerup",this.oncolselectpointerupbound);
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
     oncolselectpointermove(e){
         let offsetX = e.pageX - this.initialX - this.topX + this.Scrollbar.getScrollLeft();
         let initialCol = this.grid.getCol(this.initialX);

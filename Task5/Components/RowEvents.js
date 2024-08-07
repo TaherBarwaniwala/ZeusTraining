@@ -1,7 +1,16 @@
 import Cell from "./Cell.js";
+import Grid from "./Grid.js";
 import Row from "./Row.js";
+import Scrollbar from "./Scollbar.js";
 
 class RowEvents{
+
+    /**
+     * 
+     * @param {Grid} grid 
+     * @param {HTMLCanvasElement} rowcanvas 
+     * @param {Scrollbar} scrollbar 
+     */
     constructor(grid,rowcanvas,scrollbar){
         this.grid = grid;
         this.rowcanvas = rowcanvas;
@@ -9,16 +18,20 @@ class RowEvents{
         this.onpointerdownrowbound = (e) => this.onpointerdownrow(e);
         this.rowcanvas.addEventListener("pointerdown",this.onpointerdownrowbound);
         this.onrowselectpointermovebound = (e) => this.onrowselectpointermove(e);
-        this.onrowselectpointercancelbound = (e) => this.onrowselectpointercancel(e);
-        this.onrowselectpointerupbound = (e) => this.onrowselectpointerup(e);
+        this.onrowselectpointercancelbound = () => this.onrowselectpointercancel();
+        this.onrowselectpointerupbound = () => this.onrowselectpointerup();
         this.onrowdragpointermovebound = (e) => this.onrowdragpointermove(e);
-        this.onrowdragpointercancelbound = (e) => this.onrowdragpointercancel(e);
-        this.onrowdragpointerupbound = (e) => this.onrowdragpointerup(e);
+        this.onrowdragpointercancelbound = () => this.onrowdragpointercancel();
+        this.onrowdragpointerupbound = () => this.onrowdragpointerup();
         this.onrowedgepointermovebound = (e)=>this.onrowedgepointermove(e);
-        this.onrowpointermovebound = (e) => this.onrowdrag(e);
-        this.onrowedgepointercancelbound = () => this.onrowdragpointercancel(e);
+        this.onrowedgepointercancelbound = () => this.onrowdragpointercancel();
         this.onrowedgepointerupbound = () => this.onrowedgepointerup();
     }
+
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
 
     onpointerdownrow(e){
         let x = e.clientX;
@@ -26,7 +39,11 @@ class RowEvents{
         this.rowheaderpointerdown(x,y);
     }
 
-    
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     */
     rowheaderpointerdown(x,y){
         let scrolloffsetY = this.Scrollbar.getScrollTop();
         if(this.isRowEdgeSelect(y - this.grid.topY + scrolloffsetY)){
@@ -47,10 +64,20 @@ class RowEvents{
             this.onrowdrag(y);
         }
     }
-
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Boolean}
+     */
     isRowDrag(x){
         return (x<25);
     }
+
+    /**
+     * 
+     * @param {Number} y 
+     * @returns {Boolean}
+     */
 
     isRowEdgeSelect(y){
         for(let row of this.grid.boundedrows){
@@ -59,6 +86,11 @@ class RowEvents{
         return false;
     }
 
+
+/**
+ * 
+ * @param {Number} y 
+ */
     onrowedgedrag(y){
         let scrolloffsetY = this.Scrollbar.getScrollTop();
         this.initialY = y - this.grid.topY + scrolloffsetY;
@@ -87,6 +119,11 @@ class RowEvents{
         window.addEventListener("pointerup",this.onrowedgepointerupbound);
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
+
     onrowedgepointermove(e){
         let offsetY = e.pageY - this.grid.topY - this.initialY + this.Scrollbar.getScrollTop();
         let activerow = parseInt(this.grid.activerow);
@@ -100,6 +137,11 @@ class RowEvents{
         }
         this.grid.draw();
     }
+
+    /**
+     * 
+     * @param {Number} y 
+     */
 
     onrowdrag(y){
         let scrolloffsetY = this.Scrollbar.getScrollTop();
@@ -127,6 +169,11 @@ class RowEvents{
         window.addEventListener("pointercancel",this.onrowdragpointercancelbound);
     }
 
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
+
     onrowdragpointermove(e){
         document.body.style.cursor = "grabbing"
         let scrolloffsetY = this.Scrollbar.getScrollTop();
@@ -139,7 +186,7 @@ class RowEvents{
         }
     }
 
-    onrowdragpointerup(e){
+    onrowdragpointerup(){
         document.body.style.cursor = "grab"
         this.shadowrow = null;
         this.moverows();
@@ -149,7 +196,7 @@ class RowEvents{
 
     }
 
-    onrowdragpointercancel(e){
+    onrowdragpointercancel(){
         document.body.style.cursor = "grab"
         this.shadowrow = null;
         this.moverows();
@@ -224,10 +271,20 @@ class RowEvents{
         this.draw_selectedrows();
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @returns {Boolean} 
+     */
+
     isRowSelect(x){
         return (x>this.grid.headerWidth/2);
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     */
     onrowselect(y){
         this.grid.deselectcolumns();
         this.grid.deselectheader();
@@ -238,19 +295,24 @@ class RowEvents{
         window.addEventListener("pointercancel",this.onrowselectpointercancelbound);
     }
 
-    onrowselectpointerup(e){
+    onrowselectpointerup(){
         window.removeEventListener("pointermove",this.onrowselectpointermovebound);
         window.removeEventListener("pointercancel",this.onrowselectpointercancelbound);
         window.removeEventListener("pointerup",this.onrowselectpointerupbound);
 
     }
 
-    onrowselectpointercancel(e){
+    onrowselectpointercancel(){
         window.removeEventListener("pointermove",this.onrowselectpointermovebound);
         window.removeEventListener("pointerup",this.onrowselectpointerupbound);
         window.removeEventListener("pointercancel",this.onrowselectpointercancelbound);
     }
 
+
+    /**
+     * 
+     * @param {PointerEvent} e 
+     */
     onrowselectpointermove(e){
         let offsetY = e.pageY - this.initialY - this.grid.topY + this.Scrollbar.getScrollTop();
         let initialRow = this.grid.getRow(this.initialY);

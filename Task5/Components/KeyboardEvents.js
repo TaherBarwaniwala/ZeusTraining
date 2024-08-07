@@ -1,9 +1,20 @@
+import Grid from "./Grid.js";
+
 class KeyboardEvents{
+    /**
+     * 
+     * @param {Grid} grid 
+     */
     constructor(grid){
         this.grid = grid;
         this.onkeydownbound = (e)=> this.onkeydown(e);
         window.addEventListener('keydown',this.onkeydownbound);
     }
+
+    /**
+     * 
+     * @param {KeyboardEvent} e 
+     */
     
     onkeydown(e){
         if(this.grid.activecell && !this.grid.istyping && ((e.keyCode > 36 && e.keyCode < 41)||e.code === "Enter")){
@@ -47,6 +58,11 @@ class KeyboardEvents{
         }
     }
 
+    /**
+     * 
+     * @param {KeyboardEvent} e 
+     * @returns {null}
+     */
     handleArrawkeyDown(e){
         if(this.grid.activecell&& this.grid.boundedrows.includes(this.grid.activecell.row.index.toString()) && this.grid.boundedcols.includes(this.grid.activecell.column.index.toString())){
             this.grid.activecell.isFocus = true;
@@ -86,12 +102,20 @@ class KeyboardEvents{
             this.grid.activecell.isFocus = true;
     }
     }
-
+/**
+ * 
+ * @param {KeyboardEvent} e 
+ */
     handleCtrldown(e){
         if( e.key === "c" || e.key === "C") this.grid.onCopy();
         if( e.key === "v" || e.key === "V") this.grid.onPaste();
     }
 
+
+/**
+ * 
+ * @param {KeyboardEvent} e 
+ */
     handleEscKeyDown(e){
         if(this.grid.istyping){
             this.grid.activecell.onkeypress(e);
