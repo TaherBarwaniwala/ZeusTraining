@@ -1,10 +1,13 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Numerics;
+using Microsoft.VisualStudio.Web.CodeGeneration.Utils;
 
 namespace Excel_Backend.Models;
 
 public class UserData
 {
-    public long Id { get; set; }
+    // public long Id { get; set; }
+    [Key]
     public string? Email { get; set; }
 
     public string? Name { get; set; }

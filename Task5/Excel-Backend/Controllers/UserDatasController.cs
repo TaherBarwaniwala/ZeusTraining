@@ -29,10 +29,10 @@ namespace Excel_Backend.Controllers
         }
 
         // GET: api/UserDatas/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserData>> GetUserData(long id)
+        [HttpGet("{Email}")]
+        public async Task<ActionResult<UserData>> GetUserData(string Email)
         {
-            var userData = await _context.UserDatas.FindAsync(id);
+            var userData = await _context.UserDatas.FindAsync(Email);
 
             if (userData == null)
             {
@@ -54,10 +54,10 @@ namespace Excel_Backend.Controllers
 
         // PUT: api/UserDatas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserData(long id, UserData userData)
+        [HttpPut("{Email}")]
+        public async Task<IActionResult> PutUserData(string Email, UserData userData)
         {
-            if (id != userData.Id)
+            if (Email != userData.Email)
             {
                 return BadRequest();
             }
@@ -70,7 +70,7 @@ namespace Excel_Backend.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserDataExists(id))
+                if (!UserDataExists(Email))
                 {
                     return NotFound();
                 }
@@ -91,14 +91,14 @@ namespace Excel_Backend.Controllers
             _context.UserDatas.Add(userData);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserData", new { id = userData.Id }, userData);
+            return CreatedAtAction("GetUserData", new { email = userData.Email }, userData);
         }
 
         // DELETE: api/UserDatas/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserData(long id)
+        [HttpDelete("{Email}")]
+        public async Task<IActionResult> DeleteUserData(string Email)
         {
-            var userData = await _context.UserDatas.FindAsync(id);
+            var userData = await _context.UserDatas.FindAsync(Email);
             if (userData == null)
             {
                 return NotFound();
@@ -110,31 +110,31 @@ namespace Excel_Backend.Controllers
             return NoContent();
         }
 
-        private bool UserDataExists(long id)
+        private bool UserDataExists(string Email)
         {
-            return _context.UserDatas.Any(e => e.Id == id);
+            return _context.UserDatas.Any(e => e.Email == Email);
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> PatchUserData([FromBody] JsonPatchDocument<UserData> patchdoc)
-        {
-            if (patchdoc != null)
-            {
-                var user = new UserData();
-                patchdoc.ApplyTo(user, ModelState);
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest();
-                }
-                else
-                {
-                    return new ObjectResult(user);
-                }
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        // [HttpPatch]
+        // public async Task<IActionResult> PatchUserData([FromBody] JsonPatchDocument<UserData> patchdoc)
+        // {
+        //     if (patchdoc != null)
+        //     {
+        //         var user = new UserData();
+        //         patchdoc.ApplyTo(user, ModelState);
+        //         if (!ModelState.IsValid)
+        //         {
+        //             return BadRequest();
+        //         }
+        //         else
+        //         {
+        //             return new ObjectResult(user);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         return BadRequest();
+        //     }
+        // }
     }
 }

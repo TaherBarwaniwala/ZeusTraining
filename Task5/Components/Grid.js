@@ -857,83 +857,86 @@ class Grid{
 
     }
 
+    throttle(fn, wait) {
+        var time = Date.now();
+        return function() {
+          if ((time + wait - Date.now()) < 0) {
+            fn();
+            time = Date.now();
+          }
+        }
+      }
+
     async get_bounding_region(){
         if(this.boundedrows.length > 0){
-            try{
-                for(let row of this.boundedrows){
-                    if(!this.rows[parseInt(row)+50] || Object.keys(this.rows[parseInt(row)+50].cells).length === 0){
-                        fetch(`http://localhost:5081/api/UserDataCollection/${this.rows[row].index}`).then(async(res)=>{
-                            let responseArray = await res.json();
-                            // let i =1;
-                            // for(let key in responseArray[0]){
-                            //     if(this.columns[i].columnsName && this.columns[i].columnsName !== key) this.columns[i].columnsName = key;
-                            //     i++;
-                            // }
-                            // i=0;
-                            // row = parseInt(row);
-                            // for(let res of responseArray){
-                            //     let rowobj;
-                            //     if(this.rows[row+i]){
-                            //         rowobj = this.rows[row+1];
-                            //     }else{
-                            //         rowobj = new Row(row+i,0,this.rows[row-1]?this.rows[row-1].y)
-                            //     }
-                            // }
-                            // console.log(responseArray[0]);
-                            responseArray.sort((a,b)=>a["id"]-b["id"]);
-                            let i = 1;
-
-                            for(let j = 0;j<responseArray.length;j++){
-                                let res = responseArray[j];
-                                if(res["id"]!==parseInt(row) + j) continue;
-                                // console.log(res);
-                                let rowobj = this.rows[res["id"]];
-
-                                if(rowobj === null || rowobj === undefined){
-                                    if(!this.rows[parseInt(res["id"])-1]) continue;
-                                    rowobj = new Row(res["id"],0,this.rows[parseInt(res["id"])-1].y + this.rows[parseInt(res["id"])-1].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
-                                }
-                                i = 1;
-                                for(let key in res){
-                                    let cell = Cell.createCell(rowobj,this.columns[i.toString()]);
-                                    cell.text = res[key];
-                                    i++;
-                                }
-                                this.rows[res['id']] = rowobj;
-                            // console.log(row.index);
-
-                            }
-                            this.draw();
-                        });
-                        let removable_rows = Object.keys(this.rows).filter((index)=>index < row-200 || index > row + 200);
-                        Row.removeThisRows(this.rows,removable_rows);
-                        this.draw();
-                        break;
-                    }
-                }
-            }catch(e){
-                console.error(e);
+            this.boundedrows.sort();
+            if(!this.rows[this.boundedrows[0]-1] || this.rows[this.boundedrows[0] - 1].cells.length === 0){
+                this.throttle(this.fetchRows(parseInt(this.boundedrows[0]) - 1),2000);
+            }else if(!this.rows[this.boundedrows[this.boundedrows.length-1]+1] || this.rows[this.boundedrows[this.boundedrows.length-1] + 1].cells.length === 0){
+                this.throttle(this.fetchRows(parseInt(this.boundedrows[this.boundedrows.length -1]) + 1),2000);
             }
+
+
+
+            // try{
+            //     for(let row of this.boundedrows){
+            //         if(!this.rows[parseInt(row)] || Object.keys(this.rows[parseInt(row)].cells).length === 0 || !this.rows[parseInt(row)+50] || Object.keys(this.rows[parseInt(row)+50].cells).length === 0){
+
         }
-        // for(let row of this.boundedrows){
-        //     try{
-        //             fetch(`http://localhost:5081/api/UserDatas/${this.rows[row].index}`).then(async (res) => {
-        //             let response =await res.json();
-        //             let i = 1;
-        //             for(let key in response){
-        //                 let cell = Cell.createCell(this.rows[row],this.columns[i.toString()]);
-        //                 cell.text = response[key];
-        //                 i++;
-        //             }
-        //             this.draw();
-        //         });
-        //     }catch(e){
-        //         console.error(e);
-        //     }
-        // }
     }
 
-    onscroll(){
+    fetchRows(row){
+        row = parseInt(row);
+        if(row <= 0) row = 1;
+        fetch(`http://localhost:5081/api/UserDataCollection/${row}`).then(async(res)=>{
+        let responseArray = await res.json();
+        // let i =1;
+        // for(let key in responseArray[0]){
+        //     if(this.columns[i].columnsName && this.columns[i].columnsName !== key) this.columns[i].columnsName = key;
+        //     i++;
+        // }
+        // i=0;
+        // row = parseInt(row);
+        // for(let res of responseArray){
+        //     let rowobj;
+        //     if(this.rows[row+i]){
+        //         rowobj = this.rows[row+1];
+        //     }else{
+        //         rowobj = new Row(row+i,0,this.rows[row-1]?this.rows[row-1].y)
+        //     }
+        // }
+        // console.log(responseArray[0]);
+        // responseArray.sort((a,b)=>a["id"]-b["id"]);
+        let i = 1;
+
+        for(let j = 0;j<responseArray.length;j++){
+            let res = responseArray[j];
+            // if(res["id"]!==parseInt(row) + j) continue;
+            // console.log(res);
+            let rowobj = this.rows[row+j];
+
+            if(rowobj === null || rowobj === undefined){
+                if(!this.rows[row + j -1]) continue;
+                rowobj = new Row(row + j,0,this.rows[row + j -1].y + this.rows[row + j -1].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+            }
+            i = 1;
+            for(let key in res){
+                let cell = Cell.createCell(rowobj,this.columns[i.toString()]);
+                cell.text = res[key];
+                i++;
+            }
+            this.rows[row + j] = rowobj;
+        // console.log(row.index);
+
+        }
+        this.draw();
+    });
+    // let removable_rows = Object.keys(this.rows).filter((index)=>index < row-200 || index > row + 200);
+    // Row.removeThisRows(this.rows,removable_rows);
+    this.draw();
+}
+
+onscroll(){
         this.draw();
         this.get_bounding_region();
     }

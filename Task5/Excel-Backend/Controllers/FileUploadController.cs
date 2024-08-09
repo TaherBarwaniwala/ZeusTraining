@@ -1,7 +1,12 @@
+
+using System.Text;
+using System.Text.RegularExpressions;
 using Excel_Backend.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
+using Microsoft.EntityFrameworkCore;
+using Excel_Backend.Services;
+using Humanizer;
 
 namespace Excel_Backend.Controllers
 
@@ -11,46 +16,82 @@ namespace Excel_Backend.Controllers
     public class FileUploadController : ControllerBase
     {
         private readonly UserDataContext _context;
-        public FileUploadController(UserDataContext context)
+
+        private readonly UploadChunkService _chunkService;
+
+        private readonly FileUploadService _fileService;
+
+        private IRabbitManager _manager;
+
+        private List<String> rows;
+
+        public FileUploadController(UserDataContext context,
+        UploadChunkService chunkService,
+        FileUploadService fileService,
+        IRabbitManager manager)
         {
             _context = context;
+            _chunkService = chunkService;
+            _fileService = fileService;
+            _manager = manager;
         }
         [HttpPost()]
-        public async Task<ActionResult> UploadCSVFile(IFormFile File)
+        public async Task<ActionResult<FileUpload>> UploadCSVFile(IFormFile File)
         {
-            Console.WriteLine(File.FileName);
+            FileUpload file = new();
+            file.FileId = Guid.NewGuid().ToString();
+            file.ChunkIds = new();
             var fileStream = File.OpenReadStream();
             var reader = new StreamReader(fileStream);
             var row = await reader.ReadLineAsync();
             row = await reader.ReadLineAsync();
-            var id = 1;
+            int count;
+            List<String> rows;
             while (row != null)
             {
-                var columns = row.Split(",");
-                _context.UserDatas.Add(new UserData
+                UploadChunk chunk = new();
+                chunk.UploadChunkId = Guid.NewGuid().ToString();
+                chunk.Status = "Ready";
+                rows = new();
+                count = 1;
+                while (count <= 20000 && row != null)
                 {
-                    Id = id,
-                    Email = columns[0],
-                    Name = columns[1],
-                    Country = columns[2],
-                    State = columns[3],
-                    City = columns[4],
-                    TelephoneNumber = columns[5],
-                    AddressLine1 = columns[6],
-                    AddressLine2 = columns[7],
-                    DOB = columns[8],
-                    FY2019_20 = UInt32.Parse(columns[9]),
-                    FY2020_21 = UInt32.Parse(columns[10]),
-                    FY2021_22 = UInt32.Parse(columns[11]),
-                    FY2022_23 = UInt32.Parse(columns[12]),
-                    FY2023_24 = UInt32.Parse(columns[13])
+                    rows.Add(row);
+                    count += 1;
+                    row = await reader.ReadLineAsync();
+                }
+                file.ChunkIds.Add(chunk.UploadChunkId);
+                await _chunkService.CreateASync(chunk);
+                _manager.Publish(
+                    new
+                    {
+                        info = chunk,
+                        data = rows
+                    },
+                    "upload_event",
+                    "direct",
+                    "upload-key"
+                );
 
-                });
-                id += 1;
-                row = await reader.ReadLineAsync();
             }
-            _context.SaveChanges();
-            return Ok();
+            await _fileService.CreateASync(file);
+            return Ok(file);
+        }
+
+        private async Task UploadRecords(List<StringBuilder> rows)
+        {
+            StringBuilder query = new();
+            query.Append("insert into public.\"UserDatas\" ( \"Email\" , \"Name\",\"Country\",\"State\",\"City\",\"TelephoneNumber\",\"AddressLine1\",\"AddressLine2\",\"DOB\",\"FY2019_20\",\"FY2020_21\",\"FY2021_22\",\"FY2022_23\",\"FY2023_24\") values");
+            for (var i = 0; i < rows.Count; i++)
+            {
+                string row = rows[i].ToString();
+                row = Regex.Replace(row, @"'", "\'\'");
+                var c = row.Split(",");
+                query.AppendFormat($"( \'{c[0]}\' , \'{c[1]}\', \'{c[2]}\', \'{c[3]}\', \'{c[4]}\', \'{c[5]}\', \'{c[6]}\', \'{c[7]}\', \'{c[8]}\', {c[9]},  {c[10]},{c[11]} ,{c[12]} , {c[13]} )");
+                if (i < rows.Count - 1) query.Append(',');
+            }
+            query.Append(" on conflict do nothing");
+            await _context.Database.ExecuteSqlRawAsync(query.ToString());
         }
 
 
