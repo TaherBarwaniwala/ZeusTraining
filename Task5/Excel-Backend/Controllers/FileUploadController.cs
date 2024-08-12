@@ -3,10 +3,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Excel_Backend.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
+
 using Microsoft.EntityFrameworkCore;
 using Excel_Backend.Services;
-using Humanizer;
+
 
 namespace Excel_Backend.Controllers
 
@@ -54,7 +54,7 @@ namespace Excel_Backend.Controllers
                 chunk.Status = "Ready";
                 rows = new();
                 count = 1;
-                while (count <= 20000 && row != null)
+                while (count <= 5000 && row != null)
                 {
                     rows.Add(row);
                     count += 1;
