@@ -285,3 +285,4 @@ C:\Users\taher.barwaniwala\Tasks\Task5\Excel-Backend\bin\Debug\net8.0\ZstdSharp.
 C:\Users\taher.barwaniwala\Tasks\Task5\Excel-Backend\bin\Debug\net8.0\runtimes\linux\native\libmongocrypt.so
 C:\Users\taher.barwaniwala\Tasks\Task5\Excel-Backend\bin\Debug\net8.0\runtimes\osx\native\libmongocrypt.dylib
 C:\Users\taher.barwaniwala\Tasks\Task5\Excel-Backend\bin\Debug\net8.0\runtimes\win\native\mongocrypt.dll
+C:\Users\taher.barwaniwala\Tasks\Task5\Excel-Backend\bin\Debug\net8.0\FluentFTP.dll

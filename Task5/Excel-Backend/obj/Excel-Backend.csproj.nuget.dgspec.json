@@ -47,6 +47,10 @@
               "target": "Package",
               "version": "[8.1.0, )"
             },
+            "FluentFTP": {
+              "target": "Package",
+              "version": "[51.0.0, )"
+            },
             "Microsoft.AspNetCore.MVC.NewtonsoftJson": {
               "target": "Package",
               "version": "[8.0.7, )"

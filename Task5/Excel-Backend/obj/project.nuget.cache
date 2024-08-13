@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4GyUrrLCUeo=",
+  "dgSpecHash": "PQFxeUrhqfs=",
   "success": true,
   "projectFilePath": "C:\\Users\\taher.barwaniwala\\Tasks\\Task5\\Excel-Backend\\Excel-Backend.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,7 @@
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
+    "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\fluentftp\\51.0.0\\fluentftp.51.0.0.nupkg.sha512",
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\taher.barwaniwala\\.nuget\\packages\\humanizer.core.af\\2.14.1\\humanizer.core.af.2.14.1.nupkg.sha512",

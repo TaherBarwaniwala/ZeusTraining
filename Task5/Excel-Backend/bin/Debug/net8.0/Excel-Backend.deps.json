@@ -9,6 +9,7 @@
       "Excel-Backend/1.0.0": {
         "dependencies": {
           "Aspire.Npgsql.EntityFrameworkCore.PostgreSQL": "8.1.0",
+          "FluentFTP": "51.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "8.0.7",
           "Microsoft.EntityFrameworkCore.Design": "8.0.7",
           "Microsoft.EntityFrameworkCore.InMemory": "8.0.7",
@@ -101,6 +102,14 @@
           "lib/net5.0/DnsClient.dll": {
             "assemblyVersion": "1.6.1.0",
             "fileVersion": "1.6.1.0"
+          }
+        }
+      },
+      "FluentFTP/51.0.0": {
+        "runtime": {
+          "lib/net6.0/FluentFTP.dll": {
+            "assemblyVersion": "51.0.0.0",
+            "fileVersion": "51.0.0.0"
           }
         }
       },
@@ -2382,6 +2391,13 @@
       "sha512": "sha512-4H/f2uYJOZ+YObZjpY9ABrKZI+JNw3uizp6oMzTXwDw6F+2qIPhpRl/1t68O/6e98+vqNiYGu+lswmwdYUy3gg==",
       "path": "dnsclient/1.6.1",
       "hashPath": "dnsclient.1.6.1.nupkg.sha512"
+    },
+    "FluentFTP/51.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PqUaL33qXb/Y6f0kiZQLojK+nsE2HNoOOwJe62OCczAJXaCaoVWioV7jnzsu1vwceDiAyUH32L/KjvH3mpO3FQ==",
+      "path": "fluentftp/51.0.0",
+      "hashPath": "fluentftp.51.0.0.nupkg.sha512"
     },
     "Humanizer/2.14.1": {
       "type": "package",

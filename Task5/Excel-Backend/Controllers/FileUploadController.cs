@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.EntityFrameworkCore;
 using Excel_Backend.Services;
-
+// using FluentFTP;
 
 namespace Excel_Backend.Controllers
 
@@ -23,6 +23,8 @@ namespace Excel_Backend.Controllers
 
         private IRabbitManager _manager;
 
+        // private readonly FtpClient _ftpClient;
+
         private List<String> rows;
 
         public FileUploadController(UserDataContext context,
@@ -34,6 +36,9 @@ namespace Excel_Backend.Controllers
             _chunkService = chunkService;
             _fileService = fileService;
             _manager = manager;
+            // _ftpClient = new FtpClient("127.0.0.1");
+            // _ftpClient.Credentials = new System.Net.NetworkCredential("user", "zeus");
+            // _ftpClient.Connect();
         }
         [HttpPost()]
         public async Task<ActionResult<FileUpload>> UploadCSVFile(IFormFile File)
@@ -41,39 +46,51 @@ namespace Excel_Backend.Controllers
             FileUpload file = new();
             file.FileId = Guid.NewGuid().ToString();
             file.ChunkIds = new();
-            var fileStream = File.OpenReadStream();
-            var reader = new StreamReader(fileStream);
-            var row = await reader.ReadLineAsync();
-            row = await reader.ReadLineAsync();
-            int count;
-            List<String> rows;
-            while (row != null)
+            MemoryStream stream = new();
+            File.CopyTo(stream);
+            byte[] filebytes = stream.ToArray();
+            _manager.Publish(new
             {
-                UploadChunk chunk = new();
-                chunk.UploadChunkId = Guid.NewGuid().ToString();
-                chunk.Status = "Ready";
-                rows = new();
-                count = 1;
-                while (count <= 5000 && row != null)
-                {
-                    rows.Add(row);
-                    count += 1;
-                    row = await reader.ReadLineAsync();
-                }
-                file.ChunkIds.Add(chunk.UploadChunkId);
-                await _chunkService.CreateASync(chunk);
-                _manager.Publish(
-                    new
-                    {
-                        info = chunk,
-                        data = rows
-                    },
-                    "upload_event",
-                    "direct",
-                    "upload-key"
-                );
+                File = filebytes,
+                FileInfo = file
+            },
+            "Chunk-creater",
+            "direct",
+            "chunker");
+            // var fileStream = File.OpenReadStream();
+            // var reader = new StreamReader(fileStream);
+            // _ftpClient.UploadStream(fileStream, $"/Uploads/{file.FileId}", createRemoteDir: true);
+            // var row = await reader.ReadLineAsync();
+            // row = await reader.ReadLineAsync();
+            // int count;
+            // List<String> rows;
+            // while (row != null)
+            // {
+            //     UploadChunk chunk = new();
+            //     chunk.UploadChunkId = Guid.NewGuid().ToString();
+            //     chunk.Status = "Ready";
+            //     rows = new();
+            //     count = 1;
+            //     while (count <= 5000 && row != null)
+            //     {
+            //         rows.Add(row);
+            //         count += 1;
+            //         row = await reader.ReadLineAsync();
+            //     }
+            //     file.ChunkIds.Add(chunk.UploadChunkId);
+            //     await _chunkService.CreateASync(chunk);
+            //     _manager.Publish(
+            //         new
+            //         {
+            //             info = chunk,
+            //             data = rows
+            //         },
+            //         "upload_event",
+            //         "direct",
+            //         "upload-key"
+            //     );
 
-            }
+            // }
             await _fileService.CreateASync(file);
             return Ok(file);
         }
