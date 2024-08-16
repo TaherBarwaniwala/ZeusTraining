@@ -710,11 +710,13 @@ class Grid{
         this.footerctx.lineWidth = "1";
         let textwidth = this.footerctx.measureText(text).width;
         this.footerctx.font = "12px Arial";
-        this.footerctx.fillRect(0,0,this.width + this.topX,this.height + this.topY);
+        this.footerctx.clearRect(0,300,this.width + this.topX,this.height + this.topY);
         this.footerctx.fillStyle = "rgb(96, 94, 92)";
         this.footerctx.fillText(text,this.x + this.width - textwidth - 40,20);
         this.footerctx.restore();
     }
+
+
 
     set_bounding_region(){
         this.scrolloffsetX = this.Scrollbar.getScrollLeft();
@@ -876,12 +878,6 @@ class Grid{
                 this.throttle(this.fetchRows(parseInt(this.boundedrows[this.boundedrows.length -1]) + 1),2000);
             }
 
-
-
-            // try{
-            //     for(let row of this.boundedrows){
-            //         if(!this.rows[parseInt(row)] || Object.keys(this.rows[parseInt(row)].cells).length === 0 || !this.rows[parseInt(row)+50] || Object.keys(this.rows[parseInt(row)+50].cells).length === 0){
-
         }
     }
 
@@ -890,29 +886,11 @@ class Grid{
         if(row <= 0) row = 1;
         fetch(`http://localhost:5081/api/UserDataCollection/${row}`).then(async(res)=>{
         let responseArray = await res.json();
-        // let i =1;
-        // for(let key in responseArray[0]){
-        //     if(this.columns[i].columnsName && this.columns[i].columnsName !== key) this.columns[i].columnsName = key;
-        //     i++;
-        // }
-        // i=0;
-        // row = parseInt(row);
-        // for(let res of responseArray){
-        //     let rowobj;
-        //     if(this.rows[row+i]){
-        //         rowobj = this.rows[row+1];
-        //     }else{
-        //         rowobj = new Row(row+i,0,this.rows[row-1]?this.rows[row-1].y)
-        //     }
-        // }
-        // console.log(responseArray[0]);
-        // responseArray.sort((a,b)=>a["id"]-b["id"]);
         let i = 1;
 
         for(let j = 0;j<responseArray.length;j++){
             let res = responseArray[j];
-            // if(res["id"]!==parseInt(row) + j) continue;
-            // console.log(res);
+
             let rowobj = this.rows[row+j];
 
             if(rowobj === null || rowobj === undefined){
@@ -926,13 +904,10 @@ class Grid{
                 i++;
             }
             this.rows[row + j] = rowobj;
-        // console.log(row.index);
 
         }
         this.draw();
     });
-    // let removable_rows = Object.keys(this.rows).filter((index)=>index < row-200 || index > row + 200);
-    // Row.removeThisRows(this.rows,removable_rows);
     this.draw();
 }
 

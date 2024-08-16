@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
+using Microsoft.Data.SqlClient;
 using UploadWorker.Services;
 
 namespace UploadWorker.Models
@@ -43,10 +44,20 @@ namespace UploadWorker.Models
                     _chunkService.UpdateAsync(rabbitMQChunk.info.UploadChunkId, rabbitMQChunk.info);
                     channel.BasicAck(ea.DeliveryTag, multiple: false);
                 }
+                catch (SqlException e)
+                {
+                    if (e.Number == 1205)
+                    {
+                        Console.WriteLine(e);
+                        channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: true);
+                    }
+                }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: true);
+                    rabbitMQChunk.info.Status = "Failed";
+                    _chunkService.UpdateAsync(rabbitMQChunk.info.UploadChunkId, rabbitMQChunk.info);
+                    channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: false);
                 }
 
             }

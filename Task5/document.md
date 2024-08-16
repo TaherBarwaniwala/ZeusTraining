@@ -1,5 +1,6 @@
-Stage 1: Creation of Frontend
+Updating status
 
-steps:
-1> create a basic cell object that is inherited by columns and rows
-2> create a table object with event listeners for different functoinality
+1>Return FileId on request submisson -- done.
+2>API for requesting status based on file id -- done
+3>Return progress in percentage and status: Ready|Active|Conpleted|Failed --done
+4>Use 2 rectangles 1 only boundary and another fill it based on percentage. --done

@@ -36,9 +36,6 @@ namespace Excel_Backend.Controllers
             _chunkService = chunkService;
             _fileService = fileService;
             _manager = manager;
-            // _ftpClient = new FtpClient("127.0.0.1");
-            // _ftpClient.Credentials = new System.Net.NetworkCredential("user", "zeus");
-            // _ftpClient.Connect();
         }
         [HttpPost()]
         public async Task<ActionResult<FileUpload>> UploadCSVFile(IFormFile File)
@@ -57,60 +54,56 @@ namespace Excel_Backend.Controllers
             "Chunk-creater",
             "direct",
             "chunker");
-            // var fileStream = File.OpenReadStream();
-            // var reader = new StreamReader(fileStream);
-            // _ftpClient.UploadStream(fileStream, $"/Uploads/{file.FileId}", createRemoteDir: true);
-            // var row = await reader.ReadLineAsync();
-            // row = await reader.ReadLineAsync();
-            // int count;
-            // List<String> rows;
-            // while (row != null)
-            // {
-            //     UploadChunk chunk = new();
-            //     chunk.UploadChunkId = Guid.NewGuid().ToString();
-            //     chunk.Status = "Ready";
-            //     rows = new();
-            //     count = 1;
-            //     while (count <= 5000 && row != null)
-            //     {
-            //         rows.Add(row);
-            //         count += 1;
-            //         row = await reader.ReadLineAsync();
-            //     }
-            //     file.ChunkIds.Add(chunk.UploadChunkId);
-            //     await _chunkService.CreateASync(chunk);
-            //     _manager.Publish(
-            //         new
-            //         {
-            //             info = chunk,
-            //             data = rows
-            //         },
-            //         "upload_event",
-            //         "direct",
-            //         "upload-key"
-            //     );
-
-            // }
             await _fileService.CreateASync(file);
             return Ok(file);
         }
 
-        private async Task UploadRecords(List<StringBuilder> rows)
+        [HttpGet("{FileId}")]
+        public async Task<ActionResult> GetStatus(string FileId)
         {
-            StringBuilder query = new();
-            query.Append("insert into public.\"UserDatas\" ( \"Email\" , \"Name\",\"Country\",\"State\",\"City\",\"TelephoneNumber\",\"AddressLine1\",\"AddressLine2\",\"DOB\",\"FY2019_20\",\"FY2020_21\",\"FY2021_22\",\"FY2022_23\",\"FY2023_24\") values");
-            for (var i = 0; i < rows.Count; i++)
+            var file = await _fileService.GetAsync(FileId);
+            if (file == null)
             {
-                string row = rows[i].ToString();
-                row = Regex.Replace(row, @"'", "\'\'");
-                var c = row.Split(",");
-                query.AppendFormat($"( \'{c[0]}\' , \'{c[1]}\', \'{c[2]}\', \'{c[3]}\', \'{c[4]}\', \'{c[5]}\', \'{c[6]}\', \'{c[7]}\', \'{c[8]}\', {c[9]},  {c[10]},{c[11]} ,{c[12]} , {c[13]} )");
-                if (i < rows.Count - 1) query.Append(',');
+                return NotFound(new
+                {
+                    message = "Invalid File Id"
+                });
             }
-            query.Append(" on conflict do nothing");
-            await _context.Database.ExecuteSqlRawAsync(query.ToString());
-        }
+            if (file?.ChunkIds?.Count == 0)
+            {
+                return Ok(new
+                {
+                    status = "Ready",
+                    progress = 0
+                });
+            }
+            int progress = 0;
+            for (var i = 0; i < file?.ChunkIds?.Count; i++)
+            {
+                var chunk = await _chunkService.GetAsync(file.ChunkIds[i]);
+                if (chunk?.Status == "Failed")
+                {
+                    return Ok(new
+                    {
+                        status = "Failed"
+                    });
+                }
+                if (chunk?.Status == "Completed") progress++;
+            }
+            if (progress == file?.ChunkIds?.Count)
+            {
+                return Ok(new
+                {
+                    status = "Completed",
+                });
+            }
+            return Ok(new
+            {
+                status = "Running",
+                progress = progress * 100 / file?.ChunkIds?.Count
+            });
 
+        }
 
     }
 
