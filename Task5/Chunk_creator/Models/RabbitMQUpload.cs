@@ -51,7 +51,7 @@ namespace Chunk_creator.Models
                         chunk.Status = "Ready";
                         rows = new();
                         count = 1;
-                        while (count <= 5000 && row != null)
+                        while (count <= 10000 && row != null)
                         {
                             rows.Add(row);
                             count += 1;
@@ -70,6 +70,11 @@ namespace Chunk_creator.Models
                             "upload-key"
                         );
 
+                    }
+                    var temp = await _fileSevice.GetAsync(rabbitMQUpload.FileInfo.FileId);
+                    if (temp != null)
+                    {
+                        rabbitMQUpload.FileInfo.ChunkIds.AddRange(temp.ChunkIds);
                     }
                     await _fileSevice.UpdateAsync(rabbitMQUpload.FileInfo.FileId, rabbitMQUpload.FileInfo);
                     channel.BasicAck(ea.DeliveryTag, multiple: false);

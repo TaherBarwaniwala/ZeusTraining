@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Microsoft.EntityFrameworkCore;
 using Excel_Backend.Services;
+using Microsoft.OpenApi.Any;
 // using FluentFTP;
 
 namespace Excel_Backend.Controllers
@@ -38,23 +39,30 @@ namespace Excel_Backend.Controllers
             _manager = manager;
         }
         [HttpPost()]
-        public async Task<ActionResult<FileUpload>> UploadCSVFile(IFormFile File)
+        public async Task<ActionResult<FileUpload>> UploadCSVFile()
         {
+            var files = Request.Form.Files;
+            Console.WriteLine(files.Count);
+            if (files.Count == 0) return NotFound();
             FileUpload file = new();
             file.FileId = Guid.NewGuid().ToString();
             file.ChunkIds = new();
-            MemoryStream stream = new();
-            File.CopyTo(stream);
-            byte[] filebytes = stream.ToArray();
-            _manager.Publish(new
-            {
-                File = filebytes,
-                FileInfo = file
-            },
-            "Chunk-creater",
-            "direct",
-            "chunker");
             await _fileService.CreateASync(file);
+            foreach (var File in files)
+            {
+                Console.WriteLine(File);
+                MemoryStream stream = new();
+                File.CopyTo(stream);
+                byte[] filebytes = stream.ToArray();
+                _manager.Publish(new
+                {
+                    File = filebytes,
+                    FileInfo = file
+                },
+                "Chunk-creater",
+                "direct",
+                "chunker");
+            };
             return Ok(file);
         }
 
@@ -66,7 +74,8 @@ namespace Excel_Backend.Controllers
             {
                 return NotFound(new
                 {
-                    message = "Invalid File Id"
+                    message = "Invalid File Id",
+                    status = "Failed"
                 });
             }
             if (file?.ChunkIds?.Count == 0)

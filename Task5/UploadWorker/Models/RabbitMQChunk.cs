@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using UploadWorker.Services;
 
 namespace UploadWorker.Models
@@ -44,9 +44,10 @@ namespace UploadWorker.Models
                     _chunkService.UpdateAsync(rabbitMQChunk.info.UploadChunkId, rabbitMQChunk.info);
                     channel.BasicAck(ea.DeliveryTag, multiple: false);
                 }
-                catch (SqlException e)
+                catch (PostgresException e)
                 {
-                    if (e.Number == 1205)
+                    Console.WriteLine(e);
+                    if (e.SqlState == "40P01")
                     {
                         Console.WriteLine(e);
                         channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: true);

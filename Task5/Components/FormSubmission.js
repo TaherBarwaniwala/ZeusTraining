@@ -16,6 +16,19 @@ class FormSubmission{
 
     async formSubmit(form){
         let formData = new FormData(form);
+        // let files = document.getElementById("upload-file").files;
+        // let file1 = []
+        // if(files.length > 0) {
+        //     for(var x = 0; x < files.length; x++) {
+        //         // the name has to be 'files' so that .NET could properly bind it
+        //         file1.push(files.item(x));    
+        //     }
+        // } 
+        // formData.append("files",file1);
+          // Log FormData content to ensure files are included
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
         try{
             let res = await fetch("http://127.0.0.1:5081/api/FileUpload",{
                 method: "POST",
@@ -27,6 +40,10 @@ class FormSubmission{
             });
             res = await res.json();
             this.file_Id = res.id;
+            if(this.timer){
+                this.clearStatusInterval();
+                this.timer = null;
+            }
             this.timer = setInterval(await this.formStatus,150,this.file_Id,() => this.clearStatusInterval(),(progress)=> this.draw_progress(progress));
         }catch(e){
             console.error(e);
