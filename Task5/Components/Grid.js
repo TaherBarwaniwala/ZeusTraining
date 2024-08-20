@@ -710,7 +710,7 @@ class Grid{
         this.footerctx.lineWidth = "1";
         let textwidth = this.footerctx.measureText(text).width;
         this.footerctx.font = "12px Arial";
-        this.footerctx.clearRect(0,300,this.width + this.topX,this.height + this.topY);
+        this.footerctx.fillRect(300,0,this.width + this.topX,this.height + this.topY);
         this.footerctx.fillStyle = "rgb(96, 94, 92)";
         this.footerctx.fillText(text,this.x + this.width - textwidth - 40,20);
         this.footerctx.restore();

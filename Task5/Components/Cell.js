@@ -350,22 +350,21 @@ class Cell{
 
     static updateCellDB(cell){
         let obj = {};
-        obj["Id"] = cell.row.cells[1]?.text;
-        obj["Email"] = cell.row.cells[2]?.text;
-        obj["Name"] = cell.row.cells[3]?.text;
-        obj["Country"] = cell.row.cells[4]?.text;
-        obj["State"] = cell.row.cells[5]?.text;
-        obj["City"] = cell.row.cells[6]?.text;
-        obj["TelephoneNumber"] = cell.row.cells[7]?.text;
-        obj["AddressLine1"] = cell.row.cells[8]?.text;
-        obj["AddressLine2"] = cell.row.cells[9]?.text;
-        obj["DOB"] = cell.row.cells[10]?.text;
-        obj["FY2019_20"] = cell.row.cells[11]?.text;
-        obj["FY2020_21"] = cell.row.cells[12]?.text;
-        obj["FY2021_22"] = cell.row.cells[13]?.text;
-        obj["FY2022_23"] = cell.row.cells[14]?.text;
-        obj["FY2023_24"] = cell.row.cells[15]?.text;
-        fetch(`http://localhost:5081/api/UserDatas/${obj["Id"]}`,{
+        obj["Email"] = cell.row.cells[1]?.text;
+        obj["Name"] = cell.row.cells[2]?.text;
+        obj["Country"] = cell.row.cells[3]?.text;
+        obj["State"] = cell.row.cells[4]?.text;
+        obj["City"] = cell.row.cells[5]?.text;
+        obj["TelephoneNumber"] = cell.row.cells[6]?.text;
+        obj["AddressLine1"] = cell.row.cells[7]?.text;
+        obj["AddressLine2"] = cell.row.cells[8]?.text;
+        obj["DOB"] = cell.row.cells[9]?.text;
+        obj["FY2019_20"] = cell.row.cells[10]?.text;
+        obj["FY2020_21"] = cell.row.cells[11]?.text;
+        obj["FY2021_22"] = cell.row.cells[12]?.text;
+        obj["FY2022_23"] = cell.row.cells[13]?.text;
+        obj["FY2023_24"] = cell.row.cells[14]?.text;
+        fetch(`http://localhost:5081/api/UserDatas/${obj["Email"]}`,{
             method:"PUT",
             body:JSON.stringify(obj),
             headers : new Headers({"content-type":"application/json"}),

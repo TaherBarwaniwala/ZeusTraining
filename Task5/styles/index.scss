@@ -147,3 +147,34 @@
 .upload-file-label{
     padding-right: 50px;
 }
+
+.toastContainer{
+    display: block;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    z-index: 4;
+    background-color: #e5e5e5;
+    min-width: 20%;
+    width: fit-content;
+    padding: 10px;
+    border: 1px solid #101010;
+}
+
+.Symbol{
+    height: 50px;
+    width: 50px;
+    display: inline;
+}
+
+.textContainer{
+    display: inline-block;
+    vertical-align: top;
+    padding: 20px;
+}
+
+.okButton{
+    display: block;
+    width: 150px;
+    margin: 0 auto;
+}
