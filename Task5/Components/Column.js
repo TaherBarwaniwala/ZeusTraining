@@ -172,7 +172,7 @@ class Column{
     draw_without_boundary(x,y){
         this.fill(x);
         this.draw_header(x);
-        this.draw_cells(x,y);
+        // this.draw_cells(x,y);
     }
 
     /**

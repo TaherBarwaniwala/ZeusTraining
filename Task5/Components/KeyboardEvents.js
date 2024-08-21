@@ -42,6 +42,7 @@ class KeyboardEvents{
                 this.grid.activecell.onkeypress(e);
             }
         }
+        this.grid.draw();
     }
 
     handleEnterdown(){
@@ -54,7 +55,6 @@ class KeyboardEvents{
                     break;
                 }
             }
-            this.grid.gridEvents.draw_region();
         }
     }
 
@@ -64,6 +64,9 @@ class KeyboardEvents{
      * @returns {null}
      */
     handleArrawkeyDown(e){
+        let temp = this.grid.activecell;
+        this.grid.reset();
+        this.grid.activecell = temp;
         if(this.grid.activecell&& this.grid.boundedrows.includes(this.grid.activecell.row.index.toString()) && this.grid.boundedcols.includes(this.grid.activecell.column.index.toString())){
             this.grid.activecell.isFocus = true;
             this.grid.activecol = this.grid.activecell.column.index;
@@ -125,9 +128,6 @@ class KeyboardEvents{
             navigator.clipboard.writeText("");
             this.grid.remove_copy();
             this.grid.draw();
-            this.grid.gridEvents.draw_region();
-            if(this.grid.columnselection.length > 0)this.grid.columnEvents.draw_selectedcols();
-            if(this.grid.rowselection.length > 0)this.grid.rowEvents.draw_selectedrows();
         }
     }
 

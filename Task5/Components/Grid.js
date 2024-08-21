@@ -56,6 +56,7 @@ class Grid{
         this.headerWidth = 40;
         this.offset = 0;
         this.timer = null;
+        this.activerequests = new Array();
         this.Scrollbar = new Scrollbar();
         this.scrolloffsetX = this.Scrollbar.getScrollLeft();
         this.scrolloffsetY = this.Scrollbar.getScrollTop();
@@ -89,7 +90,6 @@ class Grid{
         this.copyregion = [];
         if(this.region.length > 0){
             this.draw();
-            this.gridEvents.draw_region();
             this.copyregion = this.region;
             if(this.timer !== null){
                 clearInterval(this.timer);
@@ -489,7 +489,7 @@ class Grid{
             x+=this.cellWidth;
         }
         this.set_bounding_region();
-        this.get_bounding_region();
+        // this.get_bounding_region();
         // y =this.y;
         // rowindex = 1;
         // while( y < this.height){
@@ -595,15 +595,21 @@ class Grid{
         for(const row of this.boundedrows){ 
             this.rows[row].draw_without_boundary(this.scrolloffsetX,this.scrolloffsetY);
         }
+        if(this.region.length !== 0) this.gridEvents.draw_region_background();
+        if(this.columnselection.length !== 0)this.columnEvents.draw_selectedcols_background();
+        if(this.rowselection.length !== 0)this.rowEvents.draw_selectedrows_background();
+        for(const row of this.boundedrows){ 
+            this.rows[row].draw_cells(this.scrolloffsetX,this.scrolloffsetY);
+        }
         for(const row of this.boundedrows){ 
             this.rows[row].draw_boundary(this.scrolloffsetY);
         }
         for(const col of this.boundedcols){ 
             this.columns[col].draw_boundary(this.scrolloffsetX);
         }
-        this.gridEvents.draw_region();
-        if(this.rowselection.length === 0)this.columnEvents.draw_selectedcols();
-        if(this.columnselection.length === 0)this.rowEvents.draw_selectedrows();
+        if(this.region.length !== 0) this.gridEvents.draw_region_border();
+        if(this.rowselection.length === 0)this.columnEvents.draw_selectedcols_border();
+        if(this.columnselection.length === 0)this.rowEvents.draw_selectedrows_border();
         if(this.activecell) this.activecell.draw(this.scrolloffsetX,this.scrolloffsetY);
         this.draw_copy_region();
         Column.removeColumns(this.columns,this.boundedcols);
@@ -628,7 +634,7 @@ class Grid{
         }
     }
 
-    getMinMaxAvgCount(){
+    async getMinMaxAvgCount(){
         let count = 0;
         let min = 9999999999;
         let max = 0;
@@ -883,6 +889,10 @@ class Grid{
 
     fetchRows(row){
         row = parseInt(row);
+        if(this.activerequests.includes(row)){
+            return;
+        }
+        this.activerequests.push(row);
         if(row <= 0) row = 1;
         fetch(`http://localhost:5081/api/UserDataCollection/${row}`).then(async(res)=>{
         let responseArray = await res.json();
@@ -904,11 +914,10 @@ class Grid{
                 i++;
             }
             this.rows[row + j] = rowobj;
-
         }
-        this.draw();
-    });
     this.draw();
+    this.activerequests = this.activerequests.filter(val => val !== row);
+    });
 }
 
 onscroll(){

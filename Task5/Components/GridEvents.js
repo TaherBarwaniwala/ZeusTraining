@@ -129,53 +129,44 @@ class GridEvents{
     }
 
     
-    draw_region(){
-        if(this.grid.region.length > 0){
-            this.grid.set_bounding_region();
-            let scrolloffsetX = this.Scrollbar.getScrollLeft();
-            let scrolloffsetY = this.Scrollbar.getScrollTop();
-            let r1=this.grid.region[0].row.index;
-            let r2 = r1;
-            let c1 = this.grid.region[0].column.index;
-            let c2 = c1;
-            this.grid.region.forEach(cell => {
-                cell.isSelected = true;
-                cell.column.header.isFocus = true;
-                cell.row.header.isFocus = true;
-                if(this.grid.boundedrows.includes(cell.row.index.toString()) && this.grid.boundedcols.includes(cell.column.index.toString())){
-                    cell.draw(scrolloffsetX,scrolloffsetY);
-                }
-                c1 = c1>cell.column.index?cell.column.index:c1;
-                c2 = c2<cell.column.index?cell.column.index:c2;
-                r1 = r1>cell.row.index?cell.row.index:r1;
-                r2 = r2<cell.row.index?cell.row.index:r2;
-            });
-            let rowsrange = this.grid.getRowinRange(r1,r2);
-            let colrange = this.grid.getColinRange(c1,c2);
-            // this.grid.draw();
-            rowsrange.forEach(row =>{
-                if(this.grid.boundedrows.includes(row.toString())){
-                    this.grid.rows[row].header.draw(scrolloffsetX,scrolloffsetY);
-                    this.grid.rows[row].draw_boundary(scrolloffsetY);
-                }
-            });
-            colrange.forEach(col => {
-                if(this.grid.boundedcols.includes(col.toString())){
-                    this.grid.columns[col].header.draw(scrolloffsetX,scrolloffsetY);
-                    this.grid.columns[col].draw_boundary(scrolloffsetX);
-                }
-            });
-            let topx = this.grid.region[0].x - scrolloffsetX;
-            let topy = this.grid.region[0].y - scrolloffsetY;
-            let bottomx = this.grid.region[this.grid.region.length-1].x - scrolloffsetX + this.grid.region[this.grid.region.length - 1].width;
-            let bottomy = this.grid.region[this.grid.region.length-1].y - scrolloffsetY + this.grid.region[this.grid.region.length - 1].height;
-            this.grid.ctx.save();
-            this.grid.ctx.strokeStyle = "#107c41";
-            this.grid.ctx.lineWidth = "2";
-            this.grid.ctx.strokeRect((topx<bottomx?topx:bottomx) + 1,(topy<bottomy?topy:bottomy) + 1,Math.abs(topx-bottomx) - 1,Math.abs(topy-bottomy) - 1);
-            this.grid.ctx.restore();
-            this.grid.draw_copy_region();
-        }
+
+
+    draw_region_border(){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let topx = this.grid.region[0].x - scrolloffsetX;
+        let topy = this.grid.region[0].y - scrolloffsetY;
+        let bottomx = this.grid.region[this.grid.region.length-1].x - scrolloffsetX + this.grid.region[this.grid.region.length - 1].width;
+        let bottomy = this.grid.region[this.grid.region.length-1].y - scrolloffsetY + this.grid.region[this.grid.region.length - 1].height;
+        this.grid.ctx.save();
+        this.grid.ctx.strokeStyle = "#107c41";
+        this.grid.ctx.lineWidth = "2";
+        this.grid.ctx.strokeRect((topx<bottomx?topx:bottomx) + 1,(topy<bottomy?topy:bottomy) + 1,Math.abs(topx-bottomx) - 1,Math.abs(topy-bottomy) - 1);
+        this.grid.ctx.restore();
+        this.grid.draw_copy_region();
+        this.grid.getRowinRange(this.grid.region[0].row.index,this.grid.region[this.grid.region.length-1].row.index).forEach(row => {
+            this.grid.rows[row].header.isFocus = true;
+            this.grid.rows[row].header.draw(scrolloffsetX,scrolloffsetY);
+        })
+        this.grid.getColinRange(this.grid.region[0].column.index,this.grid.region[this.grid.region.length-1].column.index).forEach(col => {
+            this.grid.columns[col].header.isFocus = true;
+            this.grid.columns[col].header.draw(scrolloffsetX,scrolloffsetY);
+        })
+    }
+
+    draw_region_background(){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let topx = this.grid.region[0].x - scrolloffsetX;
+        let topy = this.grid.region[0].y - scrolloffsetY;
+        let bottomx = this.grid.region[this.grid.region.length-1].x - scrolloffsetX + this.grid.region[this.grid.region.length - 1].width;
+        let bottomy = this.grid.region[this.grid.region.length-1].y - scrolloffsetY + this.grid.region[this.grid.region.length - 1].height;
+        this.grid.ctx.save();
+        this.grid.ctx.fillStyle = "#e7f1ec";
+        this.grid.ctx.fillRect((topx<bottomx?topx:bottomx) + 1,(topy<bottomy?topy:bottomy) + 1,Math.abs(topx-bottomx) - 1,Math.abs(topy-bottomy) - 1);
+        this.grid.ctx.restore();
+        // this.grid.draw_copy_region();
+        
     }
 
 

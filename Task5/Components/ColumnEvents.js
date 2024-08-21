@@ -55,11 +55,11 @@ class ColumnEvents{
             this.grid.activecol = this.grid.getCol(x-this.topX + scrolloffsetX);
             this.grid.columns[this.grid.activecol].header.isSelected = true;
             this.grid.columns[this.grid.activecol].isSelected = true;
-            this.grid.activecell = this.grid.columns[this.grid.activecol].getCell(1)?this.grid.columns[this.grid.activecol].getCell(1):Cell.createCell(this.rows[1],this.grid.columns[this.grid.activecol]);
+            this.grid.activecell = this.grid.columns[this.grid.activecol].getCell(1)?this.grid.columns[this.grid.activecol].getCell(1):Cell.createCell(this.grid.rows[1],this.grid.columns[this.grid.activecol]);
             this.grid.activecell.isFocus = true;
             this.grid.columnselection = [this.grid.activecol];
             this.grid.getMinMaxAvgCount();
-            this.draw_selectedcols();
+            this.grid.draw();
             this.grid.removeregion();
             this.oncolumnselect(x);
         }else if(this.isColDrag(y)){
@@ -152,10 +152,10 @@ class ColumnEvents{
             this.grid.activecol = currentcol;
             this.grid.columns[this.grid.activecol].header.isSelected = true;
             this.grid.columns[this.grid.activecol].isSelected = true;
-            this.grid.activecell = this.grid.columns[this.grid.activecol].getCell(1)?this.grid.columns[this.grid.activecol].getCell(1):Cell.createCell(this.rows[1],this.grid.columns[this.grid.activecol]);
+            this.grid.activecell = this.grid.columns[this.grid.activecol].getCell(1)?this.grid.columns[this.grid.activecol].getCell(1):Cell.createCell(this.grid.rows[1],this.grid.columns[this.grid.activecol]);
             this.grid.activecell.isFocus = true;
             this.grid.columnselection = [this.grid.activecol];
-            this.draw_selectedcols();
+            this.grid.draw();
             this.grid.removeregion();
             this.grid.columnselection = [this.grid.activecol];
         }
@@ -267,7 +267,7 @@ class ColumnEvents{
         cols.forEach(col => {
             this.grid.columns[col.index] = col;
         });
-        this.draw_selectedcols();
+        this.grid.draw();
     }
     
     /**
@@ -309,34 +309,26 @@ class ColumnEvents{
         });
         this.grid.columnselection = columnrange;
 
-        this.draw_selectedcols();
+        this.grid.draw()
         this.grid.getMinMaxAvgCount();
         }
     }
 
 
-    draw_selectedcols(){
+    draw_selectedcols_border(){
         if(this.grid.columnselection.length > 0){
             this.grid.set_bounding_region();
             let scrolloffsetX = this.Scrollbar.getScrollLeft();
             let scrolloffsetY = this.Scrollbar.getScrollTop();
             this.grid.columnselection.forEach(col => {
                 this.grid.columns[col].header.isSelected = true;
+                this.grid.columns[col].draw_header();
             });
-            for(let col of this.grid.boundedcols){
-                this.grid.columns[col].draw_without_boundary(scrolloffsetX,scrolloffsetY);
-            }
             for(let row of this.grid.boundedrows){
                 this.grid.rows[row].header.isFocus = true;
                 this.grid.rows[row].draw_boundary(scrolloffsetY);
                 this.grid.rows[row].draw_header(scrolloffsetY);
             }
-            for(let col of this.grid.boundedcols){
-                this.grid.columns[col].draw_boundary(scrolloffsetX);
-            }
-            // this.draw();
-            if(this.grid.activecell) this.grid.activecell.draw(scrolloffsetX,scrolloffsetY);
-            // this.draw();
             let topx = this.grid.columns[this.grid.columnselection[0]].x - scrolloffsetX;
             let bottomx = this.grid.columns[this.grid.columnselection[this.grid.columnselection.length-1]].x - scrolloffsetX+ this.grid.columns[this.grid.columnselection[this.grid.columnselection.length - 1]].cellWidth;
             this.grid.ctx.save();
@@ -344,10 +336,19 @@ class ColumnEvents{
             this.grid.ctx.lineWidth = "2";
             this.grid.ctx.strokeRect(topx + 1,1,bottomx - topx - 1,this.grid.height);
             this.grid.ctx.restore();
-            this.grid.draw_copy_region();
-
         }
 
+    }
+    draw_selectedcols_background(){
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let topx = this.grid.columns[this.grid.columnselection[0]].x - scrolloffsetX;
+        let bottomx = this.grid.columns[this.grid.columnselection[this.grid.columnselection.length-1]].x - scrolloffsetX+ this.grid.columns[this.grid.columnselection[this.grid.columnselection.length - 1]].cellWidth;
+        this.grid.ctx.save();
+        this.grid.ctx.fillStyle ="#e7f1ec";
+        this.grid.ctx.lineWidth = "2";
+        this.grid.ctx.fillRect(topx + 1,1,bottomx - topx - 1,this.grid.height);
+        this.grid.ctx.restore();
     }
 
 }

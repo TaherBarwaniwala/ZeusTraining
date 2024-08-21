@@ -57,7 +57,7 @@ class RowEvents{
             this.grid.activecell.isFocus = true;
             this.grid.rowselection = [this.grid.activerow];
             this.grid.getMinMaxAvgCount();
-            this.draw_selectedrows();
+            this.grid.draw()
             this.grid.removeregion();
             this.onrowselect(y);
         }else if(this.isRowDrag(x)){
@@ -155,7 +155,7 @@ class RowEvents{
             this.grid.activecell = this.grid.rows[this.grid.activerow].getCell(1)?this.grid.rows[this.grid.activerow].getCell(1):Cell.createCell(this.grid.rows[this.grid.activerow],this.grid.columns[1]);
             this.grid.activecell.isFocus = true;
             this.grid.rowselection = [this.grid.activerow];
-            this.draw_selectedrows();
+            this.grid.draw();
 
             this.grid.removeregion();
             this.grid.rowselection = [this.grid.activerow];
@@ -268,7 +268,6 @@ class RowEvents{
             this.grid.rows[row.index] = row;
         });
         this.grid.draw();
-        this.draw_selectedrows();
     }
 
     /**
@@ -326,26 +325,21 @@ class RowEvents{
         });
         this.grid.rowselection = rowrange;
         this.grid.getMinMaxAvgCount();
-        this.draw_selectedrows();
+        this.grid.draw();
 
         }
     }
 
     
-    draw_selectedrows(){
+    draw_selectedrows_border(){
         if(this.grid.rowselection.length > 0){
             this.grid.set_bounding_region();
             let scrolloffsetY = this.Scrollbar.getScrollTop();
             let scrolloffsetX = this.Scrollbar.getScrollLeft();
             this.grid.rowselection.forEach(row => {
                 this.grid.rows[row].header.isSelected = true;
+                this.grid.rows[row].draw_header();
             });
-            for(let row of this.grid.boundedrows){
-                this.grid.rows[row].draw_without_boundary(scrolloffsetX,scrolloffsetY);
-            }
-            for(let row of this.grid.boundedrows){
-                this.grid.rows[row].draw_boundary(scrolloffsetY);
-            }
             for(let col of this.grid.boundedcols){
             this.grid.columns[col].header.isFocus = true;
             this.grid.columns[col].draw_boundary(scrolloffsetX);
@@ -358,10 +352,20 @@ class RowEvents{
             this.grid.ctx.lineWidth = "2";
             this.grid.ctx.strokeRect(1,topy + 1,this.grid.width,bottomy - topy - 1);
             this.grid.ctx.restore();
-            this.grid.draw_copy_region();
 
         }
 
+    }
+    draw_selectedrows_background(){
+        let scrolloffsetY = this.Scrollbar.getScrollTop();
+        let scrolloffsetX = this.Scrollbar.getScrollLeft();
+        let topy = this.grid.rows[this.grid.rowselection[0]].y - scrolloffsetY;
+        let bottomy = this.grid.rows[this.grid.rowselection[this.grid.rowselection.length-1]].y + this.grid.rows[this.grid.rowselection[this.grid.rowselection.length - 1]].cellHeight - scrolloffsetY;
+        this.grid.ctx.save();
+        this.grid.ctx.strokeStyle ="#e7f1ec";
+        this.grid.ctx.lineWidth = "2";
+        this.grid.ctx.fillRect(1,topy + 1,this.grid.width,bottomy - topy - 1);
+        this.grid.ctx.restore();
     }
 
 }

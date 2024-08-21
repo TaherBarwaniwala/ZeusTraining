@@ -176,7 +176,7 @@ class Row{
     draw_without_boundary(x,y){
         this.fill(y);
         this.draw_header(y);
-        this.draw_cells(x,y);
+        // this.draw_cells(x,y);
     }
 
     /**

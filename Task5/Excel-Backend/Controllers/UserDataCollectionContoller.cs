@@ -15,10 +15,10 @@ namespace Excel_Backend.Controllers
             _context = context;
         }
 
-        [HttpGet("{Email}")]
+        [HttpGet("{rownum}")]
         public async Task<ActionResult<IEnumerable<UserData>>> GetUserDataCollection(long rownum)
         {
-            var res = _context.UserDatas.FromSql<UserData>($"Select * from public.\"UserDatas\" LIMIT 1000");
+            var res = _context.UserDatas.FromSql<UserData>($"Select * from public.\"UserDatas\" order by \"Email\" LIMIT 1000 OFFSET {rownum}");
             return await res.ToListAsync<UserData>();
         }
 
