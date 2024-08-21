@@ -14,6 +14,7 @@ builder.Services.Configure<RabbitMQSettings>(
 builder.Services.Configure<UploadChunkDBSettings>(
     builder.Configuration.GetSection("ChunkStoreDatabase")
 );
+
 // builder.Logging.AddOpenTelemetry(logging => logging.AddOtlpExporter())
 builder.Services.AddSingleton<UploadChunkService>();
 builder.Services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();

@@ -9,7 +9,7 @@ namespace UploadWorker.Models
         // [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
         [JsonProperty("id")]
         public string? UploadChunkId { get; set; }
-
+        public string? FileId { get; set; }
         public string? Status { get; set; }
 
     }

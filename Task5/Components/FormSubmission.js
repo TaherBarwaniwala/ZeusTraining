@@ -13,6 +13,7 @@ class FormSubmission{
     });
         this.footer = document.getElementById("footer-canvas");
         this.footerctx = this.footer.getContext("2d");
+        document.addEventListener('DOMContentLoaded',()=>this.getActive());
     }
 
     async formSubmit(form){
@@ -64,6 +65,30 @@ class FormSubmission{
         }catch(e){
             console.error(e);
             clear();
+        }
+    }
+
+    async getActive(){
+        try {
+            let res = await fetch("http://localhost:5081/api/FileUpload/status",{
+                method: "GET",
+                // body:formData,
+                mode:"cors",
+                headers:{
+                   "Access-Control-Allow-Origin": "http://127.0.0.1:5081/api",
+                }
+            });
+            res = await res.json();
+            if(res.activeFileIds && res.activeFileIds.length > 0){
+                this.file_Id = res.activeFileIds[0];
+            if(this.timer){
+                this.clearStatusInterval();
+                this.timer = null;
+            }
+            this.timer = setInterval(await this.formStatus,150,this.file_Id,() => this.clearStatusInterval(),(progress)=> this.draw_progress(progress));
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 

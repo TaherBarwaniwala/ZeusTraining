@@ -49,6 +49,7 @@ namespace Chunk_creator.Models
                         UploadChunk chunk = new();
                         chunk.UploadChunkId = Guid.NewGuid().ToString();
                         chunk.Status = "Ready";
+                        chunk.FileId = rabbitMQUpload.FileInfo.FileId;
                         rows = new();
                         count = 1;
                         while (count <= 10000 && row != null)

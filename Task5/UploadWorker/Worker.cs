@@ -15,11 +15,15 @@ public class Worker : BackgroundService
 
     private IRabbitManager _manager;
 
+    private IConfiguration _config;
+
     public Worker(ILogger<Worker> logger,
-                    IServiceScopeFactory scopeFactory)
+                    IServiceScopeFactory scopeFactory,
+                    IConfiguration configuration)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
+        _config = configuration;
         using (var scope = scopeFactory.CreateScope())
         {
             _context = scope.ServiceProvider.GetRequiredService<UserDataContext>();
@@ -43,7 +47,8 @@ public class Worker : BackgroundService
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
         _manager.Subscribe<RabbitMQChunk>(new RabbitMQChunk(
-            _scopeFactory
+            _scopeFactory,
+            _config
         )
         , "upload_event"
         , "direct",

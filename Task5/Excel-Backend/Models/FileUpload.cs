@@ -12,4 +12,5 @@ public class FileUpload
 
     public List<string>? ChunkIds { get; set; }
 
+    public string? FileName { get; set; }
 }

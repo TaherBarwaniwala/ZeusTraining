@@ -10,6 +10,8 @@ namespace Excel_Backend.Models
         [JsonProperty("id")]
         public string? UploadChunkId { get; set; }
 
+        public string? FileId { get; set; }
+
         public string? Status { get; set; }
 
     }

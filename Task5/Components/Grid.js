@@ -920,9 +920,13 @@ class Grid{
     });
 }
 
-onscroll(){
+    onscroll(){
         this.draw();
         this.get_bounding_region();
+    }
+
+    async onload(){
+        
     }
 }
 

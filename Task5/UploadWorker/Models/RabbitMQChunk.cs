@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using RabbitMQ.Client.Events;
 using Npgsql;
 using UploadWorker.Services;
+using System.Text.Json;
 
 namespace UploadWorker.Models
 {
@@ -19,9 +20,14 @@ namespace UploadWorker.Models
 
         private IServiceScopeFactory _scopeFactory;
 
-        public RabbitMQChunk(IServiceScopeFactory scopeFactory)
+        // private IConfiguration _config;
+
+        private static HttpClient _httpClient = new HttpClient();
+
+        public RabbitMQChunk(IServiceScopeFactory scopeFactory, IConfiguration configuration)
         {
             _scopeFactory = scopeFactory;
+            // _config = configuration;
         }
         public UploadChunk info { get; set; }
 
@@ -59,6 +65,15 @@ namespace UploadWorker.Models
                     rabbitMQChunk.info.Status = "Failed";
                     _chunkService.UpdateAsync(rabbitMQChunk.info.UploadChunkId, rabbitMQChunk.info);
                     channel.BasicNack(ea.DeliveryTag, multiple: false, requeue: false);
+                }
+                finally
+                {
+                    using StringContent jsonmessage = new(
+                        System.Text.Json.JsonSerializer.Serialize(
+                            new { }
+                        )
+                    );
+                    await _httpClient.PostAsync($"http://localhost:5081/api/FileUpload/update/{rabbitMQChunk.info.FileId}", jsonmessage);
                 }
 
             }
