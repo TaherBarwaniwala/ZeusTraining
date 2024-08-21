@@ -56,18 +56,14 @@ namespace Excel_Backend.Controllers
             Console.WriteLine(files.Count);
             if (files.Count == 0) return NotFound();
             FileUpload file = new();
-            file.FileId = Guid.NewGuid().ToString();
-            file.ChunkIds = new();
-            FileName = new();
-            _fileActiveQueue.Add(file.FileId);
             foreach (var File in files)
             {
-                FileName.Append(File.FileName);
-            }
-            file.FileName = FileName.ToString();
-            await _fileService.CreateASync(file);
-            foreach (var File in files)
-            {
+                file.FileId = Guid.NewGuid().ToString();
+                file.ChunkIds = new();
+                FileName = new();
+                _fileActiveQueue.Add(file.FileId);
+                file.FileName = File.FileName;
+                await _fileService.CreateASync(file);
                 Console.WriteLine(File.FileName);
                 MemoryStream stream = new();
                 File.CopyTo(stream);

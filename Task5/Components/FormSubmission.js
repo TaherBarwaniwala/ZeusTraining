@@ -1,4 +1,6 @@
 import Toast from "./Toast.js";
+import ProgressBar  from "./ProgressBar.js";
+
 class FormSubmission{
 /**
  * 
@@ -11,9 +13,10 @@ class FormSubmission{
             e.preventDefault();
             this.formSubmit(this.form)
     });
-        this.footer = document.getElementById("footer-canvas");
-        this.footerctx = this.footer.getContext("2d");
-        document.addEventListener('DOMContentLoaded',()=>this.getActive());
+
+        this.progressBar = new ProgressBar();
+        this.activeFileIds = [];
+        document.addEventListener('DOMContentLoaded',()=>this.setProgressBar());
     }
 
     async formSubmit(form){
@@ -29,43 +32,47 @@ class FormSubmission{
             });
             res = await res.json();
             this.file_Id = res.id;
-            if(this.timer){
-                this.clearStatusInterval();
-                this.timer = null;
-            }
-            this.timer = setInterval(await this.formStatus,150,this.file_Id,() => this.clearStatusInterval(),(progress)=> this.draw_progress(progress));
+            await this.setProgressBar();
         }catch(e){
             console.error(e);
         }
     }
 
-    async formStatus(file_Id,clear,draw){
-        try{
-            let res =await fetch("http://127.0.0.1:5081/api/FileUpload/"+file_Id,{
-                method: "GET",
-                // body:formData,
-                mode:"cors",
-                headers:{
-                   "Access-Control-Allow-Origin": "http://127.0.0.1:5081/api",
-                }
-            });
-            res = await res.json();
-            if(res.status == "Completed" || res.status == "Failed"){
-                if(res.status=="Completed"){
-                    Toast.Notification("File Uploaded Successfully");
+    async formStatus(clear,draw,obj){
+        let totalprogress = 0;
+        let totaltasks = obj.activeFileIds.length;
+        for(var file_Id of obj.activeFileIds){
+            try{
+                let res = await fetch("http://127.0.0.1:5081/api/FileUpload/"+file_Id,{
+                    method: "GET",
+                    // body:formData,
+                    mode:"cors",
+                    headers:{
+                       "Access-Control-Allow-Origin": "http://127.0.0.1:5081/api",
+                    }
+                });
+                res = await res.json();
+                if(res.status == "Completed" || res.status == "Failed"){
+                    if(res.status=="Completed"){
+                        Toast.Notification(res.fileName + " Uploaded Successfully");
+                        obj.activeFileIds = obj.activeFileIds.filter(fileId => fileId !== file_Id);
+                        totalprogress += 100;
+                    }else{
+                        Toast.Alert(res.fileName + " Upload Failed");
+                        obj.activeFileIds = obj.activeFileIds.filter(fileId => fileId !== file_Id);
+                        totaltasks -= 1;
+                    }
+
                 }else{
-                    Toast.Alert("File Upload Failed");
+                    totalprogress += res.progress;
                 }
-                clear();
-                draw(100)
-            }else{
-                draw(res.progress);
+            }catch(e){
+                console.error(e);
             }
-            console.log(res);
-        }catch(e){
-            console.error(e);
-            clear();
         }
+        draw(totalprogress/totaltasks);
+        if(totaltasks == 0) clear();
+
     }
 
     async getActive(){
@@ -79,14 +86,7 @@ class FormSubmission{
                 }
             });
             res = await res.json();
-            if(res.activeFileIds && res.activeFileIds.length > 0){
-                this.file_Id = res.activeFileIds[0];
-            if(this.timer){
-                this.clearStatusInterval();
-                this.timer = null;
-            }
-            this.timer = setInterval(await this.formStatus,150,this.file_Id,() => this.clearStatusInterval(),(progress)=> this.draw_progress(progress));
-            }
+            return res.activeFileIds;
         } catch (error) {
             console.error(error);
         }
@@ -95,25 +95,20 @@ class FormSubmission{
     clearStatusInterval(){
         clearInterval(this.timer);
         setTimeout(()=>{
-            this.footerctx.save();
-            this.footerctx.clearRect(4,4,302,12);
-            this.footerctx.restore();
+            this.progressBar.clear();
         },1000);
     }
 
-        /**
-     * 
-     * @param {Number} progress 
-     */
-        draw_progress(progress){
-            this.footerctx.save();
-            this.footerctx.fillStyle = "green";
-            this.footerctx.strokeStyle = "#e0e0e0";
-            this.footerctx.clearRect(5,5,300,10);
-            this.footerctx.strokeRect(5,5,300,10);
-            this.footerctx.fillRect(5,5,3*progress,10);
-            this.footerctx.restore();
+    async setProgressBar(){
+        if(this.timer){
+            this.clearStatusInterval();
+            this.timer = null;
         }
+        this.activeFileIds = await this.getActive();
+        this.timer = setInterval(await this.formStatus,150,() => this.clearStatusInterval(),(progress)=> this.progressBar.draw(progress),this);
+    }
+
+
 
 }
 

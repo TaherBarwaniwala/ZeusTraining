@@ -10,8 +10,10 @@ class Toast{
 
     static createtoast(text,type="Notification"){
         const toast = document.createElement('div');
-        toast.id = "toast";
+        toast.id = "toast-"+Math.random();
         toast.className = "toastContainer";
+        toast.style.zIndex = Toast.z_index;
+        Toast.z_index += 1;
         const textContainer = document.createElement('div');
         textContainer.innerText = text;
         textContainer.className = "textContainer";
@@ -27,13 +29,24 @@ class Toast{
         ok.type = "button";
         ok.value = "OK";
         ok.addEventListener("pointerdown",(e)=>{
-            document.body.removeChild(document.getElementById("toast"));
+            e.stopPropagation();
+            document.body.removeChild(document.getElementById(toast.id));
         })
         toast.appendChild(symbol);
         toast.appendChild(textContainer);
         toast.appendChild(ok);
+        toast.style.opacity = 0;
+        document.body.appendChild(toast);
+        let h = toast.clientHeight;
+        let w = toast.clientWidth;
+        document.body.removeChild(toast);
+        toast.style.opacity = 1;
+        toast.style.top = "calc(50% - "+h/2+"px)";
+        toast.style.left = "calc(50% - "+w/2+"px)";
         return toast;
     }
+
+    static z_index = 3;
 }
 
 export default Toast;
