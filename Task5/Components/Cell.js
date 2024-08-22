@@ -278,7 +278,12 @@ class Cell{
         if(this.inputbox){
             this.canvas.parentElement.removeChild(this.inputbox);
             this.inputbox = null;
-            Cell.updateCellDB(this);
+            let updateEvent = new CustomEvent("updateRows",{
+                detail : {
+                    rows : [this.row]
+                }
+            });
+            document.dispatchEvent(updateEvent);
         }
     }
 
@@ -379,8 +384,12 @@ const handler = {
             Reflect.set(obj,"textwidth",textwidth);
         }
         Reflect.set(obj,prop,value);
+        // if(prop === "text" || prop === "row" || prop === "column"){
+        //     Cell.updateCellDB(obj);
+        // }
         return true;
     },
+    
 }
 
 export default Cell;

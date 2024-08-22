@@ -54,23 +54,33 @@ class FormSubmission{
                 res = await res.json();
                 if(res.status == "Completed" || res.status == "Failed"){
                     if(res.status=="Completed"){
-                        Toast.Notification(res.fileName + " Uploaded Successfully");
+                        // Toast.Notification(res.fileName + " Uploaded Successfully");
                         obj.activeFileIds = obj.activeFileIds.filter(fileId => fileId !== file_Id);
-                        totalprogress += 100;
+                        obj.currentFile +=1;
+                        // totalprogress += 100;
                     }else{
                         Toast.Alert(res.fileName + " Upload Failed");
                         obj.activeFileIds = obj.activeFileIds.filter(fileId => fileId !== file_Id);
-                        totaltasks -= 1;
+                        obj.currentFile +=1;
+                        // totalprogress += 100;
                     }
 
                 }else{
                     totalprogress += res.progress;
                 }
+                // break;
             }catch(e){
                 console.error(e);
             }
+            break;
         }
-        draw(totalprogress/totaltasks);
+        if((obj.currentFile+1) > obj.toatlFiles){
+            draw(totalprogress,"Uploading Files ( " + (obj.currentFile) + " / " + obj.toatlFiles + " )");
+            let reload_grid = new Event("reload_grid");
+            document.dispatchEvent(reload_grid);
+        }else{
+            draw(totalprogress,"Uploading Files ( " + (obj.currentFile+1) + " / " + obj.toatlFiles + " )");
+        }
         if(totaltasks == 0) clear();
 
     }
@@ -96,7 +106,7 @@ class FormSubmission{
         clearInterval(this.timer);
         setTimeout(()=>{
             this.progressBar.clear();
-        },1000);
+        },100);
     }
 
     async setProgressBar(){
@@ -105,7 +115,10 @@ class FormSubmission{
             this.timer = null;
         }
         this.activeFileIds = await this.getActive();
-        this.timer = setInterval(await this.formStatus,150,() => this.clearStatusInterval(),(progress)=> this.progressBar.draw(progress),this);
+        this.toatlFiles = this.activeFileIds.length;
+        this.currentFile = 0;
+        if(this.activeFileIds && this.activeFileIds.length > 0)
+        this.timer = setInterval(await this.formStatus,150,() => this.clearStatusInterval(),(progress,text)=> this.progressBar.draw(progress,text),this);
     }
 
 

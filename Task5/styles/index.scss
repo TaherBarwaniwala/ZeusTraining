@@ -178,3 +178,35 @@
     width: 150px;
     margin: 0 auto;
 }
+
+.dialogContainer{
+    position: absolute;
+    z-index: 4;
+    top: 40%;
+    left: 40%;
+    background-color: #e5e5e5;
+    min-height: 200px;
+    min-width: 200px;
+    border: 1px solid black;
+    padding: 8px;
+
+    .selector{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        margin: 5px;
+    }
+
+}
+
+.dialogHeader{
+    font-size: 20px;
+    font-weight: bold;
+    color: #137e43;
+    margin: 10px 0;
+}
+
+.selectorOption .active{
+    border-bottom: 1px solid #137e43;
+}
+

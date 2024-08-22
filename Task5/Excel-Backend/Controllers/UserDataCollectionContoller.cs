@@ -18,6 +18,7 @@ namespace Excel_Backend.Controllers
         [HttpGet("{rownum}")]
         public async Task<ActionResult<IEnumerable<UserData>>> GetUserDataCollection(long rownum)
         {
+            rownum = (rownum / 1000) * 1000;
             var res = _context.UserDatas.FromSql<UserData>($"Select * from public.\"UserDatas\" order by \"Email\" LIMIT 1000 OFFSET {rownum}");
             return await res.ToListAsync<UserData>();
         }

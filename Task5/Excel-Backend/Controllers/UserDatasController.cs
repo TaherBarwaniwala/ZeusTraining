@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Excel_Backend.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using MongoDB.Bson;
+using System.Text.Json;
 
 namespace Excel_Backend.Controllers
 {
@@ -72,7 +74,9 @@ namespace Excel_Backend.Controllers
             {
                 if (!UserDataExists(Email))
                 {
-                    return NotFound();
+                    await _context.UserDatas.AddAsync(userData);
+                    await _context.SaveChangesAsync();
+                    return NoContent();
                 }
                 else
                 {
@@ -82,6 +86,40 @@ namespace Excel_Backend.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("BulkUpdate")]
+        public async Task<IActionResult> PutUserDataBulk()
+        {
+
+            var userDatas = await JsonSerializer.DeserializeAsync<UserData[]>(Request.Body);
+            // if (Email != userData.Email)
+            // {
+            //     return BadRequest();
+            // }
+
+            _context.UserDatas.UpdateRange(userDatas);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // if (!UserDataExists(Email))
+                // {
+                //     await _context.UserDatas.AddAsync(userData);
+                //     await _context.SaveChangesAsync();
+                //     return NoContent();
+                // }
+                // else
+                // {
+                //     throw;
+                // }
+            }
+
+            return NoContent();
+        }
+
 
         // POST: api/UserDatas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -93,6 +131,8 @@ namespace Excel_Backend.Controllers
 
             return CreatedAtAction("GetUserData", new { email = userData.Email }, userData);
         }
+
+
 
         // DELETE: api/UserDatas/5
         [HttpDelete("{Email}")]

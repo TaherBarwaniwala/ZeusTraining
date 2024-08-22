@@ -381,6 +381,11 @@ class Row{
             }
         }
     }
+    /**
+     * 
+     * @param {Array<Row>} rows 
+     * @param {Array<string>} removable_rows 
+     */
 
     static removeThisRows(rows,removable_rows){
         for(let row of removable_rows){
@@ -393,6 +398,52 @@ class Row{
         }
     }
 
+    /**
+     * 
+     * @param {Number | string} rowIndex 
+     * @param {Array<Row>} rows 
+     */
+
+    static CreateRow(rowIndex,rows,cellWidth,cellHeight){
+        let nearestIndex = this.FindNearestRow(rowIndex,rows);
+        if(nearestIndex < rowIndex){
+            return new Row(rowIndex,0,rows[nearestIndex].y + rows[nearestIndex].cellHeight + (rowIndex - nearestIndex-1)*cellHeight,
+            cellWidth,
+            cellHeight,
+            rows[nearestIndex].canvas,
+            rows[nearestIndex].headercanvas
+        );
+        }else{
+            return new Row(rowIndex,0,rows[nearestIndex].y + (nearestIndex - rowIndex + 1)*cellHeight,
+            cellWidth,
+            cellHeight,
+            rows[nearestIndex].canvas,
+            rows[nearestIndex].headercanvas
+        );
+        }
+    }
+    /**
+     * 
+     * @param {Number | string} rowIndex 
+     * @param {Array<Row>} rows 
+     */
+
+    static FindNearestRow(rowIndex,rows){
+        rowIndex = parseInt(rowIndex);
+        let nearestLow = Number.NEGATIVE_INFINITY;
+        let nearestHigh = Number.POSITIVE_INFINITY;
+        for(let x in rows){
+            let rowi = parseInt(x);
+            if(rowIndex-rowi < rowIndex - nearestLow) nearestLow = rowi;
+            if(rowi - rowIndex < nearestHigh - rowIndex) nearestHigh = rowi;
+        }
+        if(nearestHigh - rowIndex < rowIndex - nearestLow){
+            return nearestHigh;
+        }else{
+            return nearestLow;
+        }
+
+    }
 }
 
 export default Row;

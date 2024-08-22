@@ -7,6 +7,7 @@ import RowEvents from './RowEvents.js';
 import GridEvents from './GridEvents.js';
 import KeyboardEvents from './KeyboardEvents.js';
 import MouseHoverEvents from './MouseHoverEvents.js';
+import UpdateRow from './UpdateRow.js';
 
 class Grid{
     /**
@@ -68,9 +69,12 @@ class Grid{
         this.gridEvents = new GridEvents(this,this.canvas,this.Scrollbar)
         this.columnEvents = new ColumnEvents(this,this.columncanvas,this.Scrollbar);
         this.rowEvents = new RowEvents(this,this.rowcanvas,this.Scrollbar);
+        this.UpdateRow = new UpdateRow();
         this.draw_triangle();
         this.onpointerdownallselectorbound = () => this.onpointerdownallselector();
         this.allselectorcanvas.addEventListener("pointerdown",this.onpointerdownallselectorbound);
+        window.addEventListener("DOMContentLoaded",()=> this.onload());
+        document.addEventListener("reload_grid",()=>this.onload());
     }
 
     /**
@@ -98,13 +102,11 @@ class Grid{
 
         }else if(this.columnselection.length > 0){
             this.draw();
-            if(this.rowselection.length === 0)this.columnEvents.draw_selectedcols();
             this.columnselection.forEach(col => {
                 this.copyregion.push(...Object.values(this.columns[col].cells));
             });
         }else if(this.rowselection.length > 0){
             this.draw();
-            if(this.columnselection.length === 0)this.rowEvents.draw_selectedrows();
             this.rowselection.forEach(row => {
                 this.copyregion.push(...Object.values(this.rows[row].cells));
             });
@@ -238,18 +240,20 @@ class Grid{
         let rowcount = selection.length;
         let colcount = selection[0].length;
         let cell;
+        let rows = []
         for(let rowoffset = 0;rowoffset < rowcount;rowoffset++){
+            if(!this.rows.hasOwnProperty(initialrow + rowoffset)){
+                let row = new Row(initialrow + rowoffset,
+                    this.x,
+                    this.rows[initialrow + rowoffset-1].y + this.rows[initialrow + rowoffset-1].cellHeight,
+                    this.cellWidth,
+                    this.cellHeight,
+                    this.canvas,
+                    this.rowcanvas);
+                this.rows[initialrow + rowoffset] = row;
+            }
+            rows.push(this.rows[initialrow + rowoffset]);
             for(let columnoffset = 0;columnoffset < colcount;columnoffset++){
-                if(!this.rows.hasOwnProperty(initialrow + rowoffset)){
-                    let row = new Row(initialrow + rowoffset,
-                        this.x,
-                        this.rows[initialrow + rowoffset-1].y + this.rows[initialrow + rowoffset-1].cellHeight,
-                        this.cellWidth,
-                        this.cellHeight,
-                        this.canvas,
-                        this.rowcanvas);
-                    this.rows[initialrow + rowoffset] = row;
-                }
                 if(!this.columns.hasOwnProperty(initialcol + columnoffset)){
                     let col = new Column(initialcol + columnoffset,
                         this.columns[initialcol + columnoffset - 1].x + this.columns[initialcol + columnoffset - 1].cellWidth,
@@ -265,7 +269,13 @@ class Grid{
                 this.region.push(cell);
             }
         }
+        let updateEvent = new CustomEvent("updateRows",{
+            detail:{
+                rows:rows
+            }
+        });
         this.draw();
+        document.dispatchEvent(updateEvent);
     }
 
     copy_text_to_clipboard(){
@@ -889,6 +899,7 @@ class Grid{
 
     fetchRows(row){
         row = parseInt(row);
+        row = Math.floor(row/1000)*1000 + 1;
         if(this.activerequests.includes(row)){
             return;
         }
@@ -906,11 +917,14 @@ class Grid{
             if(rowobj === null || rowobj === undefined){
                 if(!this.rows[row + j -1]) continue;
                 rowobj = new Row(row + j,0,this.rows[row + j -1].y + this.rows[row + j -1].cellHeight,this.cellWidth,this.cellHeight,this.canvas,this.rowcanvas);
+                // rowobj = Row.CreateRow(row + j,this.rows,this.cellWidth,this.cellHeight);
             }
             i = 1;
             for(let key in res){
-                let cell = Cell.createCell(rowobj,this.columns[i.toString()]);
-                cell.text = res[key];
+                if(res[key] && res[key]!==null){
+                    let cell = Cell.createCell(rowobj,this.columns[i.toString()]);
+                    cell.text = res[key];
+                }
                 i++;
             }
             this.rows[row + j] = rowobj;
@@ -925,8 +939,9 @@ class Grid{
         this.get_bounding_region();
     }
 
-    async onload(){
-        
+    onload(){
+        this.draw();
+        this.get_bounding_region();
     }
 }
 

@@ -1,3 +1,4 @@
+import FindAndReplace from "./FindAndReplace.js";
 import Grid from "./Grid.js";
 
 class KeyboardEvents{
@@ -9,6 +10,7 @@ class KeyboardEvents{
         this.grid = grid;
         this.onkeydownbound = (e)=> this.onkeydown(e);
         window.addEventListener('keydown',this.onkeydownbound);
+        this.findAndReplace = new FindAndReplace();
     }
 
     /**
@@ -26,6 +28,7 @@ class KeyboardEvents{
             }
             this.grid.getMinMaxAvgCount();
         }else if(e.ctrlKey){
+            e.preventDefault();
             this.handleCtrldown(e);
         }else if(e.code === "Escape"){
             this.handleEscKeyDown(e);
@@ -112,6 +115,7 @@ class KeyboardEvents{
     handleCtrldown(e){
         if( e.key === "c" || e.key === "C") this.grid.onCopy();
         if( e.key === "v" || e.key === "V") this.grid.onPaste();
+        if( e.key === "f" || e.key === "F") this.findAndReplace.createWindow();
     }
 
 

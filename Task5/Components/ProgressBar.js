@@ -15,11 +15,11 @@ class ProgressBar {
         this.footerctx.clearRect(5,5,600,30);
         let width = this.footerctx.measureText(statusmsg).width;
         this.footerctx.fillStyle = "black";
-        this.footerctx.fillText(statusmsg,5,13,width<200?width:200);
+        this.footerctx.fillText(statusmsg,5,15,width<200?width:200);
         this.footerctx.fillStyle = "green";
         this.footerctx.strokeStyle = "#e0e0e0";
-        this.footerctx.strokeRect(5+(width<200?width:200),5,300,10);
-        this.footerctx.fillRect(5+(width<200?width:200),5,3*progress,10);
+        this.footerctx.strokeRect(10+(width<200?width:200),6,300,10);
+        this.footerctx.fillRect(10+(width<200?width:200),6,3*progress,10);
         this.footerctx.restore();
     }
 
