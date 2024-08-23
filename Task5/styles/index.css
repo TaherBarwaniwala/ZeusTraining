@@ -172,4 +172,110 @@
   display: block;
   width: 150px;
   margin: 0 auto;
+}
+
+.dialogContainer {
+  position: absolute;
+  z-index: 4;
+  top: 40%;
+  left: 40%;
+  background-color: #e5e5e5;
+  min-width: 200px;
+  border: 1px solid black;
+  padding: 16px;
+  box-shadow: 0 0 20px black;
+  font-size: 24px;
+}
+.dialogContainer .selector {
+  display: flex;
+  flex-direction: row;
+}
+.dialogContainer:hover {
+  cursor: default;
+}
+
+.dialogHeader {
+  font-size: 24px;
+  font-weight: bold;
+  color: #137e43;
+  margin: 10px 0;
+}
+.dialogHeader:hover {
+  cursor: grab;
+}
+
+.selectorOption {
+  width: 50%;
+  font-size: 18px;
+}
+.selectorOption:hover {
+  background-color: #e0e0e0;
+}
+
+.selectorOption.active {
+  border-bottom: 1px solid #137e43;
+  font-weight: bold;
+}
+
+.cancellationButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  background-color: red;
+  color: black;
+  font-size: 16px;
+  padding: 2px;
+  text-align: center;
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
+}
+.cancellationButton:hover {
+  background-color: rgb(200, 0, 0);
+}
+
+.subWindow {
+  display: none;
+}
+.subWindow .textInputContainer {
+  padding-top: 10px;
+}
+.subWindow .label {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+.subWindow .inputBox {
+  outline: none;
+  border: 1px solid black;
+  width: 100%;
+}
+.subWindow button {
+  font-size: 16px;
+  color: black;
+  background-color: white;
+  border: 1px solid black;
+}
+.subWindow button:hover {
+  background-color: rgb(200, 200, 200);
+}
+.subWindow button.find {
+  color: white;
+  background-color: #137e43;
+  border: 1px solid #137e43;
+}
+.subWindow button.find:hover {
+  background-color: #116838;
+}
+.subWindow .buttonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.subWindow.active {
+  display: block;
 }/*# sourceMappingURL=index.css.map */

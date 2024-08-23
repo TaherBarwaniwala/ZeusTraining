@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Chunk_creator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0be77cf1970972c3b30f6d58ca87b41c99f9e694")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9488d610849fd18fa84bdad1a05ea2e04bce331")]
 [assembly: System.Reflection.AssemblyProductAttribute("Chunk_creator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Chunk_creator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
