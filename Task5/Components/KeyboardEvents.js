@@ -115,7 +115,10 @@ class KeyboardEvents{
     handleCtrldown(e){
         if( e.key === "c" || e.key === "C") this.grid.onCopy();
         if( e.key === "v" || e.key === "V") this.grid.onPaste();
-        if( e.key === "f" || e.key === "F") this.findAndReplace.createWindow();
+        if( e.key === "f" || e.key === "F") {
+            this.grid.activecell = null;
+            this.findAndReplace.createWindow()
+        };
     }
 
 

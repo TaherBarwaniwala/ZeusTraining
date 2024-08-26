@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Excel_Backend.Models;
-
-public class UserData
+class UserDataWithRows
 {
-    // public long Id { get; set; }
     [Key]
     public string? Email { get; set; }
 
@@ -34,6 +32,5 @@ public class UserData
 
     public uint? FY2023_24 { get; set; }
 
-
-
+    public uint? rownum { get; set; }
 }

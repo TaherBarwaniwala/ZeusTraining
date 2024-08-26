@@ -1,3 +1,5 @@
+import Column from "./Column.js";
+
 class FindAndReplace{
 
 constructor(){
@@ -93,7 +95,11 @@ createFindSubWindow(){
     subwindow.appendChild(textInput);
     let findButton = this.createButton("Find","find");
     let findAllButton = this.createButton("FindAll","");
+    findAllButton.addEventListener('click',(e) => this.OnFind(e,textInput.getElementsByTagName('input')));
     let buttonConatiner = this.createButtonsContainer([findButton,findAllButton]);
+    let tableContainer = document.createElement('div');
+    tableContainer.className = "tableContainer";
+    subwindow.appendChild(tableContainer);
     subwindow.appendChild(buttonConatiner);
     return subwindow;
 }
@@ -107,9 +113,13 @@ craeteReplaceSubWindow(){
     subwindow.appendChild(replaceInput);
     let findButton = this.createButton("Find","find");
     let findAllButton = this.createButton("FindAll","");
+    findAllButton.addEventListener('click',(e) => this.OnFind(e,findInput.getElementsByTagName('input')));
     let replaceButton = this.createButton("Replace","");
     let replaceAllButton = this.createButton("ReplaceAll");
     let buttonConatiner = this.createButtonsContainer([findButton,findAllButton,replaceButton,replaceAllButton]);
+    let tableContainer = document.createElement('div');
+    tableContainer.className = "tableContainer";
+    subwindow.appendChild(tableContainer);
     subwindow.appendChild(buttonConatiner);
     return subwindow;
 }
@@ -155,6 +165,53 @@ createButtonsContainer(buttons){
     btnContainer.className = "buttonContainer";
     return btnContainer;
 }
+/**
+ * 
+ * @param {Array<Object>} results 
+ */
+createResultTable(results){
+    let resTable = document.createElement('div');
+    resTable.className = "table";
+    let header = document.createElement('div');
+    header.className = "TableTitle";
+    header.innerText = "Result Found (" + results.length + ")";
+    resTable.appendChild(header);
+    let table = document.createElement('table');
+    let theader = document.createElement('tr');
+    let theading1 = document.createElement('th');
+    let theading2 = document.createElement('th');
+    theading1.innerText = "Cell";
+    theading2.innerText = "Value";
+    theader.appendChild(theading1);
+    theader.appendChild(theading2);
+    table.appendChild(theader);
+    let rows = this.createResultRows(results);
+    for(let row of rows){
+        table.appendChild(row);
+    }
+    resTable.appendChild(table);
+    return resTable;
+}
+
+/**
+ * 
+ * @param {Array<Array>} results 
+ * @returns {Array<HTMLTableRowElement>} 
+ */
+createResultRows(results){
+    let output = [];
+    for(let res of results){
+        let row = document.createElement('tr');
+        let col1 = document.createElement('td');
+        col1.innerText = res[0];
+        let col2 = document.createElement('td');
+        col2.innerText = res[1];
+        row.appendChild(col1);
+        row.appendChild(col2);
+        output.push(row);
+    }
+    return output;
+}
 
 /**
  * 
@@ -197,6 +254,47 @@ OndragEnd(){
     window.removeEventListener("pointerup",this.onDragEndBound);
     window.removeEventListener("pointercancel",this.onDragEndBound);
     this.elem.style.cursor = "default";
+}
+/**
+ * 
+ * @param {PointerEvent} e 
+ * @param {HTMLInputElement} inp
+ */
+ async OnFind(e,inp,parent){
+    try{
+        await fetch(`http://localhost:5081/api/UserDataCollection/FindAll/${inp[0].value}/Email`).then(async (res) => {
+            res = await res.json();
+            res = res['data'];
+            console.log(res);
+            let output = [];
+            let val = Number.isNaN(inp[0].value)?parseInt(inp[0].value):inp[0].value.toLowerCase();
+            for(let r of res){
+                let i=0;
+                for(let key in r){
+                    // console.log(typeof(r[key]));
+                    if((typeof(r[key])=== 'number' && r[key] === val)||(typeof(r[key]) !== 'number'  && r[key].toLowerCase().includes(val))){
+                        let temp = [];
+                        temp[0] = Column.getindex(i) + r["rownum"] ;
+                        temp[1] = r[key];
+                        output.push(temp);
+                    }
+                    i++;
+                }
+            }
+            console.log(output);
+            let table = this.createResultTable(output);
+            let container = inp[0].parentElement.parentElement;
+            console.log(container);
+            let tableContainer = container.getElementsByClassName("tableContainer");
+            tableContainer[0].innerHTML = "";
+            tableContainer[0].appendChild(table);
+            tableContainer[0].style.display = "block";
+        });
+        
+    }catch(e){
+        console.log(e);
+    }
+
 }
 
 }

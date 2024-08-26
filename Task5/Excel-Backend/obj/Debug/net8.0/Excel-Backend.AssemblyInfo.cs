@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Excel-Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e9488d610849fd18fa84bdad1a05ea2e04bce331")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+073d5d06245a2dcc8e8ebc444e43b22bb1516d6e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Excel-Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Excel-Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
