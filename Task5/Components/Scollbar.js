@@ -1,8 +1,9 @@
+
 class Scrollbar{
 /**
  * 
- * @param {HTMLAllCollection} scroll_element 
- * @param {HTMLAllCollection} offset_element 
+ * @param {HTMLElement} scroll_element 
+ * @param {HTMLElement} offset_element 
  */
     constructor(scroll_element = document.getElementById("main-canvas-container"),offset_element = document.getElementById("scroll-offset")){
         this.onscrollfunction = null;
@@ -47,7 +48,24 @@ class Scrollbar{
         this.onscrollfunction = func;
         this.scroll_element.addEventListener("scroll",this.onscrollbound);
     }
-    
+/**
+ * 
+ * @param {Number} X 
+ */
+    scrollToXY(X,Y){
+        if((X >= this.scroll_element.scrollLeft && X <=this.scroll_element.scrollLeft + window.innerWidth - 40) && (Y >= this.scroll_element.scrollTop && Y <= this.scroll_element.scrollTop + window.innerHeight - 40))
+            return;
+        if(X > this.offset_element.scrollWidth){
+            this.offset_element.setAttribute('style',`width:${X + 1000}px ; height:${this.offset_element.scrollHeight}px`);
+        }
+        if(Y > this.offset_element.scrollHeight){
+            this.offset_element.setAttribute('style',`width:${this.offset_element.scrollWidth}px ; height:${Y + 1000}px`);
+        }
+        this.scroll_element.scrollLeft = X;
+        this.scroll_element.scrollTop = Y;
+    }
+
+
 }
 
 export default Scrollbar;

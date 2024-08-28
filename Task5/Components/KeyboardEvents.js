@@ -10,7 +10,7 @@ class KeyboardEvents{
         this.grid = grid;
         this.onkeydownbound = (e)=> this.onkeydown(e);
         window.addEventListener('keydown',this.onkeydownbound);
-        this.findAndReplace = new FindAndReplace();
+        this.findAndReplace = new FindAndReplace(grid);
     }
 
     /**
@@ -67,7 +67,8 @@ class KeyboardEvents{
      * @returns {null}
      */
     handleArrawkeyDown(e){
-        let temp = this.grid.activecell;
+        try {
+            let temp = this.grid.activecell;
         this.grid.reset();
         this.grid.activecell = temp;
         if(this.grid.activecell&& this.grid.boundedrows.includes(this.grid.activecell.row.index.toString()) && this.grid.boundedcols.includes(this.grid.activecell.column.index.toString())){
@@ -79,34 +80,39 @@ class KeyboardEvents{
             if(e.keyCode === 37 || e.keyCode === 39){
                 let res = this.grid.rows[this.grid.activerow].onkeydown(e);
                 this.grid.activecol = res[0];
-                if(!this.grid.columns[this.grid.activecol]){
-                    delete this.grid.rows[this.grid.activerow].cells[this.grid.activecol];
-                    return;
-                }
+                // if(!this.grid.columns[this.grid.activecol]){
+                //     delete this.grid.rows[this.grid.activerow].cells[this.grid.activecol];
+                //     return;
+                // }
                 this.grid.activecell = res[1];
                 this.grid.activecell.column = this.grid.columns[this.grid.activecol];
                 this.grid.activecell.x = this.grid.columns[this.grid.activecol].x;
                 this.grid.activecell.width = this.grid.columns[this.grid.activecol].cellWidth;
                 this.grid.rows[this.grid.activerow].add_cell(this.grid.activecell);
                 this.grid.columns[this.grid.activecol].add_cell(this.grid.activecell);
+                this.grid.rows[this.grid.activerow].add_cell(this.grid.activecell);
             }else if(e.keyCode ===38 || e.keyCode === 40 || e.code === "Enter"){
                 let res = this.grid.columns[this.grid.activecol].onkeydown(e);
                 this.grid.activerow = res[0];
-                if(!this.grid.rows[this.grid.activerow]){
-                    delete this.grid.columns[this.grid.activecol].cells[this.grid.activerow];
-                    return;
-                }
+                // if(!this.grid.rows[this.grid.activerow]){
+                //     delete this.grid.columns[this.grid.activecol].cells[this.grid.activerow];
+                //     return;
+                // }
                 this.grid.activecell = res[1];
                 this.grid.activecell.row = this.grid.rows[this.grid.activerow];
                 this.grid.activecell.y = this.grid.rows[this.grid.activerow].y;
                 this.grid.activecell.height = this.grid.rows[this.grid.activerow].cellHeight;
                 this.grid.rows[this.grid.activerow].add_cell(this.grid.activecell);
                 this.grid.columns[this.grid.activecol].add_cell(this.grid.activecell);
+                this.grid.rows[this.grid.activerow].add_cell(this.grid.activecell);
             }            
             if(this.grid.activecol) this.grid.columns[this.grid.activecol].header.isFocus = true;
             if(this.grid.activerow) this.grid.rows[this.grid.activerow].header.isFocus = true;
             this.grid.activecell.isFocus = true;
     }
+        } catch (error) {
+            
+        }
     }
 /**
  * 

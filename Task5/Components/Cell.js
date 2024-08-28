@@ -244,13 +244,13 @@ class Cell{
         this.ctx.font = this.font;
         this.ctx.fillStyle = this.Header && this.isSelected ? "white":this.textStyle;
         let visblefraction = 1;
-        if(this.textwidth > this.width) visblefraction = this.width/this.textwidth;
+        if(this.textwidth > this.width) visblefraction = (this.width-10)/this.textwidth;
         if(this.align === "left"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + 5,this.y - y +this.height - 5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + 5,this.y - y +this.height - 5,this.width - 10);
         }else if(this.align === "right"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - this.textwidth - 5,this.y - y  + this.height - 5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x + this.width - this.textwidth - 5,this.y - y  + this.height - 5,this.width - 10);
         }else if(this.align === "middle"){
-            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - (this.textwidth+1)/2,this.y - y +this.height -5);
+            this.ctx.fillText(this.text.toString().substring(0,parseInt((this.text.toString().length)*visblefraction)),this.x - x +this.width/2 - (this.textwidth+1)/2,this.y - y +this.height -5,this.width - 10);
         }
     }
 

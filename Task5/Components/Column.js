@@ -60,6 +60,19 @@ class Column{
             return Column.getindex(i/26 - 1) + Column.getindex(i%26);
         }
     }
+/**
+ * 
+ * @param {string} str
+ * @returns {Number} 
+ */
+    static getNumericalIndex(str){
+        let res = 0; 
+        for(var i=0;i < str.length;i++){
+            res += Math.pow(26,i) + (str.charCodeAt(i)-65);
+        }
+        return res;
+    }
+
     /**
      * 
      * @param {PointerEvent} e 
