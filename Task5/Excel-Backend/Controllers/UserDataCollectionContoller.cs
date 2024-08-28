@@ -19,13 +19,13 @@ namespace Excel_Backend.Controllers
         [HttpGet("{rownum}/{sort}")]
         public async Task<ActionResult> GetUserDataCollection(long rownum, string sort = "Email")
         {
-            rownum = (rownum / 1000) * 1000;
+            // rownum = (rownum / 1000) * 1000;
             var query = $"with newtable as"
                     + $"("
-                    + $"select public.\"UserDatas\".* , row_number() Over( order by \"{sort}\"  ) as rownum "
+                    + $"select public.\"UserDatas\".* , row_number() Over( order by {sort}  ) as rownum "
                     + $"from public.\"UserDatas\" "
                     + $") "
-                    + $"Select * from newtable order by \"{sort}\" LIMIT 1000 OFFSET {rownum}";
+                    + $"Select * from newtable order by {sort} LIMIT 1000 OFFSET {rownum}";
             var res = _context.Database.SqlQuery<UserDataWithRows>(FormattableStringFactory.Create(query));
             var resList = await res.ToListAsync<UserDataWithRows>();
             return Ok(new { resList });
@@ -36,7 +36,7 @@ namespace Excel_Backend.Controllers
         {
             string query = $"with newtable as"
                     + $"("
-                    + $"select public.\"UserDatas\".* , row_number() Over( order by \"{sort}\"  ) as rownum "
+                    + $"select public.\"UserDatas\".* , row_number() Over( order by {sort}  ) as rownum "
                     + $"from public.\"UserDatas\" "
                     + $") ";
 
@@ -80,7 +80,7 @@ namespace Excel_Backend.Controllers
                 // + $" order by \"{sort}\"";
                 // Console.WriteLine(query);
             }
-            query += $" order by \"{sort}\" Limit 1  offset {offset}";
+            query += $" order by {sort} Limit 1  offset {offset}";
             var res2 = _context.Database.SqlQuery<UserDataWithRows>(FormattableStringFactory.Create(query));
             var res1 = await res2.ToListAsync<UserDataWithRows>();
             return Ok(new
@@ -94,7 +94,7 @@ namespace Excel_Backend.Controllers
         {
             string query = $"with newtable as"
                     + $"("
-                    + $"select public.\"UserDatas\".* , row_number() Over( order by \"{sort}\"  ) as rownum "
+                    + $"select public.\"UserDatas\".* , row_number() Over( order by {sort}  ) as rownum "
                     + $"from public.\"UserDatas\" "
                     + $") ";
 

@@ -3,11 +3,11 @@ import Grid from "./Components/Grid.js";
 import Scrollbar from "./Components/Scollbar.js";
 
 /**@type {HTMLCanvasElement} */
-const canvas= document.getElementById("C1R1");
+const canvas = document.getElementById("C1R1");
 const body = document.body;
 const height = body.clientHeight;
 const width = body.clientWidth;
-canvas.width = width - 40;
+canvas.width = width - 60;
 canvas.height = height - 40 - 24;
 canvas.style.width = canvas.width + "px";
 canvas.style.height = canvas.height + "px";
@@ -19,7 +19,7 @@ column.width = canvas.width;
 column.height = 40;
 column.style.width = column.width + "px";
 column.style.height = column.height + "px";
-row.width = 40;
+row.width = 60;
 row.height = canvas.height;
 row.style.width = row.width + "px";
 row.style.height = row.height + "px";
@@ -27,25 +27,17 @@ row.style.height = row.height + "px";
 /** @type {HTMLCanvasElement} */
 const footer = document.getElementById("footer-canvas");
 footer.height = 24;
-footer.width = column.width + 40;
+footer.width = column.width + 60;
 footer.style.width = footer.width + "px";
 footer.style.height = footer.height + "px";
 /** @type {HTMLCanvasElement} */
 const allSelector = document.getElementById("all-selector-canvas");
 allSelector.height = 40;
-allSelector.width = 40;
+allSelector.width = 60;
 allSelector.style.height = allSelector.height + "px";
 allSelector.style.width = allSelector.width + "px";
 
-const ctx = canvas.getContext('2d');
-
-
-
-
-
-
-
-
+const ctx = canvas.getContext("2d");
 
 // const cell = new Cell(10,10,50,25,canvas);
 // const cell1 = new Cell(60,10,50,25,canvas);
@@ -66,10 +58,8 @@ const ctx = canvas.getContext('2d');
 // row.add_cell(cell6);
 // row.add_cell(cell7);
 
-
 // row.draw();
 // let pageEnd = parseInt(canvas.getAttribute('height'));
-// // console.log(pageEnd);
 // let temprow = null;
 // let y =0;
 // while(y < pageEnd + 40){
@@ -82,7 +72,7 @@ const ctx = canvas.getContext('2d');
 // row.create_row();
 // row.draw();
 
-let grid = new Grid(0,0,80,25,canvas,column,row,footer,allSelector);
+let grid = new Grid(0, 0, 80, 25, canvas, column, row, footer, allSelector);
 grid.create_grid();
 grid.draw();
 

@@ -18,7 +18,7 @@ class FindAndReplace {
     this.offset = 0;
   }
 
-  createWindow() {
+  createWindow(type = "find") {
     let container = document.createElement("div");
     let header = document.createElement("div");
     let selector = document.createElement("div");
@@ -27,7 +27,7 @@ class FindAndReplace {
 
     let findWindow = this.createContainer(this.createFindSubWindow());
     let findOption = this.createOption("Find");
-    let replaceOption = this.createOption("replace");
+    let replaceOption = this.createOption("Replace");
     let replaceWindow = this.createContainer(this.craeteReplaceSubWindow());
     this.createSubWindowListner(
       findOption,
@@ -49,8 +49,14 @@ class FindAndReplace {
     header.innerText = "Find & Replace";
     container.className = "dialogContainer";
 
-    findOption.classList.add(["active"]);
-    findWindow.classList.add(["active"]);
+    if (type === "find") {
+      findOption.classList.add(["active"]);
+      findWindow.classList.add(["active"]);
+    }
+    if (type === "replace") {
+      replaceOption.classList.add(["active"]);
+      replaceWindow.classList.add(["active"]);
+    }
 
     selector.appendChild(findOption);
     selector.appendChild(replaceOption);
@@ -119,7 +125,7 @@ class FindAndReplace {
   createFindSubWindow() {
     let subwindow = document.createElement("div");
     subwindow.className = "findSubWindow";
-    let textInput = this.createTextInput("Find");
+    let textInput = this.createTextInput("Find", true);
     subwindow.appendChild(textInput);
     let findButton = this.createButton("Find", "find");
     findButton.addEventListener("click", () =>
@@ -143,7 +149,7 @@ class FindAndReplace {
   craeteReplaceSubWindow() {
     let subwindow = document.createElement("div");
     subwindow.className = "replaceSubWindow";
-    let findInput = this.createTextInput("Find");
+    let findInput = this.createTextInput("Find", true);
     findInput.getElementsByTagName("input")[0].classList.add(["find_input"]);
     let replaceInput = this.createTextInput("Replace");
     replaceInput
@@ -393,7 +399,7 @@ class FindAndReplace {
     try {
       if (!inp[0].value || inp[0].value === "") return;
       await fetch(
-        `http://localhost:5081/api/UserDataCollection/Find/${inp[0].value}/${this.offset}/${this.grid.sort}`
+        `http://localhost:5081/api/UserDataCollection/Find/${inp[0].value}/${this.offset}/\"${this.grid.sort}\" ${this.grid.SortDirection}`
       ).then(async (res) => {
         res = await res.json();
         res = res["data"];
@@ -402,7 +408,6 @@ class FindAndReplace {
             return;
           } else {
             this.offset = 0;
-            console.log(inp);
             let el = inp[0].parentElement.parentElement;
             let findButton = el.getElementsByClassName("find")[0];
             findButton.click();
@@ -413,7 +418,6 @@ class FindAndReplace {
         let val = Number.isNaN(inp[0].value)
           ? parseInt(inp[0].value)
           : inp[0].value.toLowerCase();
-        console.log(res);
         for (let r of res) {
           let i = 0;
           for (let key in r) {
@@ -452,7 +456,7 @@ class FindAndReplace {
     try {
       if (!inp[0].value || inp[0].value === "") return;
       await fetch(
-        `http://localhost:5081/api/UserDataCollection/FindAll/${inp[0].value}/${this.grid.sort}`
+        `http://localhost:5081/api/UserDataCollection/FindAll/${inp[0].value}/\"${this.grid.sort}\" ${this.grid.SortDirection}`
       ).then(async (res) => {
         res = await res.json();
         res = res["data"];
@@ -460,7 +464,6 @@ class FindAndReplace {
         let val = Number.isNaN(inp[0].value)
           ? parseInt(inp[0].value)
           : inp[0].value.toLowerCase();
-        console.log(res);
         for (let r of res) {
           let i = 0;
           for (let key in r) {
@@ -527,7 +530,6 @@ class FindAndReplace {
       }
     ).then(async (res) => {
       res = await res.json();
-      console.log(res);
     });
     let rows = parentElement.getElementsByTagName("tr");
     // poping heading rows
@@ -557,7 +559,6 @@ class FindAndReplace {
       Column.getNumericalIndex(res[0]),
       grid
     );
-    console.log(coordinates);
     Scrollbar.scrollToXY(...coordinates);
     setTimeout(
       () => {

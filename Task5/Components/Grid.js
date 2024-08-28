@@ -36,7 +36,6 @@ class Grid {
   ) {
     this.topX = canvas.offsetParent.offsetLeft;
     this.topY = canvas.offsetParent.offsetTop;
-    console.log(this.topX, this.topY);
     this.x = x;
     this.y = y;
     this.cellWidth = cellWidth;
@@ -69,6 +68,7 @@ class Grid {
     this.offset = 0;
     this.timer = null;
     this.sort = "Email";
+    this.throttleArray = [];
     this.activerequests = new Array();
     this.Scrollbar = new Scrollbar();
     this.scrolloffsetX = this.Scrollbar.getScrollLeft();
@@ -102,6 +102,28 @@ class Grid {
       "pointerdown",
       this.onpointerdownallselectorbound
     );
+    this.SortBy = document.getElementById("sortby");
+    this.SortBy.addEventListener("change", (e) => {
+      this.sort = e.target.selectedOptions[0].value;
+      this.rows = [];
+      this.create_grid();
+      this.onload();
+    });
+    this.SortDirection = "ASC";
+    this.SortDirectionButton = document.getElementById("sortdirection");
+    this.SortDirectionButton.addEventListener("pointerdown", (e) => {
+      console.log(e);
+      if (e.target.innerText == "↑") {
+        e.target.innerText = "↓";
+        this.SortDirection = "DESC";
+      } else if (e.target.innerText == "↓") {
+        e.target.innerText = "↑";
+        this.SortDirection = "ASC";
+      }
+      this.rows = [];
+      this.create_grid();
+      this.onload();
+    });
     window.addEventListener("DOMContentLoaded", () => this.onload());
     document.addEventListener("reload_grid", () => this.onload());
   }
@@ -737,10 +759,10 @@ class Grid {
     let triangle = new Path2D();
     this.allselectorctx.strokeStyle = "#a0a0a0";
     this.allselectorctx.fillStyle = "#a0a0a0";
-    triangle.moveTo(37, 20);
-    triangle.lineTo(37, 37);
-    triangle.lineTo(20, 37);
-    triangle.lineTo(37, 20);
+    triangle.moveTo(57, 20);
+    triangle.lineTo(57, 37);
+    triangle.lineTo(40, 37);
+    triangle.lineTo(57, 20);
     triangle.closePath();
     this.allselectorctx.fill(triangle);
     this.allselectorctx.restore();
@@ -1217,35 +1239,25 @@ class Grid {
     }
   }
 
-  throttle(fn, wait) {
+  throttle(fn, args, wait) {
     var time = Date.now();
     return function () {
-      if (time + wait - Date.now() < 0) {
+      if (!this.throttleArray.includes(args) || time + wait - Date.now() < 0) {
+        this.throttleArray.push(args);
         fn();
-        time = Date.now();
+        this.throttleArray.splice(this.throttleArray.indexOf(args), 1);
       }
     };
   }
 
   async get_bounding_region() {
     if (this.boundedrows.length > 0) {
-      this.boundedrows.sort();
-      if (
-        !this.rows[this.boundedrows[0] - 1] ||
-        this.rows[this.boundedrows[0] - 1].cells.length === 0
-      ) {
-        this.throttle(this.fetchRows(parseInt(this.boundedrows[0]) - 1), 2000);
-      } else if (
-        !this.rows[this.boundedrows[this.boundedrows.length - 1] + 1] ||
-        this.rows[this.boundedrows[this.boundedrows.length - 1] + 1].cells
-          .length === 0
-      ) {
-        this.throttle(
-          this.fetchRows(
-            parseInt(this.boundedrows[this.boundedrows.length - 1]) + 1
-          ),
-          2000
-        );
+      for (let row = 0; row < this.boundedrows.length; row++) {
+        const index = parseInt(this.boundedrows[row]) - 1;
+        const rowObj = this.rows[index];
+        if (!rowObj || Object.keys(rowObj.cells).length === 0) {
+          this.fetchRows(index);
+        }
       }
     }
   }
@@ -1259,7 +1271,7 @@ class Grid {
     this.activerequests.push(row);
     if (row <= 0) row = 1;
     fetch(
-      `http://localhost:5081/api/UserDataCollection/${row}/${this.sort}`
+      `http://localhost:5081/api/UserDataCollection/${row}/\"${this.sort}\" ${this.SortDirection}`
     ).then(async (res) => {
       let responseArray = await res.json();
       responseArray = responseArray["resList"];
